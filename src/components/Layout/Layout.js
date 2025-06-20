@@ -13,10 +13,13 @@ const Layout = () => {
     { path: '/app-settings', label: 'App Settings', icon: '📱' },
   ];
 
+  const scrollablePages = ['/app-settings', '/dashboard'];
+  const isPageScrollable = scrollablePages.some(page => location.pathname.startsWith(page));
+
   return (
     <div className="layout-root">
       <AppHeader />
-      <div className="layout">
+      <div className={`layout ${isPageScrollable ? 'is-scrollable' : ''}`}>
         <main className="main-content">
           <Outlet />
         </main>

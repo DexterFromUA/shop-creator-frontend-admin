@@ -7,6 +7,10 @@
 
 .layout {
   flex: 1;
+  overflow: hidden;
+}
+
+.layout.is-scrollable {
   overflow-y: auto;
 }
 
