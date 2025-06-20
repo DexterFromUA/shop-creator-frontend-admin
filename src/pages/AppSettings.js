@@ -1,199 +1,150 @@
 import React, { useState } from 'react';
 import './AppSettings.css';
 
+const SettingRow = ({ label, description, children }) => (
+  <div className="setting-row">
+    <div className="setting-label">
+      <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>{label}</h3>
+      {description && <p style={{ margin: '4px 0 0', color: 'var(--color-text-secondary)', fontSize: 14 }}>{description}</p>}
+    </div>
+    <div className="setting-control">
+      {children}
+    </div>
+  </div>
+);
+
 function AppSettings() {
   const [settings, setSettings] = useState({
-    appName: '',
-    shortName: '',
-    description: '',
-    primaryColor: '#000000',
-    themeColor: '#000000',
-    backgroundColor: '#ffffff',
-    displayMode: 'standalone'
+    theme: 'system',
+    primaryColor: '#8b5cf6',
+    language: 'en',
+    emailNotifications: true,
+    pushNotifications: false,
+    debugMode: false,
+    twoFactor: false,
+    loginAlerts: true,
+    apiAccess: false,
   });
 
   const handleChange = (field, value) => {
-    setSettings(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setSettings(prev => ({ ...prev, [field]: value }));
   };
-
-  const renderInput = (label, field, type, placeholder) => (
-    <div className="setting-field">
-      <label>{label}</label>
-      <input
-        type={type}
-        value={settings[field]}
-        onChange={(e) => handleChange(field, e.target.value)}
-        placeholder={placeholder}
-      />
-    </div>
-  );
-
-  const renderSelect = (label, field, options) => (
-    <div className="setting-field">
-      <label>{label}</label>
-      <select
-        value={settings[field]}
-        onChange={(e) => handleChange(field, e.target.value)}
-      >
-        {options.map(option => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
 
   const handleSave = () => {
-    // Implement the save logic here
     console.log('Saving settings:', settings);
+    // Here you would typically make an API call to save the settings
   };
 
-  const renderSetting = (label, type, value, options) => (
-    <div className="setting-field">
-      <label>{label}</label>
-      {type === 'text' && (
-        <input
-          type={type}
-          value={value}
-          onChange={(e) => handleChange(label.toLowerCase(), e.target.value)}
-        />
-      )}
-      {type === 'select' && (
-        <select
-          value={value}
-          onChange={(e) => handleChange(label.toLowerCase(), e.target.value)}
-        >
-          {options?.map(option => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      )}
-      {type === 'color' && (
-        <div className="color-input">
-          <input
-            type="color"
-            value={value}
-            onChange={(e) => handleChange(label.toLowerCase(), e.target.value)}
-          />
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => handleChange(label.toLowerCase(), e.target.value)}
-            placeholder="#000000"
-          />
-        </div>
-      )}
-      {type === 'toggle' && (
-        <input
-          type="checkbox"
-          checked={value}
-          onChange={(e) => handleChange(label.toLowerCase(), e.target.checked)}
-        />
-      )}
-    </div>
-  );
-
   return (
-    <div className="dashboard" style={{ padding: 0 }}>
-      <div style={{ height: '100%', overflow: 'auto' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', margin: '16px' }}>
+    <div className="app-settings-page-wrapper">
+      <div className="app-settings-container">
+        <div className="app-settings-header">
           <div>
-            <h1 className="dashboard-header">⚙️ App Settings</h1>
-            <p style={{ 
-              color: 'var(--color-text-secondary)', 
-              fontSize: '1.1rem',
-              maxWidth: '600px',
-              lineHeight: '1.5',
-              marginTop: '8px'
-            }}>
-              Customize your app's appearance and behavior to create the perfect experience for your users
+            <h1 className="dashboard-header">App Settings</h1>
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', maxWidth: '600px', lineHeight: '1.5', marginTop: '8px' }}>
+              Manage your application's appearance, notifications, and other settings.
             </p>
           </div>
-          <button
-            onClick={handleSave}
-            style={{
-              background: 'var(--color-accent-gradient)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              padding: '0.7rem 1.5rem',
-              fontWeight: 600,
-              fontSize: 16,
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px 0 rgb(91 33 182 / 0.10)'
-            }}
-          >
-            Save Changes
-          </button>
+          <button onClick={handleSave} className="save-button">Save Changes</button>
         </div>
 
-        <div style={{ padding: '0 16px 16px 16px' }}>
-          <div className="settings-grid">
-            <div className="dashboard-card settings-section dashboard-card--no-hover">
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem' }}>General Settings</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {renderSetting('App Name', 'text', settings.appName)}
-                {renderSetting('Currency', 'select', settings.currency, [
-                  { value: 'USD', label: 'USD ($)' },
-                  { value: 'EUR', label: 'EUR (€)' },
-                  { value: 'GBP', label: 'GBP (£)' }
-                ])}
-                {renderSetting('Language', 'select', settings.language, [
-                  { value: 'en', label: 'English' },
-                  { value: 'es', label: 'Spanish' },
-                  { value: 'fr', label: 'French' }
-                ])}
-              </div>
+        <div className="settings-grid">
+          {/* Appearance Card */}
+          <div className="settings-card">
+            <h2 className="settings-card-header">Appearance</h2>
+            <div className="settings-card-content">
+              <SettingRow label="Theme" description="Choose a light, dark, or system default theme.">
+                <select value={settings.theme} onChange={e => handleChange('theme', e.target.value)}>
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                  <option value="system">System</option>
+                </select>
+              </SettingRow>
+              <SettingRow label="Primary Color" description="Set the main accent color for the app.">
+                <div className="color-input-wrapper">
+                  <input type="color" value={settings.primaryColor} onChange={e => handleChange('primaryColor', e.target.value)} className="color-picker-input" />
+                  <span>{settings.primaryColor}</span>
+                </div>
+              </SettingRow>
             </div>
+          </div>
 
-            <div className="dashboard-card settings-section dashboard-card--no-hover">
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem' }}>Theme Settings</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {renderSetting('Theme Mode', 'select', settings.theme, [
-                  { value: 'light', label: 'Light' },
-                  { value: 'dark', label: 'Dark' },
-                  { value: 'system', label: 'System' }
-                ])}
-                {renderSetting('Primary Color', 'color', settings.primaryColor)}
-                {renderSetting('Font Size', 'select', settings.fontSize, [
-                  { value: 'small', label: 'Small' },
-                  { value: 'medium', label: 'Medium' },
-                  { value: 'large', label: 'Large' }
-                ])}
-              </div>
+          {/* Localization Card */}
+          <div className="settings-card">
+            <h2 className="settings-card-header">Localization</h2>
+            <div className="settings-card-content">
+              <SettingRow label="Language" description="Select the display language for the interface.">
+                <select value={settings.language} onChange={e => handleChange('language', e.target.value)}>
+                  <option value="en">English</option>
+                  <option value="es">Español</option>
+                  <option value="fr">Français</option>
+                  <option value="de">Deutsch</option>
+                </select>
+              </SettingRow>
             </div>
+          </div>
 
-            <div className="dashboard-card settings-section dashboard-card--no-hover">
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem' }}>Notification Settings</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {renderSetting('Email Notifications', 'toggle', settings.emailNotifications)}
-                {renderSetting('Push Notifications', 'toggle', settings.pushNotifications)}
-                {renderSetting('Order Updates', 'toggle', settings.orderUpdates)}
-              </div>
+          {/* Notifications Card */}
+          <div className="settings-card">
+            <h2 className="settings-card-header">Notifications</h2>
+            <div className="settings-card-content">
+              <SettingRow label="Email Notifications" description="Receive updates and alerts via email.">
+                <label className="switch">
+                  <input type="checkbox" checked={settings.emailNotifications} onChange={e => handleChange('emailNotifications', e.target.checked)} />
+                  <span className="slider round"></span>
+                </label>
+              </SettingRow>
+              <SettingRow label="Push Notifications" description="Get real-time notifications on your device.">
+                <label className="switch">
+                  <input type="checkbox" checked={settings.pushNotifications} onChange={e => handleChange('pushNotifications', e.target.checked)} />
+                  <span className="slider round"></span>
+                </label>
+              </SettingRow>
             </div>
+          </div>
 
-            <div className="dashboard-card settings-section dashboard-card--no-hover">
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem' }}>Advanced Settings</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {renderSetting('Cache Mode', 'select', settings.cacheMode, [
-                  { value: 'memory', label: 'Memory' },
-                  { value: 'disk', label: 'Disk' },
-                  { value: 'hybrid', label: 'Hybrid' }
-                ])}
-                {renderSetting('Analytics', 'toggle', settings.analytics)}
-                {renderSetting('Debug Mode', 'toggle', settings.debugMode)}
-                {renderSetting('API Environment', 'select', settings.apiEnv, [
-                  { value: 'production', label: 'Production' },
-                  { value: 'staging', label: 'Staging' },
-                  { value: 'development', label: 'Development' }
-                ])}
-              </div>
+          {/* Developer Card */}
+          <div className="settings-card">
+            <h2 className="settings-card-header">Developer</h2>
+            <div className="settings-card-content">
+              <SettingRow label="Debug Mode" description="Enables detailed logging and developer tools.">
+                <label className="switch">
+                  <input type="checkbox" checked={settings.debugMode} onChange={e => handleChange('debugMode', e.target.checked)} />
+                  <span className="slider round"></span>
+                </label>
+              </SettingRow>
+            </div>
+          </div>
+          
+          {/* Security Card */}
+          <div className="settings-card">
+            <h2 className="settings-card-header">Security</h2>
+            <div className="settings-card-content">
+              <SettingRow label="Two-Factor Authentication" description="Require a second step to log in.">
+                <label className="switch">
+                  <input type="checkbox" checked={settings.twoFactor} onChange={e => handleChange('twoFactor', e.target.checked)} />
+                  <span className="slider round"></span>
+                </label>
+              </SettingRow>
+              <SettingRow label="Login Alerts" description="Get an email when a new device logs in.">
+                <label className="switch">
+                  <input type="checkbox" checked={settings.loginAlerts} onChange={e => handleChange('loginAlerts', e.target.checked)} />
+                  <span className="slider round"></span>
+                </label>
+              </SettingRow>
+            </div>
+          </div>
+
+          {/* API Card */}
+          <div className="settings-card">
+            <h2 className="settings-card-header">API & Integrations</h2>
+            <div className="settings-card-content">
+              <SettingRow label="API Access" description="Allow access via the public API.">
+                <label className="switch">
+                  <input type="checkbox" checked={settings.apiAccess} onChange={e => handleChange('apiAccess', e.target.checked)} />
+                  <span className="slider round"></span>
+                </label>
+              </SettingRow>
             </div>
           </div>
         </div>
