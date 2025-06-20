@@ -64,13 +64,13 @@ const Users = () => {
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
-        <button title="Edit" style={{ background: '#f3f4f6', border: 'none', borderRadius: 8, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.18s' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <button title="Edit" style={{ background: 'var(--color-bg-secondary)', border: 'none', borderRadius: 8, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.18s', color: 'var(--color-accent)' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M16.474 5.474l2.052 2.052a1.5 1.5 0 0 1 0 2.121l-9.193 9.193-3.182.424.424-3.182 9.193-9.193a1.5 1.5 0 0 1 2.121 0z"/>
             <path d="M15 7l2 2"/>
           </svg>
         </button>
-        <button title="Delete" style={{ background: '#f3f4f6', border: 'none', borderRadius: 8, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.18s' }}>
+        <button title="Delete" style={{ background: 'var(--color-bg-secondary)', border: 'none', borderRadius: 8, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.18s' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="6" width="18" height="14" rx="2"/>
             <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -83,10 +83,10 @@ const Users = () => {
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8f9fb', padding: '48px 0' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--color-bg-secondary)', padding: '48px 0' }}>
       <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', gap: 40, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'flex-start' }}>
         {[{ title: 'Managers', users: managers, role: 'manager' }, { title: 'Couriers', users: couriers, role: 'courier' }].map(block => (
-          <div key={block.role} style={{ background: '#fff', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', flex: '1 1 0', maxWidth: 500, padding: 36, position: 'relative', margin: 8 }}>
+          <div key={block.role} style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', flex: '1 1 0', maxWidth: 500, padding: 36, position: 'relative', margin: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
               <span style={{ fontWeight: 800, fontSize: 32 }}>{block.title}</span>
               <button onClick={() => setModal({ open: true, role: block.role })} style={{ background: '#111827', color: '#fff', border: 'none', borderRadius: 12, width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, cursor: 'pointer', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)' }} aria-label={`Add ${block.title.slice(0, -1)}`}>
