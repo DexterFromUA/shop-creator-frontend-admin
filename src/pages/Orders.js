@@ -64,9 +64,61 @@ const Orders = () => {
   );
 
   return (
-    <div style={{ background: 'var(--color-bg-secondary)' }}>
+    <div style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>
       <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 0' }}>
-        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, overflow: 'hidden', width: '100%' }}>
+        {/* Search and Filter Card */}
+        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: '24px 32px', marginBottom: 32, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          <div style={{ position: 'relative', minWidth: 140, maxWidth: 220, flex: 1 }}>
+            <input
+              type="text"
+              placeholder="Search orders..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{
+                padding: '0.7rem 1rem 0.7rem 2.5rem',
+                border: '1px solid var(--color-border)',
+                borderRadius: 10,
+                fontSize: 15,
+                background: 'var(--color-bg-secondary)',
+                color: 'var(--color-text)',
+                width: '100%',
+                minWidth: 0,
+                maxWidth: 220
+              }}
+            />
+            <span style={{
+              position: 'absolute',
+              left: '1rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: 'var(--color-text-secondary)',
+              fontSize: '1.1rem',
+              pointerEvents: 'none'
+            }}>🔍</span>
+          </div>
+          <div style={{ flex: 1 }} />
+          <select
+            value={status}
+            onChange={e => setStatus(e.target.value)}
+            style={{
+              padding: '0.7rem 2.5rem 0.7rem 1rem',
+              borderRadius: 10,
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-bg-secondary)',
+              color: 'var(--color-text)',
+              fontSize: 15,
+              minWidth: 140,
+              appearance: 'none',
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 1rem center',
+              backgroundSize: '18px'
+            }}
+          >
+            {statusOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+          </select>
+        </div>
+        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, width: '100%', maxHeight: '70vh', overflowY: 'auto' }}>
           {filtered.length === 0 ? (
             <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>No orders</div>
           ) : filtered.map((order, i) => (
