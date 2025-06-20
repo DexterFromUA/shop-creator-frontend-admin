@@ -162,49 +162,56 @@ const WebNotifications = () => {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className="web-notifications-page">
-      <div className="web-notifications-header">
-        <div className="web-notifications-title">
-          <h1>Web Notifications</h1>
-          <span className="notification-count">
-            {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
-          </span>
-        </div>
-        <div className="web-notifications-actions">
-          <button 
-            className="btn btn-secondary"
-            onClick={markAllAsRead}
-            disabled={unreadCount === 0}
-          >
-            Mark All as Read
-          </button>
-          {selectedNotifications.length > 0 && (
-            <button 
-              className="btn btn-danger"
-              onClick={deleteSelected}
-            >
-              Delete Selected ({selectedNotifications.length})
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="web-notifications-controls">
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Search notifications..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
-        
-        <div className="filter-controls">
+    <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>
+      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 0' }}>
+        {/* Search and Filter Card */}
+        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: '24px 32px', marginBottom: 32, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          <div style={{ position: 'relative', minWidth: 140, maxWidth: 220, flex: 1 }}>
+            <input
+              type="text"
+              placeholder="Search notifications..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                padding: '0.7rem 1rem 0.7rem 2.5rem',
+                border: '1px solid var(--color-border)',
+                borderRadius: 10,
+                fontSize: 15,
+                background: 'var(--color-bg-secondary)',
+                color: 'var(--color-text)',
+                width: '100%',
+                minWidth: 0,
+                maxWidth: 220
+              }}
+            />
+            <span style={{
+              position: 'absolute',
+              left: '1rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: 'var(--color-text-secondary)',
+              fontSize: '1.1rem',
+              pointerEvents: 'none'
+            }}>🔍</span>
+          </div>
+          <div style={{ flex: 1 }} />
           <select 
             value={filter} 
             onChange={(e) => setFilter(e.target.value)}
-            className="filter-select"
+            style={{ 
+              padding: '0.7rem 2.5rem 0.7rem 1rem',
+              borderRadius: 10,
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-bg-secondary)',
+              color: 'var(--color-text)',
+              fontSize: 15,
+              minWidth: 140,
+              appearance: 'none',
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 1rem center',
+              backgroundSize: '18px'
+            }}
           >
             <option value="all">All Notifications</option>
             <option value="unread">Unread</option>
@@ -218,83 +225,178 @@ const WebNotifications = () => {
             <option value="user">Users</option>
           </select>
         </div>
-      </div>
 
-      <div className="web-notifications-content">
-        {filteredNotifications.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">🔔</div>
-            <h3>No notifications found</h3>
-            <p>Try adjusting your search or filter criteria</p>
-          </div>
-        ) : (
-          <div className="notifications-list">
-            <div className="list-header">
-              <label className="select-all-checkbox">
-                <input
-                  type="checkbox"
-                  checked={selectedNotifications.length === filteredNotifications.length && filteredNotifications.length > 0}
-                  onChange={toggleSelectAll}
-                />
-                <span>Select All</span>
-              </label>
-            </div>
-            
-            {filteredNotifications.map((notification) => (
-              <div 
-                key={notification.id} 
-                className={`notification-card ${!notification.read ? 'unread' : ''}`}
-              >
-                <div className="notification-select">
-                  <input
-                    type="checkbox"
-                    checked={selectedNotifications.includes(notification.id)}
-                    onChange={() => toggleSelectNotification(notification.id)}
-                  />
+        {/* Notifications Content Card */}
+        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, width: '100%', maxHeight: '70vh', overflowY: 'auto' }}>
+          {filteredNotifications.length === 0 ? (
+            <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>No notifications found</div>
+          ) : (
+            <>
+              {/* Header with actions */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 32px', borderBottom: '1px solid var(--color-bg-secondary)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 500, color: 'var(--color-text)', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedNotifications.length === filteredNotifications.length && filteredNotifications.length > 0}
+                      onChange={toggleSelectAll}
+                      style={{ width: 16, height: 16, cursor: 'pointer' }}
+                    />
+                    <span>Select All</span>
+                  </label>
                 </div>
-                
-                <div className="notification-icon">
-                  {getNotificationIcon(notification.type)}
-                </div>
-                
-                <div className="notification-content">
-                  <div className="notification-header">
-                    <h3 className="notification-title">{notification.title}</h3>
-                    <div className="notification-meta">
-                      <span 
-                        className="priority-badge"
-                        style={{ backgroundColor: getPriorityColor(notification.priority) }}
-                      >
-                        {getPriorityLabel(notification.priority)}
-                      </span>
-                      <span className="notification-time">{notification.time}</span>
-                    </div>
-                  </div>
-                  <p className="notification-message">{notification.message}</p>
-                </div>
-                
-                <div className="notification-actions">
-                  {!notification.read && (
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button 
+                    onClick={markAllAsRead}
+                    disabled={unreadCount === 0}
+                    style={{
+                      padding: '8px 16px',
+                      border: '1px solid var(--color-border)',
+                      borderRadius: 8,
+                      background: 'var(--color-bg-secondary)',
+                      color: 'var(--color-text)',
+                      fontSize: 14,
+                      fontWeight: 500,
+                      cursor: unreadCount === 0 ? 'not-allowed' : 'pointer',
+                      opacity: unreadCount === 0 ? 0.5 : 1
+                    }}
+                  >
+                    Mark All as Read
+                  </button>
+                  {selectedNotifications.length > 0 && (
                     <button 
-                      className="action-btn"
-                      onClick={() => markAsRead(notification.id)}
-                      title="Mark as read"
+                      onClick={deleteSelected}
+                      style={{
+                        padding: '8px 16px',
+                        border: '1px solid #fecaca',
+                        borderRadius: 8,
+                        background: '#fee2e2',
+                        color: '#dc2626',
+                        fontSize: 14,
+                        fontWeight: 500,
+                        cursor: 'pointer'
+                      }}
                     >
-                      ✓
+                      Delete Selected ({selectedNotifications.length})
                     </button>
                   )}
-                  <button 
-                    className="action-btn delete"
-                    onClick={() => deleteNotification(notification.id)}
-                    title="Delete notification"
-                  >
-                    🗑️
-                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+
+              {/* Notifications list */}
+              {filteredNotifications.map((notification, i) => (
+                <React.Fragment key={notification.id}>
+                  <div
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-start', 
+                      gap: 16, 
+                      padding: '20px 32px', 
+                      cursor: 'pointer', 
+                      transition: 'background 0.15s',
+                      background: !notification.read ? 'rgba(139, 92, 246, 0.05)' : 'transparent'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.background = 'var(--color-bg-secondary)'}
+                    onMouseOut={e => e.currentTarget.style.background = !notification.read ? 'rgba(139, 92, 246, 0.05)' : 'transparent'}
+                  >
+                    <div style={{ marginTop: 4 }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedNotifications.includes(notification.id)}
+                        onChange={() => toggleSelectNotification(notification.id)}
+                        style={{ width: 16, height: 16, cursor: 'pointer' }}
+                      />
+                    </div>
+                    
+                    <div style={{ fontSize: 24, marginTop: 2 }}>
+                      {getNotificationIcon(notification.type)}
+                    </div>
+                    
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8, gap: 12 }}>
+                        <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'var(--color-text)', lineHeight: 1.3 }}>
+                          {notification.title}
+                        </h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                          <span 
+                            style={{ 
+                              padding: '4px 8px', 
+                              borderRadius: 4, 
+                              color: 'white', 
+                              fontSize: 11, 
+                              fontWeight: 600, 
+                              textTransform: 'uppercase', 
+                              letterSpacing: 0.5,
+                              backgroundColor: getPriorityColor(notification.priority)
+                            }}
+                          >
+                            {getPriorityLabel(notification.priority)}
+                          </span>
+                          <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>
+                            {notification.time}
+                          </span>
+                        </div>
+                      </div>
+                      <p style={{ margin: 0, fontSize: 14, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                        {notification.message}
+                      </p>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                      {!notification.read && (
+                        <button 
+                          onClick={() => markAsRead(notification.id)}
+                          title="Mark as read"
+                          style={{
+                            width: 32,
+                            height: 32,
+                            border: 'none',
+                            borderRadius: 6,
+                            background: 'var(--color-bg-secondary)',
+                            color: 'var(--color-text)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 14,
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseOver={e => e.currentTarget.style.background = 'var(--color-border)'}
+                          onMouseOut={e => e.currentTarget.style.background = 'var(--color-bg-secondary)'}
+                        >
+                          ✓
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => deleteNotification(notification.id)}
+                        title="Delete notification"
+                        style={{
+                          width: 32,
+                          height: 32,
+                          border: 'none',
+                          borderRadius: 6,
+                          background: 'var(--color-bg-secondary)',
+                          color: 'var(--color-text)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 14,
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseOver={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; }}
+                        onMouseOut={e => { e.currentTarget.style.background = 'var(--color-bg-secondary)'; e.currentTarget.style.color = 'var(--color-text)'; }}
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                  {i !== filteredNotifications.length - 1 && <div style={{ borderBottom: '1px solid var(--color-bg-secondary)', margin: '0 32px' }} />}
+                </React.Fragment>
+              ))}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

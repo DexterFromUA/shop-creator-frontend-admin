@@ -69,55 +69,55 @@ const Orders = () => {
         {/* Search and Filter Card */}
         <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: '24px 32px', marginBottom: 32, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
           <div style={{ position: 'relative', minWidth: 140, maxWidth: 220, flex: 1 }}>
-            <input
-              type="text"
+                <input
+                  type="text"
               placeholder="Search orders..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  style={{
                 padding: '0.7rem 1rem 0.7rem 2.5rem',
                 border: '1px solid var(--color-border)',
                 borderRadius: 10,
                 fontSize: 15,
                 background: 'var(--color-bg-secondary)',
-                color: 'var(--color-text)',
+                    color: 'var(--color-text)',
                 width: '100%',
                 minWidth: 0,
                 maxWidth: 220
-              }}
-            />
-            <span style={{
-              position: 'absolute',
-              left: '1rem',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--color-text-secondary)',
-              fontSize: '1.1rem',
-              pointerEvents: 'none'
+                  }}
+                />
+                <span style={{
+                  position: 'absolute',
+                  left: '1rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--color-text-secondary)',
+                  fontSize: '1.1rem',
+                  pointerEvents: 'none'
             }}>🔍</span>
-          </div>
+              </div>
           <div style={{ flex: 1 }} />
-          <select
-            value={status}
-            onChange={e => setStatus(e.target.value)}
-            style={{
+              <select 
+                value={status} 
+                onChange={e => setStatus(e.target.value)} 
+                style={{ 
               padding: '0.7rem 2.5rem 0.7rem 1rem',
               borderRadius: 10,
               border: '1px solid var(--color-border)',
               background: 'var(--color-bg-secondary)',
-              color: 'var(--color-text)',
+                  color: 'var(--color-text)',
               fontSize: 15,
               minWidth: 140,
-              appearance: 'none',
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'right 1rem center',
+                  appearance: 'none',
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 1rem center',
               backgroundSize: '18px'
-            }}
-          >
+                }}
+              >
             {statusOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-          </select>
-        </div>
+              </select>
+            </div>
         <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, width: '100%', maxHeight: '70vh', overflowY: 'auto' }}>
           {filtered.length === 0 ? (
             <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>No orders</div>
@@ -164,10 +164,10 @@ const Orders = () => {
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                   </button>
                 </div>
-              </div>
+                      </div>
               {i !== filtered.length - 1 && <div style={{ borderBottom: '1px solid var(--color-bg-secondary)', margin: '0 32px' }} />}
             </React.Fragment>
-          ))}
+                ))}
         </div>
       </div>
     </div>
