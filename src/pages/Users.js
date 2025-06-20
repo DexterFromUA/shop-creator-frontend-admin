@@ -83,7 +83,7 @@ const Users = () => {
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-bg-secondary)', padding: '48px 0' }}>
+    <div className="dashboard" style={{ minHeight: '100vh', background: 'var(--color-bg-secondary)', padding: '48px 0' }}>
       <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', gap: 40, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'flex-start' }}>
         {[{ title: 'Managers', users: managers, role: 'manager' }, { title: 'Couriers', users: couriers, role: 'courier' }].map(block => (
           <div key={block.role} style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', flex: '1 1 0', maxWidth: 500, padding: 36, position: 'relative', margin: 8 }}>
