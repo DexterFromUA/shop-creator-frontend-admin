@@ -389,7 +389,7 @@
 .notifications-dropdown {
   position: absolute;
   top: 100%;
-  right: 0;
+  right: -20px;
   width: 380px;
   background: var(--color-bg);
   border: 1px solid var(--color-border);

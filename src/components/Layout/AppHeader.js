@@ -195,7 +195,7 @@ const AppHeader = () => {
               </div>
               <div className="notifications-footer">
                 <button 
-                  onClick={() => { navigate('/notifications'); setNotificationsOpen(false); }}
+                  onClick={() => { navigate('/web-notifications'); setNotificationsOpen(false); }}
                   style={{ 
                     width: '100%', 
                     padding: '8px 16px', 
