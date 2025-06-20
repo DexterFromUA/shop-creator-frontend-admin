@@ -4,7 +4,6 @@ html, body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 :root {
@@ -22,17 +21,17 @@ html, body {
 }
 
 [data-theme='dark'] {
-  --color-bg: #181c24;
-  --color-bg-secondary: #23293a;
-  --color-card: #23293a;
-  --color-card-gradient: linear-gradient(135deg, #23293a 60%, #23293a 100%);
-  --color-border: #23293a;
-  --color-text: #fff;
-  --color-text-secondary: #b0b6c3;
-  --color-accent: #5b21b6;
-  --color-accent-gradient: #5b21b6;
-  --color-shadow: 0 4px 24px 0 rgb(0 0 0 / 0.18);
-  --color-hover-bg: #23234a;
+  --color-bg: #111827;
+  --color-bg-secondary: #1f2937;
+  --color-card: #1f2937;
+  --color-card-gradient: linear-gradient(135deg, #1f2937 60%, #1f2937 100%);
+  --color-border: #374151;
+  --color-text: #f9fafb;
+  --color-text-secondary: #9ca3af;
+  --color-accent: #a78bfa;
+  --color-accent-gradient: #a78bfa;
+  --color-shadow: 0 4px 24px 0 rgb(0 0 0 / 0.25);
+  --color-hover-bg: #374151;
 }
 
 body {
