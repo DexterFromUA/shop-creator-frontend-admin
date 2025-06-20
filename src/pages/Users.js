@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './Dashboard.css';
 
 const initialManagers = [
@@ -13,30 +14,55 @@ const initialCouriers = [
 
 const AddUserModal = ({ open, onClose, onAdd, role }) => {
   const [form, setForm] = useState({ name: '', email: '' });
-  if (!open) return null;
+
+  const handleClose = () => {
+    setForm({ name: '', email: '' });
+    onClose();
+  };
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    onAdd(form);
+    handleClose();
+  };
+
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.15)', zIndex: 1000,
-      display: 'flex', alignItems: 'center', justifyContent: 'center'
-    }}>
-      <div style={{ background: '#fff', borderRadius: 16, padding: 32, minWidth: 320, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
-        <h2 style={{ marginTop: 0, marginBottom: 24 }}>Add {role === 'manager' ? 'Manager' : 'Courier'}</h2>
-        <form onSubmit={e => { e.preventDefault(); onAdd(form); setForm({ name: '', email: '' }); onClose(); }}>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ fontWeight: 500 }}>Name</label><br />
-            <input autoFocus name="name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid var(--color-border)', width: '100%' }} />
-          </div>
-          <div style={{ marginBottom: 24 }}>
-            <label style={{ fontWeight: 500 }}>Email</label><br />
-            <input name="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid var(--color-border)', width: '100%' }} />
-          </div>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-            <button type="button" onClick={onClose} style={{ padding: '0.5rem 1.2rem', borderRadius: 8, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', border: 'none', fontWeight: 500, fontSize: 15, cursor: 'pointer' }}>Cancel</button>
-            <button type="submit" style={{ padding: '0.5rem 1.2rem', borderRadius: 8, background: 'var(--color-accent)', color: '#fff', border: 'none', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>Add</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+        >
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 20, opacity: 0 }}
+            style={{ background: 'var(--color-bg)', padding: '24px 32px', borderRadius: 24, width: '100%', maxWidth: 480, position: 'relative', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>Add {role === 'manager' ? 'Manager' : 'Courier'}</h2>
+              <button onClick={handleClose} style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: 'var(--color-text-secondary)', padding: 0 }}>×</button>
+            </div>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 15 }}>Name</label>
+                <input autoFocus required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} style={{ boxSizing: 'border-box', width: '100%', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', borderRadius: 10, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 15 }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 15 }}>Email</label>
+                <input required type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} style={{ boxSizing: 'border-box', width: '100%', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', borderRadius: 10, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 15 }} />
+              </div>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+                <button type="button" onClick={handleClose} style={{ padding: '0.8rem 1.4rem', borderRadius: 10, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', border: 'none', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>Cancel</button>
+                <button type="submit" style={{ padding: '0.8rem 1.4rem', borderRadius: 10, background: '#111827', color: '#fff', border: 'none', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>Add User</button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
