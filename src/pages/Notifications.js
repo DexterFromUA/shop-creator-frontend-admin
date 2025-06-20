@@ -188,10 +188,13 @@ const Notifications = () => {
   return (
     <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>
       <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 0' }}>
+        {/* Page Header */}
         <div style={{ marginBottom: 32 }}>
-          <h1 className="dashboard-header">Notifications</h1>
-          <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', maxWidth: '600px', lineHeight: '1.5', marginTop: '8px' }}>
-            Create and manage email and push notifications for your users.
+          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
+            Notifications
+          </h1>
+          <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
+            Create and manage email and push notifications for your users
           </p>
         </div>
 

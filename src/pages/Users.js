@@ -110,34 +110,46 @@ const Users = () => {
 
   return (
     <div className="dashboard" style={{ minHeight: '100vh', background: 'var(--color-bg-secondary)', padding: '48px 0' }}>
-      <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', gap: 40, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-        {[{ title: 'Managers', users: managers, role: 'manager' }, { title: 'Couriers', users: couriers, role: 'courier' }].map(block => (
-          <div key={block.role} style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', flex: '1 1 0', maxWidth: 500, padding: 36, position: 'relative', margin: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-              <span style={{ fontWeight: 800, fontSize: 32 }}>{block.title}</span>
-              <button onClick={() => setModal({ open: true, role: block.role })} style={{ background: '#111827', color: '#fff', border: 'none', borderRadius: 12, width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, cursor: 'pointer', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)' }} aria-label={`Add ${block.title.slice(0, -1)}`}>
-                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="14" cy="11" r="5" stroke="#fff" strokeWidth="2" />
-                  <path d="M6 23c0-2.5 5-4 8-4s8 1.5 8 4" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-                  <g>
-                    <circle cx="21" cy="7" r="3" fill="#a78bfa" stroke="#fff" strokeWidth="1.5" />
-                    <line x1="21" y1="6" x2="21" y2="8" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
-                    <line x1="20" y1="7" x2="22" y2="7" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
-                  </g>
-                </svg>
-              </button>
+      <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+        {/* Page Header */}
+        <div style={{ marginBottom: 32, textAlign: 'center' }}>
+          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
+            Users
+          </h1>
+          <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
+            Manage managers and couriers for your shop operations
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', gap: 40, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          {[{ title: 'Managers', users: managers, role: 'manager' }, { title: 'Couriers', users: couriers, role: 'courier' }].map(block => (
+            <div key={block.role} style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', flex: '1 1 0', maxWidth: 500, padding: 36, position: 'relative', margin: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+                <span style={{ fontWeight: 800, fontSize: 32 }}>{block.title}</span>
+                <button onClick={() => setModal({ open: true, role: block.role })} style={{ background: '#111827', color: '#fff', border: 'none', borderRadius: 12, width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, cursor: 'pointer', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)' }} aria-label={`Add ${block.title.slice(0, -1)}`}>
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="14" cy="11" r="5" stroke="#fff" strokeWidth="2" />
+                    <path d="M6 23c0-2.5 5-4 8-4s8 1.5 8 4" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+                    <g>
+                      <circle cx="21" cy="7" r="3" fill="#a78bfa" stroke="#fff" strokeWidth="1.5" />
+                      <line x1="21" y1="6" x2="21" y2="8" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+                      <line x1="20" y1="7" x2="22" y2="7" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+                    </g>
+                  </svg>
+                </button>
+              </div>
+              <div>
+                {block.users.length === 0 ? <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>No {block.title.toLowerCase()}</div> :
+                  block.users.map((u, i) => (
+                    <React.Fragment key={u.id}>
+                      {renderUser(u)}
+                      {i !== block.users.length - 1 && <div style={{ borderBottom: '1px solid #ececff', margin: '0 0' }} />}
+                    </React.Fragment>
+                  ))}
+              </div>
             </div>
-            <div>
-              {block.users.length === 0 ? <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>No {block.title.toLowerCase()}</div> :
-                block.users.map((u, i) => (
-                  <React.Fragment key={u.id}>
-                    {renderUser(u)}
-                    {i !== block.users.length - 1 && <div style={{ borderBottom: '1px solid #ececff', margin: '0 0' }} />}
-                  </React.Fragment>
-                ))}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
       <AddUserModal
         open={modal.open}
