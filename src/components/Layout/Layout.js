@@ -13,7 +13,7 @@ const Layout = () => {
     { path: '/app-settings', label: 'App Settings', icon: '📱' },
   ];
 
-  const scrollablePages = ['/app-settings', '/dashboard'];
+  const scrollablePages = ['/app-settings', '/dashboard', '/notifications'];
   const isPageScrollable = scrollablePages.some(page => location.pathname.startsWith(page));
 
   return (

@@ -14,6 +14,7 @@ const AppHeader = () => {
     { to: '/products', label: 'Products', icon: '📦' },
     { to: '/orders', label: 'Orders', icon: '🛒' },
     { to: '/users', label: 'Users', icon: '👥' },
+    { to: '/notifications', label: 'Notifications', icon: '🔔' },
   ];
   const menuRefs = useRef([]);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });

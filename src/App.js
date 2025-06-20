@@ -11,6 +11,7 @@ import AppSettings from './pages/AppSettings';
 import PhoneAuth from './pages/auth/PhoneAuth';
 import VerifyCode from './pages/auth/VerifyCode';
 import Users from './pages/Users';
+import Notifications from './pages/Notifications';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -41,6 +42,7 @@ function App() {
               <Route path="orders/:id" element={<OrderPreview />} />
               <Route path="app-settings" element={<AppSettings />} />
               <Route path="users" element={<Users />} />
+              <Route path="notifications" element={<Notifications />} />
               <Route path="settings" element={<div>Settings Page (Coming Soon)</div>} />
             </Route>
           </Routes>
