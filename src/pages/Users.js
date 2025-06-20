@@ -3,13 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './Dashboard.css';
 
 const initialManagers = [
-  { id: 1, name: 'Anna Goodwin', email: 'anna@market.io' },
-  { id: 2, name: 'Carlos Diaz', email: 'carlos@market.io' },
+  { id: 1, name: 'Anna Goodwin', email: 'anna@market.io', role: 'manager', status: 'active' },
+  { id: 2, name: 'Carlos Diaz', email: 'carlos@market.io', role: 'manager', status: 'active' },
+  { id: 3, name: 'Sarah Johnson', email: 'sarah@market.io', role: 'manager', status: 'inactive' },
+  { id: 4, name: 'Michael Chen', email: 'michael@market.io', role: 'manager', status: 'active' },
 ];
 
 const initialCouriers = [
-  { id: 1, name: 'Leila Patel', email: 'leila@market.io' },
-  { id: 2, name: 'Tomás Silva', email: 'tomas@market.io' },
+  { id: 1, name: 'Leila Patel', email: 'leila@market.io', role: 'courier', status: 'active' },
+  { id: 2, name: 'Tomás Silva', email: 'tomas@market.io', role: 'courier', status: 'active' },
+  { id: 3, name: 'Emma Wilson', email: 'emma@market.io', role: 'courier', status: 'active' },
+  { id: 4, name: 'David Kim', email: 'david@market.io', role: 'courier', status: 'inactive' },
+  { id: 5, name: 'Maria Garcia', email: 'maria@market.io', role: 'courier', status: 'active' },
 ];
 
 const AddUserModal = ({ open, onClose, onAdd, role }) => {
@@ -70,49 +75,64 @@ const Users = () => {
   const [managers, setManagers] = useState(initialManagers);
   const [couriers, setCouriers] = useState(initialCouriers);
   const [modal, setModal] = useState({ open: false, role: null });
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  const allUsers = [...managers, ...couriers];
+
+  const filteredUsers = allUsers.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(search.toLowerCase()) ||
+                         user.email.toLowerCase().includes(search.toLowerCase());
+    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+    
+    return matchesSearch && matchesRole && matchesStatus;
+  });
 
   const handleAdd = (role, user) => {
     if (!user.name.trim() || !user.email.trim()) return;
+    const newUser = { id: Date.now(), ...user, role, status: 'active' };
     if (role === 'manager') {
-      setManagers([...managers, { id: Date.now(), ...user }]);
+      setManagers([...managers, newUser]);
     } else {
-      setCouriers([...couriers, { id: Date.now(), ...user }]);
+      setCouriers([...couriers, newUser]);
     }
   };
 
-  const renderUser = user => (
-    <div key={user.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '18px 0', justifyContent: 'space-between' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=ececff&color=6d28d9&size=48`} alt={user.name} style={{ width: 44, height: 44, borderRadius: 12, objectFit: 'cover', background: '#ececff' }} />
-        <div>
-          <div style={{ fontWeight: 600, fontSize: 20 }}>{user.name}</div>
-          <div style={{ color: 'var(--color-text-secondary)', fontSize: 16 }}>{user.email}</div>
-        </div>
-      </div>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button title="Edit" style={{ background: 'var(--color-bg-secondary)', border: 'none', borderRadius: 8, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.18s', color: 'var(--color-accent)' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M16.474 5.474l2.052 2.052a1.5 1.5 0 0 1 0 2.121l-9.193 9.193-3.182.424.424-3.182 9.193-9.193a1.5 1.5 0 0 1 2.121 0z"/>
-            <path d="M15 7l2 2"/>
-          </svg>
-        </button>
-        <button title="Delete" style={{ background: 'var(--color-bg-secondary)', border: 'none', borderRadius: 8, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.18s' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="6" width="18" height="14" rx="2"/>
-            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            <line x1="10" y1="11" x2="10" y2="17"/>
-            <line x1="14" y1="11" x2="14" y2="17"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
+  const handleDelete = (userId, role) => {
+    if (role === 'manager') {
+      setManagers(managers.filter(m => m.id !== userId));
+    } else {
+      setCouriers(couriers.filter(c => c.id !== userId));
+    }
+  };
+
+  const handleStatusToggle = (userId, role) => {
+    if (role === 'manager') {
+      setManagers(managers.map(m => 
+        m.id === userId ? { ...m, status: m.status === 'active' ? 'inactive' : 'active' } : m
+      ));
+    } else {
+      setCouriers(couriers.map(c => 
+        c.id === userId ? { ...c, status: c.status === 'active' ? 'inactive' : 'active' } : c
+      ));
+    }
+  };
+
+  const getStatusColor = (status) => {
+    return status === 'active' ? '#10b981' : '#6b7280';
+  };
+
+  const getStatusBgColor = (status) => {
+    return status === 'active' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(107, 114, 128, 0.1)';
+  };
 
   return (
-    <div className="dashboard" style={{ minHeight: '100vh', background: 'var(--color-bg-secondary)', padding: '48px 0' }}>
-      <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+    <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>
+      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 0' }}>
         {/* Page Header */}
-        <div style={{ marginBottom: 32, textAlign: 'center' }}>
+        <div style={{ marginBottom: 32 }}>
           <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
             Users
           </h1>
@@ -121,36 +141,216 @@ const Users = () => {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 40, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-          {[{ title: 'Managers', users: managers, role: 'manager' }, { title: 'Couriers', users: couriers, role: 'courier' }].map(block => (
-            <div key={block.role} style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', flex: '1 1 0', maxWidth: 500, padding: 36, position: 'relative', margin: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-                <span style={{ fontWeight: 800, fontSize: 32 }}>{block.title}</span>
-                <button onClick={() => setModal({ open: true, role: block.role })} style={{ background: '#111827', color: '#fff', border: 'none', borderRadius: 12, width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, cursor: 'pointer', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)' }} aria-label={`Add ${block.title.slice(0, -1)}`}>
-                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="14" cy="11" r="5" stroke="#fff" strokeWidth="2" />
-                    <path d="M6 23c0-2.5 5-4 8-4s8 1.5 8 4" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-                    <g>
-                      <circle cx="21" cy="7" r="3" fill="#a78bfa" stroke="#fff" strokeWidth="1.5" />
-                      <line x1="21" y1="6" x2="21" y2="8" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
-                      <line x1="20" y1="7" x2="22" y2="7" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
-                    </g>
-                  </svg>
-                </button>
-              </div>
-              <div>
-                {block.users.length === 0 ? <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>No {block.title.toLowerCase()}</div> :
-                  block.users.map((u, i) => (
-                    <React.Fragment key={u.id}>
-                      {renderUser(u)}
-                      {i !== block.users.length - 1 && <div style={{ borderBottom: '1px solid #ececff', margin: '0 0' }} />}
-                    </React.Fragment>
-                  ))}
-              </div>
+        {/* Search and Filter Card */}
+        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: '24px 32px', marginBottom: 32, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ position: 'relative', minWidth: 140, maxWidth: 220, flexShrink: 1 }}>
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{
+                  padding: '0.7rem 1rem 0.7rem 2.5rem',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 10,
+                  fontSize: 15,
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text)',
+                  width: '100%',
+                }}
+              />
+              <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-secondary)', fontSize: '1.1rem', pointerEvents: 'none' }}>🔍</span>
             </div>
-          ))}
+            <select
+              value={roleFilter}
+              onChange={e => setRoleFilter(e.target.value)}
+              style={{
+                padding: '0.7rem 2.5rem 0.7rem 1rem',
+                borderRadius: 10,
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-bg-secondary)',
+                color: 'var(--color-text)',
+                fontSize: 15,
+                minWidth: 140,
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 1rem center',
+                backgroundSize: '18px'
+              }}
+            >
+              <option value="all">All Roles</option>
+              <option value="manager">Managers</option>
+              <option value="courier">Couriers</option>
+            </select>
+            <select
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              style={{
+                padding: '0.7rem 2.5rem 0.7rem 1rem',
+                borderRadius: 10,
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-bg-secondary)',
+                color: 'var(--color-text)',
+                fontSize: 15,
+                minWidth: 140,
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 1rem center',
+                backgroundSize: '18px'
+              }}
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button 
+              onClick={() => setModal({ open: true, role: 'manager' })} 
+              style={{ 
+                background: 'var(--color-bg-secondary)', 
+                color: 'var(--color-text)', 
+                border: '1px solid var(--color-border)', 
+                borderRadius: 10, 
+                padding: '0.7rem 1.2rem', 
+                fontWeight: 600, 
+                fontSize: 15, 
+                cursor: 'pointer' 
+              }}
+            >
+              + Add Manager
+            </button>
+            <button 
+              onClick={() => setModal({ open: true, role: 'courier' })} 
+              style={{ 
+                background: '#111827', 
+                color: '#fff', 
+                border: 'none', 
+                borderRadius: 10, 
+                padding: '0.7rem 1.2rem', 
+                fontWeight: 600, 
+                fontSize: 15, 
+                cursor: 'pointer' 
+              }}
+            >
+              + Add Courier
+            </button>
+          </div>
+        </div>
+
+        {/* Users Content Card */}
+        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, width: '100%', maxHeight: '60vh', overflowY: 'auto' }}>
+          {filteredUsers.length === 0 ? (
+            <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>No users found</div>
+          ) : (
+            <div style={{ padding: 0 }}>
+              {filteredUsers.map((user, i) => (
+                <React.Fragment key={user.id}>
+                  <div
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'space-between', 
+                      padding: '20px 32px', 
+                      gap: 16, 
+                      transition: 'background 0.15s' 
+                    }}
+                    onMouseOver={e => e.currentTarget.style.background = 'var(--color-bg-secondary)'}
+                    onMouseOut={e => e.currentTarget.style.background = ''}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+                      <img 
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=ececff&color=6d28d9&size=48`} 
+                        alt={user.name} 
+                        style={{ width: 44, height: 44, borderRadius: 12, objectFit: 'cover' }} 
+                      />
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: 18, color: 'var(--color-text)' }}>{user.name}</div>
+                        <div style={{ color: 'var(--color-text-secondary)', fontSize: 15 }}>{user.email}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+                      <span style={{
+                        background: getStatusBgColor(user.status),
+                        color: getStatusColor(user.status),
+                        fontWeight: 600,
+                        fontSize: 13,
+                        borderRadius: 20,
+                        padding: '4px 12px',
+                        textTransform: 'capitalize'
+                      }}>
+                        {user.status}
+                      </span>
+                      <span style={{
+                        background: user.role === 'manager' ? 'rgba(139, 92, 246, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                        color: user.role === 'manager' ? '#8b5cf6' : '#3b82f6',
+                        fontWeight: 600,
+                        fontSize: 13,
+                        borderRadius: 20,
+                        padding: '4px 12px',
+                        textTransform: 'capitalize'
+                      }}>
+                        {user.role}
+                      </span>
+                      <button
+                        title="Toggle Status"
+                        onClick={() => handleStatusToggle(user.id, user.role)}
+                        style={{ 
+                          background: 'var(--color-bg-secondary)', 
+                          border: 'none', 
+                          borderRadius: 8, 
+                          width: 36, 
+                          height: 36, 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          cursor: 'pointer', 
+                          transition: 'background 0.18s', 
+                          color: 'var(--color-accent)' 
+                        }}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M16.474 5.474l2.052 2.052a1.5 1.5 0 0 1 0 2.121l-9.193 9.193-3.182.424.424-3.182 9.193-9.193a1.5 1.5 0 0 1 2.121 0z"/>
+                          <path d="M15 7l2 2"/>
+                        </svg>
+                      </button>
+                      <button 
+                        title="Delete" 
+                        onClick={() => handleDelete(user.id, user.role)}
+                        style={{ 
+                          background: 'var(--color-bg-secondary)', 
+                          border: 'none', 
+                          borderRadius: 8, 
+                          width: 36, 
+                          height: 36, 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          cursor: 'pointer', 
+                          transition: 'background 0.18s', 
+                          color: '#ef4444' 
+                        }}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="6" width="18" height="14" rx="2"/>
+                          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                          <line x1="10" y1="11" x2="10" y2="17"/>
+                          <line x1="14" y1="11" x2="14" y2="17"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  {i !== filteredUsers.length - 1 && <div style={{ borderBottom: '1px solid var(--color-bg-secondary)', margin: '0 32px' }} />}
+                </React.Fragment>
+              ))}
+            </div>
+          )}
         </div>
       </div>
+      
       <AddUserModal
         open={modal.open}
         role={modal.role}
