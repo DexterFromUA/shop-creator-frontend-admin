@@ -1,0 +1,66 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import './Auth.css';
+
+const PhoneAuth = () => {
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    // Basic phone number validation
+    if (!phoneNumber || phoneNumber.length < 10) {
+      setError('Please enter a valid phone number');
+      return;
+    }
+
+    try {
+      // Backdoor for testing
+      if (phoneNumber === '+11111111111') {
+        login({ phoneNumber });
+        navigate('/dashboard');
+        return;
+      }
+
+      // Here you would typically make an API call to send the SMS
+      // For now, we'll just simulate it
+      console.log('Sending SMS to:', phoneNumber);
+      navigate('/auth/verify', { state: { phoneNumber } });
+    } catch (err) {
+      setError('Failed to send verification code. Please try again.');
+    }
+  };
+
+  return (
+    <div className="auth-container">
+      <div className="auth-box">
+        <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>📱</div>
+        <h2>Enter Phone Number</h2>
+        <div className="auth-subtitle">We'll send a verification code to your phone number.</div>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <input
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="Phone Number"
+            className="auth-input"
+          />
+          {error && <div className="error-message">{error}</div>}
+          <button type="submit" className="auth-button">
+            Send Verification Code
+          </button>
+          <a href="#" style={{ marginTop: '1.5rem', color: 'var(--color-accent)', fontSize: '0.98rem', textAlign: 'center', textDecoration: 'underline', display: 'block' }}>
+            Need help?
+          </a>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default PhoneAuth; 

@@ -1,0 +1,56 @@
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+:root {
+  --color-bg: #fff;
+  --color-bg-secondary: #f4f4f7;
+  --color-card: #fff;
+  --color-card-gradient: linear-gradient(135deg, #fff 60%, #f4f4f7 100%);
+  --color-border: #e5e7eb;
+  --color-text: #18181b;
+  --color-text-secondary: #52525b;
+  --color-accent: #8b5cf6;
+  --color-accent-gradient: #8b5cf6;
+  --color-shadow: 0 4px 24px 0 rgb(0 0 0 / 0.08);
+  --color-hover-bg: #ececff;
+}
+
+[data-theme='dark'] {
+  --color-bg: #181c24;
+  --color-bg-secondary: #23293a;
+  --color-card: #23293a;
+  --color-card-gradient: linear-gradient(135deg, #23293a 60%, #23293a 100%);
+  --color-border: #23293a;
+  --color-text: #fff;
+  --color-text-secondary: #b0b6c3;
+  --color-accent: #5b21b6;
+  --color-accent-gradient: #5b21b6;
+  --color-shadow: 0 4px 24px 0 rgb(0 0 0 / 0.18);
+  --color-hover-bg: #23234a;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  transition: background 0.3s, color 0.3s;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
