@@ -79,30 +79,12 @@ const Products = () => {
   }, [viewMode]);
 
   return (
-    <div className="dashboard" style={{ padding: 0 }}>
-      <div style={{ height: '100%', overflow: 'auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '16px' }}>
-          <h1 className="dashboard-header">Products</h1>
-          <button
-            onClick={() => setShowModal(true)}
-            style={{
-              background: 'var(--color-accent-gradient)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              padding: '0.7rem 1.5rem',
-              fontWeight: 600,
-              fontSize: 16,
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px 0 rgb(91 33 182 / 0.10)'
-            }}
-          >
-            + Add
-          </button>
-        </div>
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', margin: '0 16px 16px' }}>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', display: 'inline-block', minWidth: 180 }}>
+    <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>
+      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 0' }}>
+        {/* Controls Card */}
+        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: '24px 32px', marginBottom: 32, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ position: 'relative', minWidth: 140, maxWidth: 220 }}>
               <input
                 type="text"
                 placeholder="Search products..."
@@ -111,133 +93,93 @@ const Products = () => {
                 style={{
                   padding: '0.7rem 1rem 0.7rem 2.5rem',
                   border: '1px solid var(--color-border)',
-                  borderRadius: 8,
+                  borderRadius: 10,
                   fontSize: 15,
-                  background: 'var(--color-bg)',
+                  background: 'var(--color-bg-secondary)',
                   color: 'var(--color-text)',
-                  minWidth: 180
+                  width: '100%'
                 }}
               />
-              <span style={{
-                position: 'absolute',
-                left: '1rem',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'var(--color-text-secondary)',
-                fontSize: '1.1rem',
-                pointerEvents: 'none'
-              }}>
-                🔍
-              </span>
+              <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-secondary)', fontSize: '1.1rem', pointerEvents: 'none' }}>🔍</span>
             </div>
-            <select 
-              value={category} 
-              onChange={e => setCategory(e.target.value)} 
-              style={{ 
-                padding: '0.7rem 1rem',
-                paddingRight: '40px',
-                borderRadius: 8,
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              style={{
+                padding: '0.7rem 2.5rem 0.7rem 1rem',
+                borderRadius: 10,
                 border: '1px solid var(--color-border)',
-                background: 'var(--color-bg)',
+                background: 'var(--color-bg-secondary)',
                 color: 'var(--color-text)',
+                fontSize: 15,
+                minWidth: 140,
                 appearance: 'none',
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
                 backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 12px center',
-                backgroundSize: '16px',
-                minWidth: '120px'
+                backgroundPosition: 'right 1rem center',
+                backgroundSize: '18px'
               }}
             >
               {categories.map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              onClick={() => setViewMode('grid')}
-              style={{
-                padding: '0.7rem',
-                border: '1px solid var(--color-border)',
-                borderRadius: 8,
-                background: viewMode === 'grid' ? 'var(--color-accent)' : 'var(--color-bg)',
-                color: viewMode === 'grid' ? 'white' : 'var(--color-text)',
-                cursor: 'pointer',
-                minWidth: 40,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              📱
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              style={{
-                padding: '0.7rem',
-                border: '1px solid var(--color-border)',
-                borderRadius: 8,
-                background: viewMode === 'list' ? 'var(--color-accent)' : 'var(--color-bg)',
-                color: viewMode === 'list' ? 'white' : 'var(--color-text)',
-                cursor: 'pointer',
-                minWidth: 40,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              📋
+          <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 8, background: 'var(--color-bg-secondary)', padding: 4, borderRadius: 8 }}>
+              <button onClick={() => setViewMode('grid')} style={{ padding: '0.5rem 1rem', border: 'none', borderRadius: 6, background: viewMode === 'grid' ? 'var(--color-bg)' : 'transparent', color: 'var(--color-text)', cursor: 'pointer' }}>Grid</button>
+              <button onClick={() => setViewMode('list')} style={{ padding: '0.5rem 1rem', border: 'none', borderRadius: 6, background: viewMode === 'list' ? 'var(--color-bg)' : 'transparent', color: 'var(--color-text)', cursor: 'pointer' }}>List</button>
+            </div>
+            <button onClick={() => setShowModal(true)} style={{ background: '#111827', color: '#fff', border: 'none', borderRadius: 10, padding: '0.7rem 1.2rem', fontWeight: 600, fontSize: 15, cursor: 'pointer', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)' }}>
+              + Add Product
             </button>
           </div>
         </div>
-        {viewMode === 'grid' ? (
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-            gap: 24,
-            padding: '0 16px 16px 16px'
-          }}>
-            {filtered.map(product => (
-              <div key={product.id} className="dashboard-card" style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 24 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{product.name}</h3>
-                    <p style={{ margin: '8px 0 0 0', color: 'var(--color-text-secondary)', fontSize: 14 }}>{product.category}</p>
+
+        {/* Content Card */}
+        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, width: '100%', maxHeight: '70vh', overflowY: 'auto' }}>
+          {viewMode === 'grid' ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 24, padding: 32 }}>
+              {filtered.map(product => (
+                <div key={product.id} style={{ background: 'var(--color-bg-secondary)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column', gap: 16, border: '1px solid var(--color-border)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{product.name}</h3>
+                      <p style={{ margin: '8px 0 0 0', color: 'var(--color-text-secondary)', fontSize: 14 }}>{product.category}</p>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                      <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-accent)' }}>{product.price}</span>
+                      <span style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}>Stock: {product.stock}</span>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                    <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-accent)' }}>{product.price}</span>
-                    <span style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}>Stock: {product.stock}</span>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
+                    <button style={{ flex: 1, padding: '0.7rem', border: '1px solid var(--color-border)', borderRadius: 8, background: 'var(--color-bg)', color: 'var(--color-text)', cursor: 'pointer' }}>Edit</button>
+                    <button style={{ flex: 1, padding: '0.7rem', border: '1px solid var(--color-error-bg)', borderRadius: 8, background: 'var(--color-error-bg)', color: 'var(--color-error)', cursor: 'pointer' }}>Delete</button>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button style={{ flex: 1, padding: '0.7rem', border: '1px solid var(--color-border)', borderRadius: 8, background: 'var(--color-bg)', color: 'var(--color-text)', cursor: 'pointer' }}>Edit</button>
-                  <button style={{ flex: 1, padding: '0.7rem', border: '1px solid var(--color-error)', borderRadius: 8, background: 'var(--color-error-bg)', color: 'var(--color-error)', cursor: 'pointer' }}>Delete</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ padding: '0 16px 16px 16px' }}>
-            <div className="dashboard-card" style={{ padding: 0, overflow: 'hidden' }}>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: 0 }}>
               <table className="dashboard-table" style={{ width: '100%' }}>
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Actions</th>
+                    <th style={{ padding: '20px 32px' }}>Name</th>
+                    <th style={{ padding: '20px 32px' }}>Category</th>
+                    <th style={{ padding: '20px 32px' }}>Price</th>
+                    <th style={{ padding: '20px 32px' }}>Stock</th>
+                    <th style={{ padding: '20px 32px' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map(product => (
-                    <tr key={product.id}>
-                      <td>{product.name}</td>
-                      <td>{product.category}</td>
-                      <td style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{product.price}</td>
-                      <td>{product.stock}</td>
-                      <td>
+                  {filtered.map((product, i) => (
+                    <tr key={product.id} style={{ borderTop: i > 0 ? '1px solid var(--color-bg-secondary)' : 'none' }}>
+                      <td style={{ padding: '20px 32px' }}>{product.name}</td>
+                      <td style={{ padding: '20px 32px' }}>{product.category}</td>
+                      <td style={{ padding: '20px 32px', color: 'var(--color-accent)', fontWeight: 600 }}>{product.price}</td>
+                      <td style={{ padding: '20px 32px' }}>{product.stock}</td>
+                      <td style={{ padding: '20px 32px' }}>
                         <div style={{ display: 'flex', gap: 8 }}>
-                          <button style={{ padding: '0.5rem 1rem', border: '1px solid var(--color-border)', borderRadius: 6, background: 'var(--color-bg)', color: 'var(--color-text)', cursor: 'pointer' }}>Edit</button>
-                          <button style={{ padding: '0.5rem 1rem', border: '1px solid var(--color-error)', borderRadius: 6, background: 'var(--color-error-bg)', color: 'var(--color-error)', cursor: 'pointer' }}>Delete</button>
+                          <button style={{ padding: '0.5rem 1rem', border: '1px solid var(--color-border)', borderRadius: 6, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', cursor: 'pointer' }}>Edit</button>
+                          <button style={{ padding: '0.5rem 1rem', border: '1px solid var(--color-error-bg)', borderRadius: 6, background: 'var(--color-error-bg)', color: 'var(--color-error)', cursor: 'pointer' }}>Delete</button>
                         </div>
                       </td>
                     </tr>
@@ -245,125 +187,35 @@ const Products = () => {
                 </tbody>
               </table>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
       
       {showModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: 'var(--color-bg)',
-            padding: 32,
-            borderRadius: 12,
-            width: '100%',
-            maxWidth: 480,
-            position: 'relative'
-          }}>
-            <button
-              onClick={() => setShowModal(false)}
-              style={{
-                position: 'absolute',
-                top: 16,
-                right: 16,
-                background: 'none',
-                border: 'none',
-                fontSize: 24,
-                cursor: 'pointer',
-                color: 'var(--color-text-secondary)'
-              }}
-            >
-              ×
-            </button>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'var(--color-bg)', padding: 32, borderRadius: 16, width: '100%', maxWidth: 480, position: 'relative', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
+            <button onClick={() => setShowModal(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: 'var(--color-text-secondary)' }}>×</button>
             <h2 style={{ margin: '0 0 24px 0' }}>Add New Product</h2>
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8 }}>Name</label>
-                <input
-                  required
-                  value={newProduct.name}
-                  onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '0.7rem 1rem',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 8,
-                    background: 'var(--color-bg)'
-                  }}
-                />
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Name</label>
+                <input required value={newProduct.name} onChange={e => setNewProduct({ ...newProduct, name: e.target.value })} style={{ width: '100%', padding: '0.7rem 1rem', border: '1px solid var(--color-border)', borderRadius: 8, background: 'var(--color-bg-secondary)', color: 'var(--color-text)' }} />
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8 }}>Price</label>
-                <input
-                  required
-                  value={newProduct.price}
-                  onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '0.7rem 1rem',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 8,
-                    background: 'var(--color-bg)'
-                  }}
-                />
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Price</label>
+                <input required value={newProduct.price} onChange={e => setNewProduct({ ...newProduct, price: e.target.value })} style={{ width: '100%', padding: '0.7rem 1rem', border: '1px solid var(--color-border)', borderRadius: 8, background: 'var(--color-bg-secondary)', color: 'var(--color-text)' }} />
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8 }}>Stock</label>
-                <input
-                  required
-                  type="number"
-                  value={newProduct.stock}
-                  onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '0.7rem 1rem',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 8,
-                    background: 'var(--color-bg)'
-                  }}
-                />
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Stock</label>
+                <input required type="number" value={newProduct.stock} onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })} style={{ width: '100%', padding: '0.7rem 1rem', border: '1px solid var(--color-border)', borderRadius: 8, background: 'var(--color-bg-secondary)', color: 'var(--color-text)' }} />
               </div>
               <div style={{ marginBottom: 24 }}>
-                <label style={{ display: 'block', marginBottom: 8 }}>Category</label>
-                <select
-                  value={newProduct.category}
-                  onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '0.7rem 1rem',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 8,
-                    background: 'var(--color-bg)'
-                  }}
-                >
-                  {categories.slice(1).map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Category</label>
+                <select value={newProduct.category} onChange={e => setNewProduct({ ...newProduct, category: e.target.value })} style={{ width: '100%', padding: '0.7rem 1rem', border: '1px solid var(--color-border)', borderRadius: 8, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '18px' }}>
+                  {categories.slice(1).map(c => (<option key={c} value={c}>{c}</option>))}
                 </select>
               </div>
-              <button
-                type="submit"
-                style={{
-                  width: '100%',
-                  padding: '0.8rem',
-                  background: 'var(--color-accent)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: 8,
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
-              >
+              <button type="submit" style={{ width: '100%', padding: '0.8rem', background: '#111827', color: 'white', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>
                 Add Product
               </button>
             </form>
