@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './Dashboard.css';
 
 const initialProducts = [
@@ -61,6 +62,10 @@ const Products = () => {
     category: 'Electronics'
   });
 
+  const [indicatorStyle, setIndicatorStyle] = useState({});
+  const buttonsRef = useRef([]);
+  const containerRef = useRef(null);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const id = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
@@ -75,8 +80,40 @@ const Products = () => {
   );
 
   useEffect(() => {
+    const calculateIndicator = () => {
+      const activeButton = buttonsRef.current.find(btn => btn && btn.dataset.view === viewMode);
+      if (activeButton && containerRef.current) {
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const buttonRect = activeButton.getBoundingClientRect();
+        setIndicatorStyle({
+          width: buttonRect.width,
+          left: buttonRect.left - containerRect.left,
+        });
+      }
+    };
+    calculateIndicator();
+    window.addEventListener('resize', calculateIndicator);
+    return () => window.removeEventListener('resize', calculateIndicator);
+  }, [viewMode]);
+
+  useEffect(() => {
     localStorage.setItem('productsViewMode', viewMode);
   }, [viewMode]);
+
+  const listVariants = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1, transition: { duration: 0.3 } },
+    exit: { opacity: 0, transition: { duration: 0.2 } },
+  };
+  
+  const gridContainerVariants = {
+    animate: { transition: { staggerChildren: 0.05 } },
+  };
+  
+  const gridItemVariants = {
+    initial: { opacity: 0, y: 20, scale: 0.98 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+  };
 
   return (
     <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>
@@ -84,7 +121,7 @@ const Products = () => {
         {/* Controls Card */}
         <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: '24px 32px', marginBottom: 32, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-            <div style={{ position: 'relative', minWidth: 140, maxWidth: 220 }}>
+            <div style={{ position: 'relative', minWidth: 140, maxWidth: 220, flexShrink: 1 }}>
               <input
                 type="text"
                 placeholder="Search products..."
@@ -97,7 +134,7 @@ const Products = () => {
                   fontSize: 15,
                   background: 'var(--color-bg-secondary)',
                   color: 'var(--color-text)',
-                  width: '100%'
+                  width: '100%',
                 }}
               />
               <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-secondary)', fontSize: '1.1rem', pointerEvents: 'none' }}>🔍</span>
@@ -124,9 +161,38 @@ const Products = () => {
             </select>
           </div>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: 8, background: 'var(--color-bg-secondary)', padding: 4, borderRadius: 8 }}>
-              <button onClick={() => setViewMode('grid')} style={{ padding: '0.5rem 1rem', border: 'none', borderRadius: 6, background: viewMode === 'grid' ? 'var(--color-bg)' : 'transparent', color: 'var(--color-text)', cursor: 'pointer' }}>Grid</button>
-              <button onClick={() => setViewMode('list')} style={{ padding: '0.5rem 1rem', border: 'none', borderRadius: 6, background: viewMode === 'list' ? 'var(--color-bg)' : 'transparent', color: 'var(--color-text)', cursor: 'pointer' }}>List</button>
+            <div
+              ref={containerRef}
+              style={{ position: 'relative', display: 'flex', background: 'var(--color-bg-secondary)', padding: 4, borderRadius: 8 }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 4,
+                  bottom: 4,
+                  ...indicatorStyle,
+                  background: 'var(--color-bg)',
+                  borderRadius: 6,
+                  transition: 'left 0.3s ease, width 0.3s ease',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
+                }}
+              />
+              <button
+                ref={el => buttonsRef.current[0] = el}
+                data-view="grid"
+                onClick={() => setViewMode('grid')}
+                style={{ padding: '0.5rem 1rem', border: 'none', background: 'transparent', color: 'var(--color-text)', cursor: 'pointer', position: 'relative', zIndex: 1, transition: 'color 0.3s' }}
+              >
+                Grid
+              </button>
+              <button
+                ref={el => buttonsRef.current[1] = el}
+                data-view="list"
+                onClick={() => setViewMode('list')}
+                style={{ padding: '0.5rem 1rem', border: 'none', background: 'transparent', color: 'var(--color-text)', cursor: 'pointer', position: 'relative', zIndex: 1, transition: 'color 0.3s' }}
+              >
+                List
+              </button>
             </div>
             <button onClick={() => setShowModal(true)} style={{ background: '#111827', color: '#fff', border: 'none', borderRadius: 10, padding: '0.7rem 1.2rem', fontWeight: 600, fontSize: 15, cursor: 'pointer', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)' }}>
               + Add Product
@@ -136,58 +202,78 @@ const Products = () => {
 
         {/* Content Card */}
         <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, width: '100%', maxHeight: '70vh', overflowY: 'auto' }}>
-          {viewMode === 'grid' ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 24, padding: 32 }}>
-              {filtered.map(product => (
-                <div key={product.id} style={{ background: 'var(--color-bg-secondary)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column', gap: 16, border: '1px solid var(--color-border)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                      <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{product.name}</h3>
-                      <p style={{ margin: '8px 0 0 0', color: 'var(--color-text-secondary)', fontSize: 14 }}>{product.category}</p>
+          <AnimatePresence mode="wait">
+            {viewMode === 'grid' ? (
+              <motion.div
+                key="grid"
+                variants={gridContainerVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 24, padding: 32 }}
+              >
+                {filtered.map(product => (
+                  <motion.div
+                    key={product.id}
+                    variants={gridItemVariants}
+                    style={{ background: 'var(--color-bg-secondary)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column', gap: 16, border: '1px solid var(--color-border)' }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{product.name}</h3>
+                        <p style={{ margin: '8px 0 0 0', color: 'var(--color-text-secondary)', fontSize: 14 }}>{product.category}</p>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                        <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-accent)' }}>{product.price}</span>
+                        <span style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}>Stock: {product.stock}</span>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                      <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-accent)' }}>{product.price}</span>
-                      <span style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}>Stock: {product.stock}</span>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
+                      <button style={{ flex: 1, padding: '0.7rem', border: '1px solid var(--color-border)', borderRadius: 8, background: 'var(--color-bg)', color: 'var(--color-text)', cursor: 'pointer' }}>Edit</button>
+                      <button style={{ flex: 1, padding: '0.7rem', border: '1px solid var(--color-error-bg)', borderRadius: 8, background: 'var(--color-error-bg)', color: 'var(--color-error)', cursor: 'pointer' }}>Delete</button>
                     </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
-                    <button style={{ flex: 1, padding: '0.7rem', border: '1px solid var(--color-border)', borderRadius: 8, background: 'var(--color-bg)', color: 'var(--color-text)', cursor: 'pointer' }}>Edit</button>
-                    <button style={{ flex: 1, padding: '0.7rem', border: '1px solid var(--color-error-bg)', borderRadius: 8, background: 'var(--color-error-bg)', color: 'var(--color-error)', cursor: 'pointer' }}>Delete</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ padding: 0 }}>
-              <table className="dashboard-table" style={{ width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th style={{ padding: '20px 32px' }}>Name</th>
-                    <th style={{ padding: '20px 32px' }}>Category</th>
-                    <th style={{ padding: '20px 32px' }}>Price</th>
-                    <th style={{ padding: '20px 32px' }}>Stock</th>
-                    <th style={{ padding: '20px 32px' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((product, i) => (
-                    <tr key={product.id} style={{ borderTop: i > 0 ? '1px solid var(--color-bg-secondary)' : 'none' }}>
-                      <td style={{ padding: '20px 32px' }}>{product.name}</td>
-                      <td style={{ padding: '20px 32px' }}>{product.category}</td>
-                      <td style={{ padding: '20px 32px', color: 'var(--color-accent)', fontWeight: 600 }}>{product.price}</td>
-                      <td style={{ padding: '20px 32px' }}>{product.stock}</td>
-                      <td style={{ padding: '20px 32px' }}>
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <button style={{ padding: '0.5rem 1rem', border: '1px solid var(--color-border)', borderRadius: 6, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', cursor: 'pointer' }}>Edit</button>
-                          <button style={{ padding: '0.5rem 1rem', border: '1px solid var(--color-error-bg)', borderRadius: 6, background: 'var(--color-error-bg)', color: 'var(--color-error)', cursor: 'pointer' }}>Delete</button>
-                        </div>
-                      </td>
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="list"
+                variants={listVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                style={{ padding: 0 }}
+              >
+                <table className="dashboard-table" style={{ width: '100%' }}>
+                  <thead>
+                    <tr>
+                      <th style={{ padding: '20px 32px' }}>Name</th>
+                      <th style={{ padding: '20px 32px' }}>Category</th>
+                      <th style={{ padding: '20px 32px' }}>Price</th>
+                      <th style={{ padding: '20px 32px' }}>Stock</th>
+                      <th style={{ padding: '20px 32px' }}>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody>
+                    {filtered.map((product, i) => (
+                      <tr key={product.id} style={{ borderTop: i > 0 ? '1px solid var(--color-bg-secondary)' : 'none' }}>
+                        <td style={{ padding: '20px 32px' }}>{product.name}</td>
+                        <td style={{ padding: '20px 32px' }}>{product.category}</td>
+                        <td style={{ padding: '20px 32px', color: 'var(--color-accent)', fontWeight: 600 }}>{product.price}</td>
+                        <td style={{ padding: '20px 32px' }}>{product.stock}</td>
+                        <td style={{ padding: '20px 32px' }}>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <button style={{ padding: '0.5rem 1rem', border: '1px solid var(--color-border)', borderRadius: 6, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', cursor: 'pointer' }}>Edit</button>
+                            <button style={{ padding: '0.5rem 1rem', border: '1px solid var(--color-error-bg)', borderRadius: 6, background: 'var(--color-error-bg)', color: 'var(--color-error)', cursor: 'pointer' }}>Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
       
