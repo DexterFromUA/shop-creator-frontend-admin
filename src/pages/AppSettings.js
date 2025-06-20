@@ -38,11 +38,14 @@ function AppSettings() {
   return (
     <div className="app-settings-page-wrapper">
       <div className="app-settings-container">
-        <div className="app-settings-header">
+        {/* Page Header */}
+        <div style={{ marginBottom: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <h1 className="dashboard-header">App Settings</h1>
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', maxWidth: '600px', lineHeight: '1.5', marginTop: '8px' }}>
-              Manage your application's appearance, notifications, and other settings.
+            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
+              App Settings
+            </h1>
+            <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
+              Manage your application's appearance, notifications, and other settings
             </p>
           </div>
           <button onClick={handleSave} className="save-button">Save Changes</button>
