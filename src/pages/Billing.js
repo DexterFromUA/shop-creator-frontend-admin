@@ -7,8 +7,64 @@ const initialInvoices = [
   { id: 'INV-003', date: '2024-03-15', amount: '$29.99', status: 'due' },
 ];
 
+const initialCards = [
+  { id: 1, brand: 'Visa', last4: '4242', exp: '09/26' },
+  { id: 2, brand: 'Mastercard', last4: '4444', exp: '12/25' }
+];
+
+const AddCardModal = ({ open, onClose, onAdd }) => {
+  const [form, setForm] = useState({ brand: 'Visa', number: '', exp: '' });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!form.number.trim() || form.number.length < 4 || !form.exp.trim()) return;
+    onAdd({ brand: form.brand, last4: form.number.slice(-4), exp: form.exp });
+    onClose();
+    setForm({ brand: 'Visa', number: '', exp: '' });
+  };
+
+  if (!open) return null;
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+      <div style={{ background: 'var(--color-bg)', padding: '24px 32px', borderRadius: 24, width: '100%', maxWidth: 480 }}>
+        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>Add Card</h2>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 24 }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Brand</label>
+            <select
+              value={form.brand}
+              onChange={e => setForm(f => ({ ...f, brand: e.target.value }))}
+              style={{ width: '100%', padding: '0.8rem 1rem', borderRadius: 10, border: '1px solid var(--color-border)', background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 15 }}
+            >
+              <option value="Visa">Visa</option>
+              <option value="Mastercard">Mastercard</option>
+              <option value="Amex">Amex</option>
+              <option value="Discover">Discover</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Card Number</label>
+            <input required value={form.number} onChange={e => setForm(f => ({ ...f, number: e.target.value }))} placeholder="1234 5678 9012 3456" style={{ width: '100%', padding: '0.8rem 1rem', borderRadius: 10, border: '1px solid var(--color-border)', background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 15 }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Expiry (MM/YY)</label>
+            <input required value={form.exp} onChange={e => setForm(f => ({ ...f, exp: e.target.value }))} placeholder="09/26" style={{ width: '100%', padding: '0.8rem 1rem', borderRadius: 10, border: '1px solid var(--color-border)', background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 15 }} />
+          </div>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+            <button type="button" onClick={onClose} style={{ padding: '0.8rem 1.4rem', borderRadius: 10, background: 'var(--color-bg-secondary)', border: 'none', color: 'var(--color-text)', fontWeight: 600 }}>Cancel</button>
+            <button type="submit" style={{ padding: '0.8rem 1.4rem', borderRadius: 10, background: '#111827', color: '#fff', border: 'none', fontWeight: 600 }}>Add Card</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const Billing = () => {
   const [invoices] = useState(initialInvoices);
+  const [cards, setCards] = useState(initialCards);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const statusStyles = {
     paid: { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981' },
@@ -40,6 +96,29 @@ const Billing = () => {
               Change Plan
             </button>
           </div>
+        </div>
+
+        {/* Payment Methods */}
+        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, padding: 32, marginBottom: 32, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: 'var(--color-text)' }}>Payment Methods</h2>
+            <button onClick={() => setModalOpen(true)} style={{ padding: '0.6rem 1.2rem', borderRadius: 10, background: '#111827', color: '#fff', border: 'none', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>+ Add Card</button>
+          </div>
+          {cards.length === 0 ? (
+            <div style={{ padding: '16px 0', color: 'var(--color-text-secondary)', fontSize: 15 }}>No cards added.</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {cards.map(card => (
+                <div key={card.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.25rem', border: '1px solid var(--color-border)', borderRadius: 12, background: 'var(--color-bg-secondary)' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: 600, fontSize: 15 }}>{card.brand} ending in {card.last4}</span>
+                    <span style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>Exp {card.exp}</span>
+                  </div>
+                  <button style={{ padding: '0.4rem 0.8rem', borderRadius: 8, background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', cursor: 'pointer', fontSize: 14 }}>Remove</button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Invoices Table */}
@@ -81,6 +160,17 @@ const Billing = () => {
           </div>
         </div>
       </div>
+
+      {modalOpen && (
+        <AddCardModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onAdd={(card) => {
+            setCards([...cards, card]);
+            setModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 };
