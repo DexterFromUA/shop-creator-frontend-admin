@@ -145,7 +145,7 @@ const Billing = () => {
             Billing
           </h1>
           <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-            Manage your subscription and view invoices
+            Manage your subscription, payment methods, payout account, invoices & transactions
           </p>
         </div>
 
