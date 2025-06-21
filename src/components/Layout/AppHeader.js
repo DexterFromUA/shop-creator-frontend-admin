@@ -260,7 +260,6 @@ const AppHeader = () => {
               <div className="user-dropdown-item" onClick={() => { toggleTheme(); setDropdownOpen(false); }}>
                 {theme === 'dark' ? '🌙 Light Theme' : '☀️ Dark Theme'}
               </div>
-              <div className="user-dropdown-item" onClick={() => setDropdownOpen(false)}>👤 Profile</div>
               <div className="user-dropdown-item" onClick={() => setDropdownOpen(false)}>⚙️ Settings</div>
               <div className="user-dropdown-item" style={{ color: '#ef4444' }} onClick={() => setDropdownOpen(false)}>🚪 Logout</div>
             </div>
