@@ -31,7 +31,7 @@ const OrderPreview = () => {
 
   return (
     <div className="dashboard" style={{ minHeight: '100vh', background: 'var(--color-bg-secondary)', padding: 0 }}>
-      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 0' }}>
+      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 16px', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 32 }}>
           <button
             onClick={() => navigate(-1)}

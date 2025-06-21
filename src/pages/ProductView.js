@@ -23,7 +23,7 @@ const ProductView = () => {
 
   return (
     <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>
-      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 0' }}>
+      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 16px', boxSizing: 'border-box' }}>
         <div style={{ display:'flex',alignItems:'center',gap:18,marginBottom:32 }}>
           <button onClick={() => navigate(-1)} className="order-back-btn" style={{ fontSize:18 }}><span style={{fontSize:20}}>&larr;</span> Back</button>
           <span style={{ fontWeight:800,fontSize:32,color:'var(--color-text)' }}>{product.name}</span>
