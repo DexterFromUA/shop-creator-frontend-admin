@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import './AppHeader.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 const AppHeader = () => {
   const { theme, toggleTheme } = useTheme();
+  const { logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [devDropdownOpen, setDevDropdownOpen] = useState(false);
@@ -260,8 +262,8 @@ const AppHeader = () => {
               <div className="user-dropdown-item" onClick={() => { toggleTheme(); setDropdownOpen(false); }}>
                 {theme === 'dark' ? '🌙 Light Theme' : '☀️ Dark Theme'}
               </div>
-              <div className="user-dropdown-item" onClick={() => setDropdownOpen(false)}>⚙️ Settings</div>
-              <div className="user-dropdown-item" style={{ color: '#ef4444' }} onClick={() => setDropdownOpen(false)}>🚪 Logout</div>
+              <div className="user-dropdown-item" onClick={() => { navigate('/settings'); setDropdownOpen(false); }}>⚙️ Settings</div>
+              <div className="user-dropdown-item" style={{ color: '#ef4444' }} onClick={() => { logout(); setDropdownOpen(false); navigate('/auth'); }}>🚪 Logout</div>
             </div>
           )}
         </div>

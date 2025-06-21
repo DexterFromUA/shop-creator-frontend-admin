@@ -13,6 +13,7 @@ import VerifyCode from './pages/auth/VerifyCode';
 import Users from './pages/Users';
 import Notifications from './pages/Notifications';
 import WebNotifications from './pages/WebNotifications';
+import Settings from './pages/Settings';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -45,7 +46,7 @@ function App() {
               <Route path="users" element={<Users />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="web-notifications" element={<WebNotifications />} />
-              <Route path="settings" element={<div>Settings Page (Coming Soon)</div>} />
+              <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>
         </AuthProvider>
