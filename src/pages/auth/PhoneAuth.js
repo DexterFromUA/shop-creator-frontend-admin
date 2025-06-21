@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Auth.css';
 import { auth } from '../../firebase';
@@ -8,20 +8,6 @@ const PhoneAuth = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(
-        auth,
-        'recaptcha-container',
-        {
-          size: 'invisible',
-          callback: () => {},
-        },
-      );
-      window.recaptchaVerifier.render();
-    }
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,13 +19,30 @@ const PhoneAuth = () => {
       return;
     }
 
+    // Clean up previous instance if it exists to avoid conflicts
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
+    }
+
     try {
-      const appVerifier = window.recaptchaVerifier;
+      const appVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible',
+      });
+
       const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       window.confirmationResult = confirmationResult;
       navigate('/verify', { state: { phoneNumber } });
     } catch (err) {
-      setError('Failed to send verification code. Please try again.');
+      console.error('Phone auth error:', err);
+      let errorMessage = 'Failed to send verification code. Please try again.';
+      if (err.code === 'auth/invalid-phone-number') {
+        errorMessage = 'The phone number is not valid. Please include the country code (e.g., +1).';
+      } else if (err.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many requests. Please try again later.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
     }
   };
 
