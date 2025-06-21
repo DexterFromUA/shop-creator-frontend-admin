@@ -41,7 +41,7 @@ const VerifyCode = () => {
       const userCredential = await signInWithCredential(auth, credential);
 
       console.log('USER CRED', userCredential);
-      login({ phoneNumber: userCredential.user.phoneNumber });
+      login({ phoneNumber: userCredential.user });
       navigate('/dashboard');
     } catch (err) {
       setError('Invalid verification code. Please try again.');
