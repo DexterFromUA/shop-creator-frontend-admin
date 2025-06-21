@@ -52,8 +52,8 @@ const AppHeader = () => {
 
   const menuItems = [
     { to: '/dashboard', label: 'Dashboard', icon: '📊' },
-    { to: '/products', label: 'Products', icon: '📦' },
     { to: '/orders', label: 'Orders', icon: '🛒' },
+    { to: '/products', label: 'Products', icon: '📦' },
     { to: '/notifications', label: 'Notifications', icon: '🔔' },
     { to: '/billing', label: 'Billing', icon: '💳' },
   ];
