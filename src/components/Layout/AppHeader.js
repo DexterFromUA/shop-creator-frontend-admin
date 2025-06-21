@@ -7,8 +7,10 @@ const AppHeader = () => {
   const { theme, toggleTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [devDropdownOpen, setDevDropdownOpen] = useState(false);
   const dropdownRef = useRef();
   const notificationsRef = useRef();
+  const devDropdownRef = useRef();
   const navigate = useNavigate();
 
   const [notifications, setNotifications] = useState([
@@ -82,10 +84,13 @@ const AppHeader = () => {
       if (notificationsRef.current && !notificationsRef.current.contains(e.target)) {
         setNotificationsOpen(false);
       }
+      if (devDropdownRef.current && !devDropdownRef.current.contains(e.target)) {
+        setDevDropdownOpen(false);
+      }
     }
-    if (dropdownOpen || notificationsOpen) document.addEventListener('mousedown', handleClick);
+    if (dropdownOpen || notificationsOpen || devDropdownOpen) document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [dropdownOpen, notificationsOpen]);
+  }, [dropdownOpen, notificationsOpen, devDropdownOpen]);
 
   const markAllAsRead = () => {
     setNotifications(prev => prev.map(notification => ({ ...notification, read: true })));
@@ -213,6 +218,35 @@ const AppHeader = () => {
             </div>
           )}
         </div>
+        <div className="dev-menu-wrapper" ref={devDropdownRef}>
+          <button
+            className="header-icon-btn dev-btn"
+            onClick={() => setDevDropdownOpen((v) => !v)}
+            aria-label="Developer menu"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+              <path d="M9 9h1v6H9z" />
+              <path d="M14 9h1v6h-1z" />
+            </svg>
+          </button>
+          {devDropdownOpen && (
+            <div className="dev-dropdown">
+              <div className="dev-dropdown-item" onClick={() => { navigate('/app-settings'); setDevDropdownOpen(false); }}>
+                ⚙️ App Settings
+              </div>
+              <div className="dev-dropdown-item" onClick={() => setDevDropdownOpen(false)}>
+                🔧 API Configuration
+              </div>
+              <div className="dev-dropdown-item" onClick={() => setDevDropdownOpen(false)}>
+                📊 Analytics
+              </div>
+              <div className="dev-dropdown-item" onClick={() => setDevDropdownOpen(false)}>
+                🐛 Debug Tools
+              </div>
+            </div>
+          )}
+        </div>
         <div className="user-menu-wrapper" ref={dropdownRef}>
           <button
             className="header-icon-btn user-avatar"
@@ -226,7 +260,6 @@ const AppHeader = () => {
               <div className="user-dropdown-item" onClick={() => { toggleTheme(); setDropdownOpen(false); }}>
                 {theme === 'dark' ? '🌙 Light Theme' : '☀️ Dark Theme'}
               </div>
-              <div className="user-dropdown-item" onClick={() => { navigate('/app-settings'); setDropdownOpen(false); }}>📱 App Settings</div>
               <div className="user-dropdown-item" onClick={() => setDropdownOpen(false)}>👤 Profile</div>
               <div className="user-dropdown-item" onClick={() => setDropdownOpen(false)}>⚙️ Settings</div>
               <div className="user-dropdown-item" style={{ color: '#ef4444' }} onClick={() => setDropdownOpen(false)}>🚪 Logout</div>
