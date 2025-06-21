@@ -12,10 +12,10 @@ const OrderPreview = lazy(() => import('./pages/OrderPreview'));
 const AppSettings = lazy(() => import('./pages/AppSettings'));
 const PhoneAuth = lazy(() => import('./pages/auth/PhoneAuth'));
 const VerifyCode = lazy(() => import('./pages/auth/VerifyCode'));
-const Users = lazy(() => import('./pages/Users'));
 const Notifications = lazy(() => import('./pages/Notifications'));
 const WebNotifications = lazy(() => import('./pages/WebNotifications'));
 const Settings = lazy(() => import('./pages/Settings'));
+const Team = lazy(() => import('./pages/Team'));
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -28,29 +28,31 @@ function App() {
       <ThemeProvider>
         <ToastProvider>
           <AuthProvider>
-            <Routes>
-              <Route path="/auth" element={<PhoneAuth />} />
-              <Route path="/verify" element={<VerifyCode />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Layout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<Navigate to="/dashboard" replace />} />
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="products" element={<Products />} />
-                <Route path="orders" element={<Orders />} />
-                <Route path="orders/:id" element={<OrderPreview />} />
-                <Route path="app-settings" element={<AppSettings />} />
-                <Route path="users" element={<Users />} />
-                <Route path="notifications" element={<Notifications />} />
-                <Route path="web-notifications" element={<WebNotifications />} />
-                <Route path="settings" element={<Settings />} />
-              </Route>
-            </Routes>
+            <Suspense fallback={null}>
+              <Routes>
+                <Route path="/auth" element={<PhoneAuth />} />
+                <Route path="/verify" element={<VerifyCode />} />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Layout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Navigate to="/dashboard" replace />} />
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="products" element={<Products />} />
+                  <Route path="orders" element={<Orders />} />
+                  <Route path="orders/:id" element={<OrderPreview />} />
+                  <Route path="app-settings" element={<AppSettings />} />
+                  <Route path="team" element={<Team />} />
+                  <Route path="notifications" element={<Notifications />} />
+                  <Route path="web-notifications" element={<WebNotifications />} />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
+              </Routes>
+            </Suspense>
           </AuthProvider>
         </ToastProvider>
       </ThemeProvider>
