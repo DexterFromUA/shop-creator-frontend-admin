@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 import './Dashboard.css';
 
 const chartData = [32000, 37000, 29000, 41000, 42890, 39000];
 const chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
 
 const Dashboard = () => {
-  const { user } = useAuth();
   const [period, setPeriod] = useState('24h');
 
   // SVG chart dimensions
@@ -56,7 +54,7 @@ const Dashboard = () => {
               {getGreeting()}
             </h1>
             <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-              Here's what's happening with your shop today
+              Here&rsquo;s what&rsquo;s happening with your shop today
             </p>
           </div>
           <select

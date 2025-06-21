@@ -45,7 +45,7 @@ function AppSettings() {
               App Settings
             </h1>
             <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-              Manage your application's appearance, notifications, and other settings
+              Manage your application&rsquo;s appearance, notifications, and other settings
             </p>
           </div>
           <button onClick={handleSave} className="save-button">Save Changes</button>

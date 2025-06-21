@@ -41,7 +41,7 @@ const PhoneAuth = () => {
       <div className="auth-box">
         <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>📱</div>
         <h2>Enter Phone Number</h2>
-        <div className="auth-subtitle">We'll send a verification code to your phone number.</div>
+        <div className="auth-subtitle">We&rsquo;ll send a verification code to your phone number.</div>
         <form className="auth-form" onSubmit={handleSubmit}>
           <input
             type="tel"
