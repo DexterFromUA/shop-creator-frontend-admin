@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import './Dashboard.css';
 
 const chartData = [32000, 37000, 29000, 41000, 42890, 39000];
 const chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
 
 const Dashboard = () => {
-  const [period, setPeriod] = useState('24h');
+  const { user } = useAuth();
+  const [period, setPeriod] = useState(() => {
+    return localStorage.getItem('dashboardPeriod') || '24h';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('dashboardPeriod', period);
+  }, [period]);
 
   // SVG chart dimensions
   const width = 900; // make chart wide for 100% fill
@@ -39,9 +47,18 @@ const Dashboard = () => {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning! ☀️";
-    if (hour < 18) return "Good afternoon! 👋";
-    return "Good evening! 🌙";
+    if (hour < 12) return { text: 'Good morning', emoji: '☀️' };
+    if (hour < 18) return { text: 'Good afternoon', emoji: '👋' };
+    return { text: 'Good evening', emoji: '🌙' };
+  };
+
+  const periodText = {
+    '24h': 'today',
+    'week': 'this week',
+    'month': 'this month',
+    '3mon': 'the last 3 months',
+    '6mon': 'the last 6 months',
+    'year': 'this year'
   };
 
   return (
@@ -51,10 +68,14 @@ const Dashboard = () => {
         <div style={{ marginBottom: 32, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div>
             <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
-              {getGreeting()}
+              {(() => {
+                const g = getGreeting();
+                const name = user && user.name;
+                return `${g.text}${name ? ', ' + name : ''}! ${g.emoji}`;
+              })()}
             </h1>
             <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-              Here&rsquo;s what&rsquo;s happening with your shop today
+              Here&rsquo;s what&rsquo;s happening with your shop {periodText[period]}
             </p>
           </div>
           <select
@@ -79,6 +100,8 @@ const Dashboard = () => {
             <option value="24h">24 hours</option>
             <option value="week">Week</option>
             <option value="month">Month</option>
+            <option value="3mon">3 months</option>
+            <option value="6mon">6 months</option>
             <option value="year">Year</option>
           </select>
         </div>
