@@ -16,6 +16,7 @@ const Notifications = lazy(() => import('./pages/Notifications'));
 const WebNotifications = lazy(() => import('./pages/WebNotifications'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Team = lazy(() => import('./pages/Team'));
+const Users = lazy(() => import('./pages/Users'));
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -47,6 +48,7 @@ function App() {
                   <Route path="orders/:id" element={<OrderPreview />} />
                   <Route path="app-settings" element={<AppSettings />} />
                   <Route path="team" element={<Team />} />
+                  <Route path="users" element={<Users />} />
                   <Route path="notifications" element={<Notifications />} />
                   <Route path="web-notifications" element={<WebNotifications />} />
                   <Route path="settings" element={<Settings />} />

@@ -262,6 +262,7 @@ const AppHeader = () => {
                  {theme === 'dark' ? '🌙 Light Theme' : '☀️ Dark Theme'}
                </div>
                <div className="user-dropdown-item" onClick={() => { navigate('/team'); setDropdownOpen(false); }}>👥 Team</div>
+               <div className="user-dropdown-item" onClick={() => { navigate('/users'); setDropdownOpen(false); }}>👤 Users</div>
                <div className="user-dropdown-item" onClick={() => { navigate('/settings'); setDropdownOpen(false); }}>⚙️ Settings</div>
                <div className="user-dropdown-item" style={{ color: '#ef4444' }} onClick={() => { logout(); setDropdownOpen(false); navigate('/auth'); }}>🚪 Logout</div>
             </div>
