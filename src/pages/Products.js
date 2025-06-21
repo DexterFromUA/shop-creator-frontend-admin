@@ -45,12 +45,9 @@ const initialProducts = [
   { id: 40, name: 'Flip Flops', price: '$19.99', stock: 128, category: 'Footwear' },
 ];
 
-const categories = ['All', 'Electronics', 'Accessories', 'Bags', 'Footwear'];
-
 const Products = () => {
   const [products, setProducts] = useState(initialProducts);
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('All');
   const [showModal, setShowModal] = useState(false);
   const [viewMode, setViewMode] = useState(() => {
     return localStorage.getItem('productsViewMode') || 'grid';
@@ -74,10 +71,13 @@ const Products = () => {
     setShowModal(false);
   };
 
-  const filtered = products.filter(product =>
-    (category === 'All' || product.category === category) &&
-    product.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = products.filter(product => {
+    const term = search.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(term) ||
+      product.category.toLowerCase().includes(term)
+    );
+  });
 
   useEffect(() => {
     const calculateIndicator = () => {
@@ -149,26 +149,6 @@ const Products = () => {
               />
               <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-secondary)', fontSize: '1.1rem', pointerEvents: 'none' }}>🔍</span>
             </div>
-            <select
-              value={category}
-              onChange={e => setCategory(e.target.value)}
-              style={{
-                padding: '0.7rem 2.5rem 0.7rem 1rem',
-                borderRadius: 10,
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-bg-secondary)',
-                color: 'var(--color-text)',
-                fontSize: 15,
-                minWidth: 140,
-                appearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 1rem center',
-                backgroundSize: '18px'
-              }}
-            >
-              {categories.map(c => <option key={c}>{c}</option>)}
-            </select>
           </div>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
             <div
@@ -341,7 +321,7 @@ const Products = () => {
                     onChange={e => setNewProduct({ ...newProduct, category: e.target.value })} 
                     style={{ boxSizing: 'border-box', width: '100%', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', borderRadius: 10, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 15, appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '18px' }}
                   >
-                    {categories.slice(1).map(c => (<option key={c} value={c}>{c}</option>))}
+                    {/* Category dropdown removed */}
                   </select>
                 </div>
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
