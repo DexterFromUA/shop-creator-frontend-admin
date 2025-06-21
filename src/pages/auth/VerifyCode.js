@@ -40,6 +40,7 @@ const VerifyCode = () => {
       const credential = PhoneAuthProvider.credential(confirmationResult.verificationId, code);
       const userCredential = await signInWithCredential(auth, credential);
 
+      console.log('USER CRED', userCredential);
       login({ phoneNumber: userCredential.user.phoneNumber });
       navigate('/dashboard');
     } catch (err) {
@@ -54,17 +55,15 @@ const VerifyCode = () => {
         <p className="auth-subtitle">
           We sent a code to {phoneNumber}
         </p>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <input
-              type="text"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="Enter 6-digit code"
-              className="auth-input"
-              maxLength={6}
-            />
-          </div>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Enter 6-digit code"
+            className="auth-input"
+            maxLength={6}
+          />
           {error && <div className="error-message">{error}</div>}
           <button type="submit" className="auth-button">
             Verify Code
