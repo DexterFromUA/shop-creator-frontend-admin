@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
-const initialProducts = [
+export const initialProducts = [
   { id: 1, name: 'Wireless Earbuds', price: '$129.99', stock: 45, category: 'Electronics' },
   { id: 2, name: 'Smart Watch', price: '$199.99', stock: 28, category: 'Electronics' },
   { id: 3, name: 'Leather Wallet', price: '$49.99', stock: 120, category: 'Accessories' },
@@ -62,6 +63,7 @@ const Products = () => {
   const [indicatorStyle, setIndicatorStyle] = useState({});
   const buttonsRef = useRef([]);
   const containerRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -206,7 +208,8 @@ const Products = () => {
                   <motion.div
                     key={product.id}
                     variants={gridItemVariants}
-                    style={{ background: 'var(--color-bg-secondary)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column', gap: 16, border: '1px solid var(--color-border)' }}
+                    onClick={() => navigate(`/products/${product.id}`)}
+                    style={{ cursor: 'pointer', background: 'var(--color-bg-secondary)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column', gap: 16, border: '1px solid var(--color-border)' }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
@@ -246,7 +249,7 @@ const Products = () => {
                   </thead>
                   <tbody>
                     {filtered.map((product, i) => (
-                      <tr key={product.id} style={{ borderTop: i > 0 ? '1px solid var(--color-bg-secondary)' : 'none' }}>
+                      <motion.tr key={product.id} variants={listVariants} initial="initial" animate="animate" exit="exit" style={{ cursor: 'pointer' }} onClick={() => navigate(`/products/${product.id}`)}>
                         <td style={{ padding: '20px 32px' }}>{product.name}</td>
                         <td style={{ padding: '20px 32px' }}>{product.category}</td>
                         <td style={{ padding: '20px 32px', color: 'var(--color-accent)', fontWeight: 600 }}>{product.price}</td>
@@ -257,7 +260,7 @@ const Products = () => {
                             <button style={{ padding: '0.5rem 1rem', border: '1px solid var(--color-error-bg)', borderRadius: 6, background: 'var(--color-error-bg)', color: 'var(--color-error)', cursor: 'pointer' }}>Delete</button>
                           </div>
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))}
                   </tbody>
                 </table>

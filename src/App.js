@@ -18,6 +18,7 @@ const Settings = lazy(() => import('./pages/Settings'));
 const Team = lazy(() => import('./pages/Team'));
 const Users = lazy(() => import('./pages/Users'));
 const Billing = lazy(() => import('./pages/Billing'));
+const ProductView = lazy(() => import('./pages/ProductView'));
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -47,6 +48,7 @@ function App() {
                   <Route path="products" element={<Products />} />
                   <Route path="orders" element={<Orders />} />
                   <Route path="orders/:id" element={<OrderPreview />} />
+                  <Route path="products/:id" element={<ProductView />} />
                   <Route path="app-settings" element={<AppSettings />} />
                   <Route path="team" element={<Team />} />
                   <Route path="users" element={<Users />} />
