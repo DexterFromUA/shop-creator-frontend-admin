@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './Auth.css';
+import { auth } from '../../firebase';
+import { signInWithCredential, PhoneAuthProvider } from 'firebase/auth';
 
 const VerifyCode = () => {
   const [code, setCode] = useState('');
@@ -29,12 +31,16 @@ const VerifyCode = () => {
     }
 
     try {
-      // Here you would typically verify the code with your backend
-      // For now, we'll just simulate a successful verification
-      console.log('Verifying code:', code);
-      
-      // Simulate successful login
-      login({ phoneNumber });
+      const confirmationResult = window.confirmationResult;
+      if (!confirmationResult) {
+        setError('No confirmation result. Please restart verification.');
+        return;
+      }
+
+      const credential = PhoneAuthProvider.credential(confirmationResult.verificationId, code);
+      const userCredential = await signInWithCredential(auth, credential);
+
+      login({ phoneNumber: userCredential.user.phoneNumber });
       navigate('/dashboard');
     } catch (err) {
       setError('Invalid verification code. Please try again.');

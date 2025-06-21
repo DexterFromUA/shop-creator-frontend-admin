@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import './Auth.css';
+import { auth } from '../../firebase';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
 const PhoneAuth = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
+
+  useEffect(() => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+        size: 'invisible',
+        callback: () => {},
+      }, auth);
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,17 +29,10 @@ const PhoneAuth = () => {
     }
 
     try {
-      // Backdoor for testing
-      if (phoneNumber === '+11111111111') {
-        login({ phoneNumber });
-        navigate('/dashboard');
-        return;
-      }
-
-      // Here you would typically make an API call to send the SMS
-      // For now, we'll just simulate it
-      console.log('Sending SMS to:', phoneNumber);
-      navigate('/auth/verify', { state: { phoneNumber } });
+      const appVerifier = window.recaptchaVerifier;
+      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+      window.confirmationResult = confirmationResult;
+      navigate('/verify', { state: { phoneNumber } });
     } catch (err) {
       setError('Failed to send verification code. Please try again.');
     }
@@ -54,6 +56,7 @@ const PhoneAuth = () => {
           <button type="submit" className="auth-button">
             Send Verification Code
           </button>
+          <div id="recaptcha-container" />
           <a href="#" style={{ marginTop: '1.5rem', color: 'var(--color-accent)', fontSize: '0.98rem', textAlign: 'center', textDecoration: 'underline', display: 'block' }}>
             Need help?
           </a>
