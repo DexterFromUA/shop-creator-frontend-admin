@@ -6,7 +6,7 @@ import './Layout.css';
 const Layout = () => {
   const location = useLocation();
 
-  const scrollablePages = ['/app-settings', '/dashboard', '/notifications'];
+  const scrollablePages = ['/app-settings', '/dashboard', '/notifications', '/billing'];
   const isPageScrollable = scrollablePages.some(page => location.pathname.startsWith(page));
 
   return (
