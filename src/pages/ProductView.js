@@ -24,15 +24,26 @@ const ProductView = () => {
   return (
     <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>
       <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 0' }}>
-        <button onClick={() => navigate(-1)} style={{ marginBottom: 24, padding: '0.6rem 1.1rem', borderRadius: 10, background: 'var(--color-bg)', border: '1px solid var(--color-border)', cursor: 'pointer' }}>← Back</button>
-        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, padding: 32, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', display: 'flex', flexDirection: 'column', gap: 24, width: '100%' }}>
-          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>{product.name}</h1>
-          <p style={{ fontSize: 16, color: 'var(--color-text-secondary)', margin: 0 }}>Category: {product.category}</p>
-          <p style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-accent)', margin: '4px 0' }}>{product.price}</p>
-          <p style={{ fontSize: 16, color: 'var(--color-text-secondary)', margin: 0 }}>Stock: {product.stock}</p>
-          <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-            <button style={{ flex: 1, padding: '0.8rem 1.2rem', borderRadius: 10, background: '#111827', color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer' }}>Edit Product</button>
-            <button style={{ flex: 1, padding: '0.8rem 1.2rem', borderRadius: 10, background: 'var(--color-error-bg)', color: 'var(--color-error)', border: 'none', fontWeight: 600, cursor: 'pointer' }}>Delete Product</button>
+        <div style={{ display:'flex',alignItems:'center',gap:18,marginBottom:32 }}>
+          <button onClick={() => navigate(-1)} className="order-back-btn" style={{ fontSize:18 }}><span style={{fontSize:20}}>&larr;</span> Back</button>
+          <span style={{ fontWeight:800,fontSize:32,color:'var(--color-text)' }}>{product.name}</span>
+        </div>
+        <div className="dashboard-card" style={{ background:'var(--color-bg)', borderRadius:28, padding:0, boxShadow:'0 2px 16px 0 rgba(80,80,120,0.08)', width:'100%', maxWidth:1200, margin:'0 auto' }}>
+          <div style={{ display:'flex',flexWrap:'wrap', justifyContent:'space-between', alignItems:'center', padding:'32px 32px 0 32px', gap:32 }}>
+            <div style={{ minWidth:220 }}>
+              <div style={{ fontWeight:600,fontSize:18, marginBottom:8 }}>{product.category}</div>
+              <div style={{ color:'var(--color-text-secondary)', fontSize:15, marginBottom:8 }}>Stock: {product.stock}</div>
+            </div>
+            <div style={{ textAlign:'right', minWidth:120 }}>
+              <div style={{ color:'var(--color-text-secondary)', fontSize:15, marginBottom:8 }}>Price</div>
+              <div style={{ fontWeight:700,color:'var(--color-accent)', fontSize:24 }}>{product.price}</div>
+            </div>
+          </div>
+          <div style={{ padding:'0 32px 32px 32px', marginTop:24 }}>
+            <div style={{ display:'flex', gap:12 }}>
+              <button style={{ flex:1, padding:'0.8rem 1.2rem', borderRadius:10, background:'#111827', color:'#fff', border:'none', fontWeight:600, cursor:'pointer' }}>Edit Product</button>
+              <button style={{ flex:1, padding:'0.8rem 1.2rem', borderRadius:10, background:'var(--color-error-bg)', color:'var(--color-error)', border:'none', fontWeight:600, cursor:'pointer' }}>Delete Product</button>
+            </div>
           </div>
         </div>
       </div>
