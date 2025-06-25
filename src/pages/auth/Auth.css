@@ -61,8 +61,8 @@ body, html {
   border-radius: 16px;
   box-shadow: 0 4px 24px 0 rgb(91 33 182 / 0.10), 0 1.5px 8px 0 rgb(0 0 0 / 0.04);
   border: 1.5px solid #ececec;
-  width: 60vw;
-  height: 70vh;
+  width: 50vw;
+  height: 60vh;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -190,8 +190,8 @@ body, html {
 
 .auth-input, .auth-button {
   min-width: 300px;
-  width: 70%;
-  max-width: 400px;
+  width: 100%;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
   height: 50px;
