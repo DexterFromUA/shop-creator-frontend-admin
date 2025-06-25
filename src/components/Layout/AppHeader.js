@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import './AppHeader.css';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 
 const AppHeader = () => {
   const { theme, toggleTheme } = useTheme();
@@ -14,6 +14,7 @@ const AppHeader = () => {
   const notificationsRef = useRef();
   const devDropdownRef = useRef();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [notifications, setNotifications] = useState([
     {
@@ -59,9 +60,8 @@ const AppHeader = () => {
   ];
   const menuRefs = useRef([]);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
-  const location = window.location.pathname;
   const getActiveMenuIndex = () => menuItems.findIndex(item =>
-    location === item.to || location.startsWith(item.to + '/')
+    location.pathname === item.to || location.pathname.startsWith(item.to + '/')
   );
   const activeMenuIndex = getActiveMenuIndex();
 
@@ -75,7 +75,7 @@ const AppHeader = () => {
     } else {
       setIndicatorStyle({ left: 0, width: 0 });
     }
-  }, [location]);
+  }, [location.pathname, activeMenuIndex]);
 
   // Close dropdowns on outside click
   React.useEffect(() => {
