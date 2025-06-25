@@ -5,12 +5,12 @@ import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
 import Layout from './components/Layout/Layout';
 import './App.css';
+import Auth from './pages/auth/Auth';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Products = lazy(() => import('./pages/Products'));
 const Orders = lazy(() => import('./pages/Orders'));
 const OrderPreview = lazy(() => import('./pages/OrderPreview'));
 const AppSettings = lazy(() => import('./pages/AppSettings'));
-const PhoneAuth = lazy(() => import('./pages/auth/PhoneAuth'));
 const VerifyCode = lazy(() => import('./pages/auth/VerifyCode'));
 const Notifications = lazy(() => import('./pages/Notifications'));
 const WebNotifications = lazy(() => import('./pages/WebNotifications'));
@@ -33,7 +33,7 @@ function App() {
           <ToastProvider>
             <Suspense fallback={null}>
               <Routes>
-                <Route path="/auth" element={<PhoneAuth />} />
+                <Route path="/auth" element={<Auth />} />
                 <Route path="/verify" element={<VerifyCode />} />
                 <Route
                   path="/"
