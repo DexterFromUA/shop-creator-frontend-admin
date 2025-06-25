@@ -61,9 +61,13 @@ const Dashboard = () => {
     'year': 'this year'
   };
 
+  if (!user) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>
-      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 0' }}>
+      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 16px' }}>
         {/* Page Header */}
         <div style={{ marginBottom: 32, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div>

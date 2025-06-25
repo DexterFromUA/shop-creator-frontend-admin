@@ -27,10 +27,10 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <Router>
-      <ThemeProvider>
-        <ToastProvider>
-          <AuthProvider>
+    <AuthProvider>
+      <Router>
+        <ThemeProvider>
+          <ToastProvider>
             <Suspense fallback={null}>
               <Routes>
                 <Route path="/auth" element={<PhoneAuth />} />
@@ -59,10 +59,10 @@ function App() {
                 </Route>
               </Routes>
             </Suspense>
-          </AuthProvider>
-        </ToastProvider>
-      </ThemeProvider>
-    </Router>
+          </ToastProvider>
+        </ThemeProvider>
+      </Router>
+    </AuthProvider>
   );
 }
 
