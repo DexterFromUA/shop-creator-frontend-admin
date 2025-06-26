@@ -21,6 +21,7 @@ const Users = lazy(() => import('./pages/Users'));
 const Billing = lazy(() => import('./pages/Billing'));
 const ProductView = lazy(() => import('./pages/ProductView'));
 const StoreSelection = lazy(() => import('./pages/StoreSelection'));
+const CreateStore = lazy(() => import('./pages/CreateStore'));
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -52,6 +53,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <StoreSelection />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/stores/create" 
+                  element={
+                    <ProtectedRoute>
+                      <CreateStore />
                     </ProtectedRoute>
                   } 
                 />

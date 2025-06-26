@@ -290,15 +290,26 @@ const StoreSelection = () => {
             </div>
 
             {/* Create New Store Button */}
-            <div style={{
-              background: 'var(--color-bg-secondary)',
-              border: '2px dashed var(--color-border)',
-              borderRadius: 18,
-              padding: 32,
-              textAlign: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}>
+            <div 
+              onClick={() => navigate('/stores/create')}
+              style={{
+                background: 'var(--color-bg-secondary)',
+                border: '2px dashed var(--color-border)',
+                borderRadius: 18,
+                padding: 32,
+                textAlign: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#111827';
+                e.currentTarget.style.background = 'var(--color-bg)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--color-border)';
+                e.currentTarget.style.background = 'var(--color-bg-secondary)';
+              }}
+            >
               <div style={{ fontSize: 32, marginBottom: 12, color: 'var(--color-text-secondary)' }}>+</div>
               <h3 style={{ 
                 margin: 0, 
