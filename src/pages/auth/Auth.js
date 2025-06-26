@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
 import EmailLogin from './EmailLogin';
 import EmailSignUp from './EmailSignUp';
-import PhoneAuth from './PhoneAuth';
-import { auth } from '../../firebase';
 import './Auth.css';
-
-// Показываем Phone вкладку только если Firebase настроен
-const tabModes = [
-  { key: 'login', label: 'Email' },
-  ...(auth ? [{ key: 'phone', label: 'Phone' }] : []),
-];
 
 function isAppleDevice() {
   return /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
@@ -59,32 +51,12 @@ const Auth = () => {
               <p className="auth-description">Securely log in or create an account to access your Shop Admin dashboard.<br />Manage your products, orders, and customers all in one place.</p>
             </>
           )}
-          {mode === 'phone' && (
-            <>
-              <h1 className="auth-title">Phone Verification</h1>
-              <p className="auth-description">We&rsquo;ll send a one-time code to your phone.</p>
-            </>
-          )}
         </div>
         <div className="auth-box">
           <div className="auth-top">
-            <div className="auth-tab-switcher-row">
-              <div className="auth-tab-switcher">
-                {tabModes.map((tab, i) => (
-                  <button
-                    key={tab.key}
-                    className={`auth-tab${mode === tab.key ? ' active' : ''}`}
-                    onClick={() => setMode(tab.key)}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
             <div className="auth-form-outer">
               {mode === 'login' && <EmailLogin setMode={setMode} />}
               {mode === 'signup' && <EmailSignUp setMode={setMode} />}
-              {mode === 'phone' && <PhoneAuth />}
             </div>
           </div>
           <div className="auth-bottom">

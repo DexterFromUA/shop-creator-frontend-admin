@@ -58,7 +58,6 @@ body, html {
   align-items: stretch;
   position: relative;
   box-sizing: border-box;
-  height: 594px;
 }
 
 .auth-top {
@@ -70,8 +69,8 @@ body, html {
 
 .auth-bottom {
   border-top: 1px solid #e5e7eb;
-  padding-top: 1.5rem;
-  margin-top: auto;
+  padding-top: 2rem;
+  margin-top: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
