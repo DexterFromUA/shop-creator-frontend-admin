@@ -5,7 +5,7 @@ import { auth } from '../../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import './Auth.css';
 
-const EmailLogin = () => {
+const EmailLogin = ({ setMode }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -44,7 +44,12 @@ const EmailLogin = () => {
           required
         />
         {error && <div className="error-message">{error}</div>}
-        <button type="submit" className="auth-button">Login</button>
+        <div className="auth-actions">
+          <button type="submit" className="auth-button">Login</button>
+          <button type="button" className="auth-button auth-button--secondary" onClick={() => setMode('signup')}>
+            Sign Up
+          </button>
+        </div>
       </form>
     </>
   );

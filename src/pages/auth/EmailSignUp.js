@@ -5,7 +5,9 @@ import { auth } from '../../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import './Auth.css';
 
-const EmailSignUp = () => {
+const EmailSignUp = ({ setMode }) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,7 +24,8 @@ const EmailSignUp = () => {
     }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      login({ email: userCredential.user.email, name: userCredential.user.displayName || 'User' });
+      // You can add logic here to update the user's profile with firstName and lastName
+      login({ email: userCredential.user.email, name: firstName || 'User' });
       navigate('/dashboard');
     } catch (err) {
       setError('Failed to create account. Email may already be in use.');
@@ -32,6 +35,24 @@ const EmailSignUp = () => {
   return (
     <>
       <form className="auth-form" onSubmit={handleSubmit}>
+        <div className="form-row">
+          <input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            placeholder="First Name"
+            className="auth-input"
+            required
+          />
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder="Last Name"
+            className="auth-input"
+            required
+          />
+        </div>
         <input
           type="email"
           value={email}

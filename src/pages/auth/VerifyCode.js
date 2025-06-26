@@ -52,12 +52,14 @@ const VerifyCode = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-box">
-        <h2>Enter Verification Code</h2>
-        <p className="auth-subtitle">
+    <div className="auth-page-wrapper">
+      <div className="auth-header">
+        <h1 className="auth-title">Enter Verification Code</h1>
+        <p className="auth-description">
           We sent a code to {phoneNumber}
         </p>
+      </div>
+      <div className="auth-box">
         <form className="auth-form" onSubmit={handleSubmit}>
           <input
             type="text"

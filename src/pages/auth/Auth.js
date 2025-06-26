@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect } from 'react';
+import React, { useState } from 'react';
 import EmailLogin from './EmailLogin';
 import EmailSignUp from './EmailSignUp';
 import PhoneAuth from './PhoneAuth';
@@ -7,9 +7,8 @@ import { auth } from '../../firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 const tabModes = [
-  { key: 'login', label: 'Email Login' },
-  { key: 'signup', label: 'Email Sign Up' },
-  { key: 'phone', label: 'Phone Login' },
+  { key: 'login', label: 'Email' },
+  { key: 'phone', label: 'Phone' },
 ];
 
 function isAppleDevice() {
@@ -34,23 +33,6 @@ const GoogleIcon = () => (
 
 const Auth = () => {
   const [mode, setMode] = useState('login');
-  const tabRefs = useRef([]);
-  const switcherRef = useRef(null);
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
-
-  useLayoutEffect(() => {
-    const idx = tabModes.findIndex(t => t.key === mode);
-    const btn = tabRefs.current[idx];
-    const container = switcherRef.current;
-    if (btn && container) {
-      const containerRect = container.getBoundingClientRect();
-      const btnRect = btn.getBoundingClientRect();
-      setIndicatorStyle({
-        left: btnRect.left - containerRect.left,
-        width: btnRect.width,
-      });
-    }
-  }, [mode]);
 
   const handleGoogleLogin = async () => {
     try {
@@ -69,49 +51,60 @@ const Auth = () => {
   return (
     <>
       <div className="auth-bg" />
-      <div className="auth-outer">
-        <div className="auth-logo-row">
-          <span className="auth-logo">🛍️</span>
-          <span className="auth-app-name">Shop Admin</span>
+      <div className="auth-page-wrapper">
+        <div className="auth-header">
+          {mode === 'login' && (
+            <>
+              <h1 className="auth-title">Welcome back</h1>
+              <p className="auth-description">Securely log in or create an account to access your Shop Admin dashboard.<br />Manage your products, orders, and customers all in one place.</p>
+            </>
+          )}
+          {mode === 'signup' && (
+            <>
+              <h1 className="auth-title">Create an account</h1>
+              <p className="auth-description">Securely log in or create an account to access your Shop Admin dashboard.<br />Manage your products, orders, and customers all in one place.</p>
+            </>
+          )}
+          {mode === 'phone' && (
+            <>
+              <h1 className="auth-title">Phone Verification</h1>
+              <p className="auth-description">We&rsquo;ll send a one-time code to your phone.</p>
+            </>
+          )}
         </div>
-        <div className="auth-container">
-          <div className="auth-box">
-            <div className="auth-top">
-              <div className="auth-tab-switcher-row">
-                <div className="auth-tab-switcher" ref={switcherRef}>
-                  <div className="auth-tab-indicator" style={indicatorStyle} />
-                  {tabModes.map((tab, i) => (
-                    <button
-                      key={tab.key}
-                      ref={el => tabRefs.current[i] = el}
-                      className={`auth-tab${mode === tab.key ? ' active' : ''}`}
-                      onClick={() => setMode(tab.key)}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="auth-form-outer">
-                {mode === 'login' && <EmailLogin />}
-                {mode === 'signup' && <EmailSignUp />}
-                {mode === 'phone' && <PhoneAuth />}
+        <div className="auth-box">
+          <div className="auth-top">
+            <div className="auth-tab-switcher-row">
+              <div className="auth-tab-switcher">
+                {tabModes.map((tab, i) => (
+                  <button
+                    key={tab.key}
+                    className={`auth-tab${mode === tab.key ? ' active' : ''}`}
+                    onClick={() => setMode(tab.key)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
               </div>
             </div>
-            <div className="auth-bottom">
-              <div className="auth-divider"><span>or you can login with</span></div>
-              <div className="auth-provider-btns-row">
-                <button className="auth-provider-btn google-btn" onClick={handleGoogleLogin}>
-                  <span className="provider-icon"><GoogleIcon /></span>
-                  <span className="provider-label">Google</span>
+            <div className="auth-form-outer">
+              {mode === 'login' && <EmailLogin setMode={setMode} />}
+              {mode === 'signup' && <EmailSignUp setMode={setMode} />}
+              {mode === 'phone' && <PhoneAuth />}
+            </div>
+          </div>
+          <div className="auth-bottom">
+            <div className="auth-provider-btns-row">
+              <button className="auth-provider-btn google-btn" onClick={handleGoogleLogin}>
+                <span className="provider-icon"><GoogleIcon /></span>
+                <span className="provider-label">Google</span>
+              </button>
+              {isAppleDevice() && (
+                <button className="auth-provider-btn apple-btn" onClick={handleAppleLogin}>
+                  <span className="provider-icon"></span>
+                  <span className="provider-label">Apple</span>
                 </button>
-                {isAppleDevice() && (
-                  <button className="auth-provider-btn apple-btn" onClick={handleAppleLogin}>
-                    <span className="provider-icon"></span>
-                    <span className="provider-label">Apple</span>
-                  </button>
-                )}
-              </div>
+              )}
             </div>
           </div>
         </div>
