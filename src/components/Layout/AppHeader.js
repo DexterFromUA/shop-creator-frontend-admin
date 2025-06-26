@@ -1,28 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { useStore } from '../../context/StoreContext';
 import './AppHeader.css';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 
 const AppHeader = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
+  const { currentStore, storeId } = useStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedStore, setSelectedStore] = useState(() => {
-    const stored = localStorage.getItem('selected_store');
-    return stored ? JSON.parse(stored) : null;
-  });
-
-  // Listen for store changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const stored = localStorage.getItem('selected_store');
-      setSelectedStore(stored ? JSON.parse(stored) : null);
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [devDropdownOpen, setDevDropdownOpen] = useState(false);
   const dropdownRef = useRef();
@@ -66,13 +53,14 @@ const AppHeader = () => {
     }
   ]);
 
-  const menuItems = [
-    { to: '/dashboard', label: 'Dashboard', icon: '📊' },
-    { to: '/orders', label: 'Orders', icon: '🛒' },
-    { to: '/products', label: 'Products', icon: '📦' },
-    { to: '/notifications', label: 'Notifications', icon: '🔔' },
-    { to: '/billing', label: 'Billing', icon: '💳' },
-  ];
+  const menuItems = storeId ? [
+    { to: `/store/${storeId}/dashboard`, label: 'Dashboard', icon: '📊' },
+    { to: `/store/${storeId}/orders`, label: 'Orders', icon: '🛒' },
+    { to: `/store/${storeId}/products`, label: 'Products', icon: '📦' },
+    { to: `/store/${storeId}/notifications`, label: 'Notifications', icon: '🔔' },
+    { to: `/store/${storeId}/billing`, label: 'Billing', icon: '💳' },
+  ] : [];
+  
   const menuRefs = useRef([]);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const getActiveMenuIndex = () => menuItems.findIndex(item =>
@@ -157,7 +145,7 @@ const AppHeader = () => {
         </div>
       </div>
       <div className="app-header-right">
-        {selectedStore && (
+        {currentStore && (
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -173,7 +161,7 @@ const AppHeader = () => {
           >
             <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>Store:</div>
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
-              {selectedStore.name}
+              {currentStore.name}
             </div>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M8 5l4-4 4 4M16 19l-4 4-4-4"/>
@@ -240,7 +228,7 @@ const AppHeader = () => {
               </div>
               <div className="notifications-footer">
                 <button 
-                  onClick={() => { navigate('/web-notifications'); setNotificationsOpen(false); }}
+                  onClick={() => { navigate(storeId ? `/store/${storeId}/web-notifications` : '/web-notifications'); setNotificationsOpen(false); }}
                   style={{ 
                     width: '100%', 
                     padding: '8px 16px', 
@@ -272,7 +260,7 @@ const AppHeader = () => {
           </button>
           {devDropdownOpen && (
             <div className="dev-dropdown">
-              <div className="dev-dropdown-item" onClick={() => { navigate('/app-settings'); setDevDropdownOpen(false); }}>
+              <div className="dev-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/app-settings` : '/app-settings'); setDevDropdownOpen(false); }}>
                 ⚙️ App Settings
               </div>
               <div className="dev-dropdown-item" onClick={() => setDevDropdownOpen(false)}>
@@ -304,9 +292,9 @@ const AppHeader = () => {
               <div className="user-dropdown-item" onClick={() => { toggleTheme(); setDropdownOpen(false); }}>
                  {theme === 'dark' ? '🌙 Light Theme' : '☀️ Dark Theme'}
                </div>
-               <div className="user-dropdown-item" onClick={() => { navigate('/team'); setDropdownOpen(false); }}>Team</div>
-               <div className="user-dropdown-item" onClick={() => { navigate('/users'); setDropdownOpen(false); }}>Users</div>
-               <div className="user-dropdown-item" onClick={() => { navigate('/settings'); setDropdownOpen(false); }}>Settings</div>
+               <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/team` : '/team'); setDropdownOpen(false); }}>Team</div>
+               <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/users` : '/users'); setDropdownOpen(false); }}>Users</div>
+               <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/settings` : '/settings'); setDropdownOpen(false); }}>Settings</div>
                <div className="user-dropdown-item" style={{ color: '#ef4444' }} onClick={() => { logout(); setDropdownOpen(false); navigate('/auth'); }}>Logout</div>
             </div>
           )}

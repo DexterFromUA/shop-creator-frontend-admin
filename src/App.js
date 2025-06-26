@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
+import { StoreProvider } from './context/StoreContext';
 import Layout from './components/Layout/Layout';
 import './App.css';
 import Auth from './pages/auth/Auth';
@@ -28,14 +29,9 @@ const ProtectedRoute = ({ children }) => {
 
 const StoreProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
-  const selectedStore = localStorage.getItem('selected_store');
   
   if (!isAuthenticated) {
     return <Navigate to="/auth" />;
-  }
-  
-  if (!selectedStore) {
-    return <Navigate to="/stores" />;
   }
   
   return children;
@@ -59,15 +55,18 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
+                <Route path="/" element={<Navigate to="/stores" replace />} />
                 <Route
-                  path="/"
+                  path="/store/:storeId/*"
                   element={
                     <StoreProtectedRoute>
-                      <Layout />
+                      <StoreProvider>
+                        <Layout />
+                      </StoreProvider>
                     </StoreProtectedRoute>
                   }
                 >
-                  <Route index element={<Navigate to="/dashboard" replace />} />
+                  <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="products" element={<Products />} />
                   <Route path="orders" element={<Orders />} />

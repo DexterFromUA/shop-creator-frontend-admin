@@ -94,9 +94,8 @@ const StoreSelection = () => {
   }, []);
 
   const handleStoreSelect = (store) => {
-    // Сохраняем выбранный магазин в localStorage
-    localStorage.setItem('selected_store', JSON.stringify(store));
-    navigate('/dashboard');
+    // Навигация на страницу конкретного магазина
+    navigate(`/store/${store.id}/dashboard`);
   };
 
   const getRoleColor = (role) => {
