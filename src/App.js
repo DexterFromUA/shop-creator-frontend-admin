@@ -19,10 +19,26 @@ const Team = lazy(() => import('./pages/Team'));
 const Users = lazy(() => import('./pages/Users'));
 const Billing = lazy(() => import('./pages/Billing'));
 const ProductView = lazy(() => import('./pages/ProductView'));
+const StoreSelection = lazy(() => import('./pages/StoreSelection'));
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/auth" />;
+};
+
+const StoreProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  const selectedStore = localStorage.getItem('selected_store');
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" />;
+  }
+  
+  if (!selectedStore) {
+    return <Navigate to="/stores" />;
+  }
+  
+  return children;
 };
 
 function App() {
@@ -35,12 +51,20 @@ function App() {
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/verify" element={<VerifyCode />} />
+                <Route 
+                  path="/stores" 
+                  element={
+                    <ProtectedRoute>
+                      <StoreSelection />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route
                   path="/"
                   element={
-                    <ProtectedRoute>
+                    <StoreProtectedRoute>
                       <Layout />
-                    </ProtectedRoute>
+                    </StoreProtectedRoute>
                   }
                 >
                   <Route index element={<Navigate to="/dashboard" replace />} />

@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     localStorage.removeItem(AUTH_KEY);
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('selected_store'); // Очищаем выбранный магазин
   };
 
   // Keep localStorage in sync if user object changes elsewhere

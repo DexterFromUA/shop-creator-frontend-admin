@@ -27,7 +27,7 @@ const EmailSignUp = ({ setMode }) => {
     
     if (result.success) {
       addToast('Account created successfully!', 'success');
-      navigate('/dashboard');
+      navigate('/stores');
     } else {
       addToast(result.error || 'Failed to create account. Email may already be in use.', 'error');
     }

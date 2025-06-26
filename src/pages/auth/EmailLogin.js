@@ -18,7 +18,7 @@ const EmailLogin = ({ setMode }) => {
     
     if (result.success) {
       addToast('Successfully logged in!', 'success');
-      navigate('/dashboard');
+      navigate('/stores');
     } else {
       addToast(result.error || 'Invalid email or password.', 'error');
     }
