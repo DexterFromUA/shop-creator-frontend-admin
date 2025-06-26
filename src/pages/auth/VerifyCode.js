@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import './Auth.css';
 import { auth } from '../../firebase';
 import { signInWithCredential, PhoneAuthProvider } from 'firebase/auth';
 
 const VerifyCode = () => {
   const [code, setCode] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { addToast } = useToast();
 
   const phoneNumber = location.state?.phoneNumber;
 
@@ -23,17 +22,16 @@ const VerifyCode = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     if (!code || code.length !== 6) {
-      setError('Please enter a valid 6-digit code');
+      addToast('Please enter a valid 6-digit code', 'error');
       return;
     }
 
     try {
       const confirmationResult = window.confirmationResult;
       if (!confirmationResult) {
-        setError('No confirmation result. Please restart verification.');
+        addToast('No confirmation result. Please restart verification.', 'error');
         return;
       }
 
@@ -41,13 +39,26 @@ const VerifyCode = () => {
       const userCredential = await signInWithCredential(auth, credential);
 
       console.log('USER CRED', userCredential);
-      login({
-        phoneNumber: userCredential.user.phoneNumber,
-        name: 'New User',
-      });
+      
+      // Для Phone auth нужно создать пользователя в нашей системе
+      // Пока просто устанавливаем базовую сессию
+      const userData = {
+        phone: userCredential.user.phoneNumber,
+        name: 'Phone User',
+        id: userCredential.user.uid,
+        emailVerified: false,
+        phoneVerified: true,
+        role: 'USER'
+      };
+      
+      // Устанавливаем пользователя напрямую (минуем GraphQL для phone auth)
+      localStorage.setItem('shop_admin_auth', JSON.stringify(userData));
+      localStorage.setItem('shop_admin_token', 'phone_auth_token');
+      
+      addToast('Phone verification successful!', 'success');
       navigate('/dashboard');
     } catch (err) {
-      setError('Invalid verification code. Please try again.');
+      addToast('Invalid verification code. Please try again.', 'error');
     }
   };
 
@@ -69,7 +80,6 @@ const VerifyCode = () => {
             className="auth-input"
             maxLength={6}
           />
-          {error && <div className="error-message">{error}</div>}
           <button type="submit" className="auth-button">
             Verify Code
           </button>

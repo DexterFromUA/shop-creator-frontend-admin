@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { auth } from '../../firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { useToast } from '../../context/ToastContext';
 import './Auth.css';
 
 const EmailSignUp = ({ setMode }) => {
@@ -11,24 +10,26 @@ const EmailSignUp = ({ setMode }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { register, loading } = useAuth();
+  const { addToast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      addToast('Passwords do not match.', 'error');
       return;
     }
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // You can add logic here to update the user's profile with firstName and lastName
-      login({ email: userCredential.user.email, name: firstName || 'User' });
+    
+    const fullName = `${firstName} ${lastName}`.trim();
+    const result = await register(email, password, fullName);
+    
+    if (result.success) {
+      addToast('Account created successfully!', 'success');
       navigate('/dashboard');
-    } catch (err) {
-      setError('Failed to create account. Email may already be in use.');
+    } else {
+      addToast(result.error || 'Failed to create account. Email may already be in use.', 'error');
     }
   };
 
@@ -77,8 +78,9 @@ const EmailSignUp = ({ setMode }) => {
           className="auth-input"
           required
         />
-        {error && <div className="error-message">{error}</div>}
-        <button type="submit" className="auth-button">Sign Up</button>
+        <button type="submit" className="auth-button" disabled={loading}>
+          {loading ? 'Creating account...' : 'Sign Up'}
+        </button>
       </form>
     </>
   );

@@ -6,7 +6,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 
 const AppHeader = () => {
   const { theme, toggleTheme } = useTheme();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [devDropdownOpen, setDevDropdownOpen] = useState(false);
@@ -255,7 +255,11 @@ const AppHeader = () => {
             onClick={() => setDropdownOpen((v) => !v)}
             aria-label="User menu"
           >
-            <img src="https://ui-avatars.com/api/?name=John+Doe&background=ececff&color=6d28d9&size=32" alt="User avatar" style={{ width: 32, height: 32, borderRadius: '8px', objectFit: 'cover' }} />
+            <img 
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || user?.email || 'User')}&background=ececff&color=6d28d9&size=32`} 
+              alt="User avatar" 
+              style={{ width: 32, height: 32, borderRadius: '8px', objectFit: 'cover' }} 
+            />
           </button>
           {dropdownOpen && (
             <div className="user-dropdown">

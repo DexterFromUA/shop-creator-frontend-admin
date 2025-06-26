@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
 import './Auth.css';
 import { auth } from '../../firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
 const PhoneAuth = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   useEffect(() => {
     const recaptchaContainer = document.getElementById('recaptcha-container');
@@ -35,11 +36,10 @@ const PhoneAuth = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     console.log('PhoneAuth handleSubmit called');
     // Basic phone number validation
     if (!phoneNumber || phoneNumber.length < 10) {
-      setError('Please enter a valid phone number');
+      addToast('Please enter a valid phone number', 'error');
       return;
     }
     try {
@@ -48,6 +48,7 @@ const PhoneAuth = () => {
       const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       window.confirmationResult = confirmationResult;
       console.log('Confirmation result:', confirmationResult);
+      addToast('Verification code sent!', 'success');
       navigate('/verify', { state: { phoneNumber } });
     } catch (err) {
       console.error('Phone auth error:', err);
@@ -59,9 +60,32 @@ const PhoneAuth = () => {
       } else if (err.message) {
         errorMessage = err.message;
       }
-      setError(errorMessage);
+      addToast(errorMessage, 'error');
     }
   };
+
+  // Проверяем доступность Firebase
+  if (!auth) {
+    return (
+      <div className="auth-form">
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🚧</div>
+          <h3 style={{ color: 'var(--color-text)', marginBottom: '0.5rem' }}>
+            Phone Auth Not Available
+          </h3>
+          <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
+            Firebase is not configured. Please use email authentication.
+          </p>
+          <button 
+            className="auth-button" 
+            onClick={() => navigate('/auth')}
+          >
+            Back to Email Auth
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -76,7 +100,6 @@ const PhoneAuth = () => {
           placeholder="Phone Number"
           className="auth-input"
         />
-        {error && <div className="error-message">{error}</div>}
         <button type="submit" className="auth-button">
           Send Verification Code
         </button>

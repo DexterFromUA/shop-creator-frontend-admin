@@ -74,7 +74,7 @@ const Dashboard = () => {
             <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
               {(() => {
                 const g = getGreeting();
-                const name = user && user.name;
+                const name = user && user.name.split(' ')[0];
                 return `${g.text}${name ? ', ' + name : ''}! ${g.emoji}`;
               })()}
             </h1>

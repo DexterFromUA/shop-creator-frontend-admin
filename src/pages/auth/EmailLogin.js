@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { auth } from '../../firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useToast } from '../../context/ToastContext';
 import './Auth.css';
 
 const EmailLogin = ({ setMode }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loading } = useAuth();
+  const { addToast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      login({ email: userCredential.user.email, name: userCredential.user.displayName || 'User' });
+    
+    const result = await login(email, password);
+    
+    if (result.success) {
+      addToast('Successfully logged in!', 'success');
       navigate('/dashboard');
-    } catch (err) {
-      setError('Invalid email or password.');
+    } else {
+      addToast(result.error || 'Invalid email or password.', 'error');
     }
   };
 
@@ -43,9 +43,10 @@ const EmailLogin = ({ setMode }) => {
           className="auth-input"
           required
         />
-        {error && <div className="error-message">{error}</div>}
         <div className="auth-actions">
-          <button type="submit" className="auth-button">Login</button>
+          <button type="submit" className="auth-button" disabled={loading}>
+            {loading ? 'Signing in...' : 'Login'}
+          </button>
           <button type="button" className="auth-button auth-button--secondary" onClick={() => setMode('signup')}>
             Sign Up
           </button>

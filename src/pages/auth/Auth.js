@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import EmailLogin from './EmailLogin';
 import EmailSignUp from './EmailSignUp';
 import PhoneAuth from './PhoneAuth';
-import './Auth.css';
 import { auth } from '../../firebase';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import './Auth.css';
 
+// Показываем Phone вкладку только если Firebase настроен
 const tabModes = [
   { key: 'login', label: 'Email' },
-  { key: 'phone', label: 'Phone' },
+  ...(auth ? [{ key: 'phone', label: 'Phone' }] : []),
 ];
 
 function isAppleDevice() {
@@ -34,14 +34,8 @@ const GoogleIcon = () => (
 const Auth = () => {
   const [mode, setMode] = useState('login');
 
-  const handleGoogleLogin = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      // You may want to handle user context and redirect here
-    } catch (err) {
-      alert('Google login failed: ' + err.message);
-    }
+  const handleGoogleLogin = () => {
+    alert('Google login integration coming soon!');
   };
 
   const handleAppleLogin = () => {
