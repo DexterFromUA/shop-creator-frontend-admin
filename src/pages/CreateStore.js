@@ -63,30 +63,13 @@ const CreateStore = () => {
     <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>
       <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 16px', boxSizing: 'border-box' }}>
         {/* Page Header */}
-        <div style={{ marginBottom: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
-              Create New Store
-            </h1>
-            <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-              Set up your new store and start selling your products to customers.
-            </p>
-          </div>
-          <button
-            onClick={handleCancel}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 8,
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-bg)',
-              color: 'var(--color-text)',
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 600
-            }}
-          >
-            Cancel
-          </button>
+        <div style={{ marginBottom: 32 }}>
+          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
+            Create New Store
+          </h1>
+          <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
+            Set up your new store and start selling your products to customers.
+          </p>
         </div>
 
         {/* Form Card */}

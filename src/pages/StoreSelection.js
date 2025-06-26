@@ -245,30 +245,48 @@ const StoreSelection = () => {
 
                   <div style={{ 
                     display: 'flex', 
-                    gap: 32,
+                    gap: 24,
                     alignItems: 'center'
                   }}>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
+                    <div style={{ 
+                      textAlign: 'center',
+                      minWidth: 70,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center'
+                    }}>
+                      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 4, lineHeight: 1.2 }}>
                         Products
                       </div>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)' }}>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.1 }}>
                         {store.productsCount}
                       </div>
                     </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
+                    <div style={{ 
+                      textAlign: 'center',
+                      minWidth: 70,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center'
+                    }}>
+                      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 4, lineHeight: 1.2 }}>
                         Orders
                       </div>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)' }}>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.1 }}>
                         {store.ordersCount}
                       </div>
                     </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
+                    <div style={{ 
+                      textAlign: 'center',
+                      minWidth: 80,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center'
+                    }}>
+                      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 4, lineHeight: 1.2 }}>
                         Revenue
                       </div>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: '#10b981' }}>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: '#10b981', lineHeight: 1.1 }}>
                         {store.revenue}
                       </div>
                     </div>
