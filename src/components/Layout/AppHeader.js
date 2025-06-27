@@ -8,7 +8,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 const AppHeader = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
-  const { currentStore, storeId } = useStore();
+  const { currentStore, storeId, loading } = useStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const dropdownRef = useRef();
@@ -116,7 +116,9 @@ const AppHeader = () => {
   return (
     <header className="app-header">
       <div className="app-header-left">
-        <span className="app-header-title">Shop Admin</span>
+        <span className="app-header-title">
+          {loading ? 'Loading...' : (currentStore?.name || 'Shop Admin')}
+        </span>
         <div className="app-header-center">
           <div className="app-header-menu-container small">
             <nav className="app-header-menu">

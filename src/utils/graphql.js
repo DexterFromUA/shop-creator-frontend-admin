@@ -270,6 +270,39 @@ export const UPDATE_SUBSCRIPTION_MUTATION = `
   }
 `;
 
+export const GET_STORE_QUERY = `
+  query GetStore($storeId: ID!) {
+    store(id: $storeId) {
+      id
+      name
+      description
+      contactEmail
+      contactPhone
+      contactAddress
+      contactCity
+      owner {
+        id
+        email
+        name
+        phone
+      }
+      managers {
+        id
+        email
+        name
+        phone
+      }
+      couriers {
+        id
+        email
+        name
+        phone
+      }
+      createdAt
+    }
+  }
+`;
+
 export const UPDATE_PAYMENT_CARD_MUTATION = `
   mutation UpdatePaymentCard($input: UpdatePaymentCardInput!) {
     updatePaymentCard(input: $input) {
@@ -443,6 +476,15 @@ export const storeService = {
       return data.removePaymentCard;
     } catch (error) {
       throw new Error(error.message || 'Failed to remove payment card');
+    }
+  },
+
+  async getStore(storeId) {
+    try {
+      const data = await graphqlClient.request(GET_STORE_QUERY, { storeId });
+      return data.store;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get store');
     }
   },
 }; 
