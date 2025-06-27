@@ -42,6 +42,36 @@ export const ME_QUERY = `
       email
       name
       phone
+      stores {
+        id
+        name
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        createdAt
+      }
+      managingStores {
+        id
+        name
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        createdAt
+      }
+      deliveringStores {
+        id
+        name
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        createdAt
+      }
       subscriptionActive
       subscriptionType
       subscriptionStartDate
@@ -63,6 +93,36 @@ export const LOGIN_MUTATION = `
         emailVerified
         phoneVerified
         role
+        stores {
+          id
+          name
+          description
+          contactEmail
+          contactPhone
+          contactAddress
+          contactCity
+          createdAt
+        }
+        managingStores {
+          id
+          name
+          description
+          contactEmail
+          contactPhone
+          contactAddress
+          contactCity
+          createdAt
+        }
+        deliveringStores {
+          id
+          name
+          description
+          contactEmail
+          contactPhone
+          contactAddress
+          contactCity
+          createdAt
+        }
         subscriptionActive
         subscriptionType
         subscriptionStartDate
@@ -86,6 +146,36 @@ export const REGISTER_MUTATION = `
         emailVerified
         phoneVerified
         role
+        stores {
+          id
+          name
+          description
+          contactEmail
+          contactPhone
+          contactAddress
+          contactCity
+          createdAt
+        }
+        managingStores {
+          id
+          name
+          description
+          contactEmail
+          contactPhone
+          contactAddress
+          contactCity
+          createdAt
+        }
+        deliveringStores {
+          id
+          name
+          description
+          contactEmail
+          contactPhone
+          contactAddress
+          contactCity
+          createdAt
+        }
         subscriptionActive
         subscriptionType
         subscriptionStartDate
@@ -117,10 +207,45 @@ export const UPDATE_SUBSCRIPTION_MUTATION = `
   mutation UpdateSubscription($input: UpdateSubscriptionInput!) {
     updateSubscription(input: $input) {
       id
+      email
+      name
+      phone
+      stores {
+        id
+        name
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        createdAt
+      }
+      managingStores {
+        id
+        name
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        createdAt
+      }
+      deliveringStores {
+        id
+        name
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        createdAt
+      }
       subscriptionActive
       subscriptionType
       subscriptionStartDate
       subscriptionEndDate
+      createdAt
+      updatedAt
     }
   }
 `;

@@ -3,95 +3,37 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Dashboard.css';
 
-// Mock data - в реальном приложении это будет из GraphQL
-const mockStores = [
-  {
-    id: '1',
-    name: 'Tech Store',
-    description: 'Electronics and gadgets store',
-    role: 'OWNER',
-    productsCount: 45,
-    ordersCount: 123,
-    revenue: '$12,540'
-  },
-  {
-    id: '2', 
-    name: 'Fashion Boutique',
-    description: 'Clothing and accessories',
-    role: 'MANAGER',
-    productsCount: 89,
-    ordersCount: 67,
-    revenue: '$8,320'
-  },
-  {
-    id: '3',
-    name: 'Home & Garden',
-    description: 'Furniture and home decor',
-    role: 'OWNER',
-    productsCount: 156,
-    ordersCount: 234,
-    revenue: '$24,870'
-  },
-  {
-    id: '4',
-    name: 'Sports World',
-    description: 'Athletic gear and equipment',
-    role: 'MANAGER',
-    productsCount: 78,
-    ordersCount: 145,
-    revenue: '$15,720'
-  },
-  {
-    id: '5',
-    name: 'Book Corner',
-    description: 'Books and educational materials',
-    role: 'OWNER',
-    productsCount: 234,
-    ordersCount: 89,
-    revenue: '$6,450'
-  },
-  {
-    id: '6',
-    name: 'Beauty Shop',
-    description: 'Cosmetics and skincare products',
-    role: 'COURIER',
-    productsCount: 112,
-    ordersCount: 298,
-    revenue: '$18,960'
-  },
-  {
-    id: '7',
-    name: 'Pet Paradise',
-    description: 'Pet supplies and accessories',
-    role: 'MANAGER',
-    productsCount: 67,
-    ordersCount: 156,
-    revenue: '$9,830'
-  },
-  {
-    id: '8',
-    name: 'Kitchen Pro',
-    description: 'Kitchen appliances and cookware',
-    role: 'OWNER',
-    productsCount: 143,
-    ordersCount: 187,
-    revenue: '$21,340'
-  }
-];
-
 const StoreSelection = () => {
-  const { logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Обновляем данные пользователя один раз при монтировании
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setStores(mockStores);
+    if (user) {
+      refreshUser();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (user) {
+      // Объединяем все сторы пользователя с указанием роли
+      const allStores = [
+        ...(user.stores || []).map(store => ({ ...store, role: 'OWNER' })),
+        ...(user.managingStores || []).map(store => ({ ...store, role: 'MANAGER' })),
+        ...(user.deliveringStores || []).map(store => ({ ...store, role: 'COURIER' }))
+      ];
+      
+
+      
+      setStores(allStores);
       setLoading(false);
-    }, 1000);
-  }, []);
+    } else {
+      // Если нет пользователя, перенаправляем на страницу авторизации
+      navigate('/auth');
+    }
+  }, [user, navigate]);
 
   const handleStoreSelect = (store) => {
     // Навигация на страницу конкретного магазина
@@ -148,40 +90,61 @@ const StoreSelection = () => {
         <div style={{ marginBottom: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
-              Select Your Store
+              {stores.length > 0 ? 'Select Your Store' : 'Your Stores'}
             </h1>
             <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-              Choose which store you&apos;d like to manage. You can switch between stores at any time.
+              {stores.length > 0 
+                ? `You have ${stores.length} store${stores.length > 1 ? 's' : ''}. Choose one to manage.`
+                : 'Get started by creating your first store.'
+              }
             </p>
           </div>
-          <button
-            onClick={logout}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 8,
-              border: 'none',
-              background: '#111827',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 600
-            }}
-          >
-            Logout
-          </button>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button
+              onClick={() => navigate('/subscription')}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 8,
+                border: '2px solid var(--color-border)',
+                background: 'var(--color-bg)',
+                color: 'var(--color-text)',
+                cursor: 'pointer',
+                fontSize: 14,
+                fontWeight: 600
+              }}
+            >
+              Subscription
+            </button>
+            <button
+              onClick={logout}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 8,
+                border: 'none',
+                background: '#111827',
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: 14,
+                fontWeight: 600
+              }}
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
         {/* Content Card */}
         <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, boxSizing: 'border-box', height: '80vh', overflowY: 'auto' }}>
           <div style={{ padding: 32 }}>
             {/* Stores List */}
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column',
-              gap: 16,
-              marginBottom: 24
-            }}>
-              {stores.map((store) => (
+            {stores.length > 0 && (
+              <div style={{ 
+                display: 'grid', 
+                gap: 24, 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                marginBottom: 24
+              }}>
+                {stores.map((store) => (
                 <div
                   key={store.id}
                   onClick={() => handleStoreSelect(store)}
@@ -250,46 +213,38 @@ const StoreSelection = () => {
                   }}>
                     <div style={{ 
                       textAlign: 'center',
-                      minWidth: 70,
+                      minWidth: 100,
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'center'
                     }}>
                       <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 4, lineHeight: 1.2 }}>
-                        Products
+                        Created
                       </div>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.1 }}>
-                        {store.productsCount}
-                      </div>
-                    </div>
-                    <div style={{ 
-                      textAlign: 'center',
-                      minWidth: 70,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center'
-                    }}>
-                      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 4, lineHeight: 1.2 }}>
-                        Orders
-                      </div>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.1 }}>
-                        {store.ordersCount}
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', lineHeight: 1.1 }}>
+                        {store.createdAt ? new Date(parseInt(store.createdAt)).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        }) : 'Unknown'}
                       </div>
                     </div>
-                    <div style={{ 
-                      textAlign: 'center',
-                      minWidth: 80,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center'
-                    }}>
-                      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 4, lineHeight: 1.2 }}>
-                        Revenue
+                    {store.contactCity && (
+                      <div style={{ 
+                        textAlign: 'center',
+                        minWidth: 80,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center'
+                      }}>
+                        <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 4, lineHeight: 1.2 }}>
+                          Location
+                        </div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', lineHeight: 1.1 }}>
+                          {store.contactCity}
+                        </div>
                       </div>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: '#10b981', lineHeight: 1.1 }}>
-                        {store.revenue}
-                      </div>
-                    </div>
+                    )}
                   </div>
 
                   <div style={{
@@ -305,20 +260,26 @@ const StoreSelection = () => {
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
+            )}
 
             {/* Create New Store Button */}
-            <div 
-              onClick={() => navigate('/stores/create')}
-              style={{
-                background: 'var(--color-bg-secondary)',
-                border: '2px dashed var(--color-border)',
-                borderRadius: 18,
-                padding: 32,
-                textAlign: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
+            <div style={{ 
+              display: 'grid', 
+              gap: 24, 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))'
+            }}>
+              <div 
+                onClick={() => navigate('/stores/create')}
+                style={{
+                  background: 'var(--color-bg-secondary)',
+                  border: '2px dashed var(--color-border)',
+                  borderRadius: 18,
+                  padding: 32,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = '#111827';
                 e.currentTarget.style.background = 'var(--color-bg)';
@@ -345,6 +306,7 @@ const StoreSelection = () => {
               }}>
                 Start a new store and begin selling your products
               </p>
+            </div>
             </div>
           </div>
         </div>
