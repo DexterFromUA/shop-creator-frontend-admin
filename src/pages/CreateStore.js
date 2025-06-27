@@ -206,54 +206,7 @@ const CreateStore = () => {
           }}>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>Loading subscription info...</p>
           </div>
-        ) : currentUser.subscriptionActive ? (
-          <div className="dashboard-card" style={{ 
-            background: 'var(--color-bg)', 
-            borderRadius: 28, 
-            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', 
-            padding: 32,
-            marginBottom: 32,
-            boxSizing: 'border-box'
-          }}>
-            <h3 style={{ 
-              margin: '0 0 16px 0', 
-              fontSize: 18, 
-              fontWeight: 600, 
-              color: 'var(--color-text)' 
-            }}>
-              Your Current Plan
-            </h3>
-            <div style={{ 
-              padding: 24,
-              border: '2px solid #22c55e',
-              borderRadius: 16,
-              background: 'rgba(34, 197, 94, 0.05)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
-              <div>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: 16, fontWeight: 600, color: 'var(--color-text)' }}>
-                  {currentUser.subscriptionType.charAt(0) + currentUser.subscriptionType.slice(1).toLowerCase()} Plan
-                </h4>
-                <p style={{ margin: 0, fontSize: 14, color: 'var(--color-text-secondary)' }}>
-                  Active subscription • No additional payment required
-                </p>
-              </div>
-              <div style={{
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                background: '#22c55e',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <span style={{ color: '#fff', fontSize: 18 }}>✓</span>
-              </div>
-            </div>
-          </div>
-        ) : (
+        ) : !currentUser.subscriptionActive && (
           <div className="dashboard-card" style={{ 
             background: 'var(--color-bg)', 
             borderRadius: 28, 
