@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import './Dashboard.css';
 
 const StoreSelection = () => {
   const { user, logout, refreshUser } = useAuth();
+  const { addToast } = useToast();
   const navigate = useNavigate();
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const handleCreateStoreClick = () => {
+    // Если у пользователя базовый план, ведем на страницу подписки
+    if (user?.subscriptionType === 'BASIC') {
+      navigate('/subscription');
+    } else {
+      // Для платных планов ведем на создание стора
+      navigate('/stores/create');
+    }
+  };
 
   // Обновляем данные пользователя один раз при монтировании
   useEffect(() => {
@@ -36,6 +48,12 @@ const StoreSelection = () => {
   }, [user, navigate]);
 
   const handleStoreSelect = (store) => {
+    // Если у пользователя план BASIC и он владелец стора - блокируем доступ
+    if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {
+      addToast('Upgrade to a paid plan to access your owned stores', 'info');
+      return; // Не делаем ничего
+    }
+    
     // Навигация на страницу конкретного магазина
     navigate(`/store/${store.id}/dashboard`);
   };
@@ -144,29 +162,37 @@ const StoreSelection = () => {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
                 marginBottom: 24
               }}>
-                {stores.map((store) => (
+                {stores.map((store) => {
+                  const isBlocked = user?.subscriptionType === 'BASIC' && store.role === 'OWNER';
+                  
+                  return (
                 <div
                   key={store.id}
                   onClick={() => handleStoreSelect(store)}
                   style={{
-                    background: 'var(--color-bg-secondary)',
-                    border: '2px dashed var(--color-border)',
+                    background: isBlocked ? 'var(--color-bg-tertiary)' : 'var(--color-bg-secondary)',
+                    border: isBlocked ? '2px dashed #d1d5db' : '2px dashed var(--color-border)',
                     borderRadius: 18,
                     padding: 24,
-                    cursor: 'pointer',
+                    cursor: isBlocked ? 'not-allowed' : 'pointer',
                     transition: 'all 0.2s ease',
                     textAlign: 'left',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 24
+                    gap: 24,
+                    opacity: isBlocked ? 0.6 : 1
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#111827';
-                    e.currentTarget.style.background = 'var(--color-bg)';
+                    if (!isBlocked) {
+                      e.currentTarget.style.borderColor = '#111827';
+                      e.currentTarget.style.background = 'var(--color-bg)';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--color-border)';
-                    e.currentTarget.style.background = 'var(--color-bg-secondary)';
+                    if (!isBlocked) {
+                      e.currentTarget.style.borderColor = 'var(--color-border)';
+                      e.currentTarget.style.background = 'var(--color-bg-secondary)';
+                    }
                   }}
                 >
                   <div style={{ flex: 1 }}>
@@ -250,16 +276,17 @@ const StoreSelection = () => {
                   <div style={{
                     padding: '12px 20px',
                     borderRadius: 12,
-                    background: '#111827',
+                    background: isBlocked ? '#9ca3af' : '#111827',
                     color: '#fff',
                     fontWeight: 600,
                     fontSize: 14,
                     whiteSpace: 'nowrap'
                   }}>
-                    Manage →
+                    {isBlocked ? 'Upgrade to Access' : 'Manage →'}
                   </div>
                 </div>
-              ))}
+              );
+                })}
               </div>
             )}
 
@@ -270,7 +297,7 @@ const StoreSelection = () => {
               gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))'
             }}>
               <div 
-                onClick={() => navigate('/stores/create')}
+                onClick={handleCreateStoreClick}
                 style={{
                   background: 'var(--color-bg-secondary)',
                   border: '2px dashed var(--color-border)',
@@ -289,7 +316,9 @@ const StoreSelection = () => {
                 e.currentTarget.style.background = 'var(--color-bg-secondary)';
               }}
             >
-              <div style={{ fontSize: 32, marginBottom: 12, color: 'var(--color-text-secondary)' }}>+</div>
+              <div style={{ fontSize: 32, marginBottom: 12, color: 'var(--color-text-secondary)' }}>
+                {user?.subscriptionType === 'BASIC' ? '⭐' : '+'}
+              </div>
               <h3 style={{ 
                 margin: 0, 
                 fontSize: 16, 
@@ -297,14 +326,17 @@ const StoreSelection = () => {
                 color: 'var(--color-text)',
                 marginBottom: 4
               }}>
-                Create New Store
+                {user?.subscriptionType === 'BASIC' ? 'Upgrade to Create Store' : 'Create New Store'}
               </h3>
               <p style={{ 
                 margin: 0, 
                 color: 'var(--color-text-secondary)', 
                 fontSize: 14
               }}>
-                Start a new store and begin selling your products
+                {user?.subscriptionType === 'BASIC' 
+                  ? 'Upgrade to a paid plan to start creating your own stores'
+                  : 'Start a new store and begin selling your products'
+                }
               </p>
             </div>
             </div>

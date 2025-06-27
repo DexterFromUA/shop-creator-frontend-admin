@@ -8,7 +8,7 @@ import './Dashboard.css';
 const CreateStore = () => {
   const navigate = useNavigate();
   const { addToast } = useToast();
-  const { user: currentUser, isAuthenticated, updateUser, refreshUser } = useAuth();
+  const { user: currentUser, isAuthenticated, refreshUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -22,8 +22,7 @@ const CreateStore = () => {
     cardHolder: '',
     expiryMonth: '',
     expiryYear: '',
-    cvv: '',
-    subscription: 'Basic'
+    cvv: ''
   });
 
   const handleInputChange = (e) => {
@@ -104,15 +103,7 @@ const CreateStore = () => {
     setLoading(true);
 
     try {
-      // 1. Обновляем подписку только если у пользователя нет активной подписки
-      if (!currentUser?.subscriptionActive) {
-        const subscriptionType = formData.subscription.toUpperCase(); // BASIC или ADVANCED
-        const updatedUserData = await storeService.updateSubscription(subscriptionType);
-        // Обновляем user в AuthContext
-        updateUser(updatedUserData);
-      }
-      
-      // 2. Создаем магазин с данными формы
+      // Создаем магазин с данными формы
       const storeData = {
         name: formData.name,
         description: formData.description,
@@ -133,10 +124,7 @@ const CreateStore = () => {
       // Обновляем данные пользователя чтобы новый стор появился в списке
       await refreshUser();
       
-      const successMessage = currentUser?.subscriptionActive 
-        ? `Store "${newStore.name}" created successfully!`
-        : `Store "${newStore.name}" created successfully with ${formData.subscription} plan!`;
-      addToast(successMessage, 'success');
+      addToast(`Store "${newStore.name}" created successfully!`, 'success');
       navigate('/stores');
       
     } catch (error) {
@@ -192,235 +180,6 @@ const CreateStore = () => {
             Set up your new store and start selling your products to customers.
           </p>
         </div>
-
-        {/* Subscription Plan Card - Only show if user doesn't have active subscription */}
-        {!currentUser ? (
-          <div className="dashboard-card" style={{ 
-            background: 'var(--color-bg)', 
-            borderRadius: 28, 
-            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', 
-            padding: 32,
-            marginBottom: 32,
-            boxSizing: 'border-box',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: 120
-          }}>
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>Loading subscription info...</p>
-          </div>
-        ) : !currentUser.subscriptionActive && (
-          <div className="dashboard-card" style={{ 
-            background: 'var(--color-bg)', 
-            borderRadius: 28, 
-            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', 
-            padding: 32,
-            marginBottom: 32,
-            boxSizing: 'border-box'
-          }}>
-            <h3 style={{ 
-              margin: '0 0 16px 0', 
-              fontSize: 18, 
-              fontWeight: 600, 
-              color: 'var(--color-text)' 
-            }}>
-              Choose Your Plan
-            </h3>
-          
-          <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr' }}>
-            {/* Basic Plan */}
-            <div 
-              onClick={() => setFormData(prev => ({ ...prev, subscription: 'Basic' }))}
-              style={{
-                padding: 24,
-                border: formData.subscription === 'Basic' ? '2px solid #111827' : '2px solid var(--color-border)',
-                borderRadius: 16,
-                background: formData.subscription === 'Basic' ? 'rgba(17, 24, 39, 0.02)' : 'var(--color-bg-secondary)',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                position: 'relative'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'var(--color-text)' }}>
-                  Basic Plan
-                </h4>
-                <div style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: '50%',
-                  border: '2px solid ' + (formData.subscription === 'Basic' ? '#111827' : 'var(--color-border)'),
-                  background: formData.subscription === 'Basic' ? '#111827' : 'transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  {formData.subscription === 'Basic' && (
-                    <div style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      background: '#fff'
-                    }} />
-                  )}
-                </div>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <span style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-text)' }}>$9</span>
-                <span style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginLeft: 4 }}>/month</span>
-              </div>
-              <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                <li style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  marginBottom: 8, 
-                  fontSize: 14, 
-                  color: 'var(--color-text-secondary)' 
-                }}>
-                  <span style={{ marginRight: 8, color: '#22c55e' }}>✓</span>
-                  Up to 100 products
-                </li>
-                <li style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  marginBottom: 8, 
-                  fontSize: 14, 
-                  color: 'var(--color-text-secondary)' 
-                }}>
-                  <span style={{ marginRight: 8, color: '#22c55e' }}>✓</span>
-                  Basic analytics
-                </li>
-                <li style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  marginBottom: 8, 
-                  fontSize: 14, 
-                  color: 'var(--color-text-secondary)' 
-                }}>
-                  <span style={{ marginRight: 8, color: '#22c55e' }}>✓</span>
-                  Email support
-                </li>
-                <li style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  fontSize: 14, 
-                  color: 'var(--color-text-secondary)' 
-                }}>
-                  <span style={{ marginRight: 8, color: '#22c55e' }}>✓</span>
-                  Standard themes
-                </li>
-              </ul>
-            </div>
-
-            {/* Advanced Plan */}
-            <div 
-              onClick={() => setFormData(prev => ({ ...prev, subscription: 'Advanced' }))}
-              style={{
-                padding: 24,
-                border: formData.subscription === 'Advanced' ? '2px solid #111827' : '2px solid var(--color-border)',
-                borderRadius: 16,
-                background: formData.subscription === 'Advanced' ? 'rgba(17, 24, 39, 0.02)' : 'var(--color-bg-secondary)',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                position: 'relative'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'var(--color-text)' }}>
-                    Advanced Plan
-                  </h4>
-                  <span style={{
-                    background: '#111827',
-                    color: '#fff',
-                    fontSize: 10,
-                    fontWeight: 600,
-                    padding: '2px 6px',
-                    borderRadius: 4,
-                    textTransform: 'uppercase'
-                  }}>
-                    Popular
-                  </span>
-                </div>
-                <div style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: '50%',
-                  border: '2px solid ' + (formData.subscription === 'Advanced' ? '#111827' : 'var(--color-border)'),
-                  background: formData.subscription === 'Advanced' ? '#111827' : 'transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  {formData.subscription === 'Advanced' && (
-                    <div style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      background: '#fff'
-                    }} />
-                  )}
-                </div>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <span style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-text)' }}>$29</span>
-                <span style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginLeft: 4 }}>/month</span>
-              </div>
-              <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                <li style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  marginBottom: 8, 
-                  fontSize: 14, 
-                  color: 'var(--color-text-secondary)' 
-                }}>
-                  <span style={{ marginRight: 8, color: '#22c55e' }}>✓</span>
-                  Unlimited products
-                </li>
-                <li style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  marginBottom: 8, 
-                  fontSize: 14, 
-                  color: 'var(--color-text-secondary)' 
-                }}>
-                  <span style={{ marginRight: 8, color: '#22c55e' }}>✓</span>
-                  Advanced analytics
-                </li>
-                <li style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  marginBottom: 8, 
-                  fontSize: 14, 
-                  color: 'var(--color-text-secondary)' 
-                }}>
-                  <span style={{ marginRight: 8, color: '#22c55e' }}>✓</span>
-                  Priority support
-                </li>
-                <li style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  marginBottom: 8, 
-                  fontSize: 14, 
-                  color: 'var(--color-text-secondary)' 
-                }}>
-                  <span style={{ marginRight: 8, color: '#22c55e' }}>✓</span>
-                  Custom themes
-                </li>
-                <li style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  fontSize: 14, 
-                  color: 'var(--color-text-secondary)' 
-                }}>
-                  <span style={{ marginRight: 8, color: '#22c55e' }}>✓</span>
-                  API access
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        )}
 
         {/* Store Information Form Card */}
         <div className="dashboard-card" style={{ 

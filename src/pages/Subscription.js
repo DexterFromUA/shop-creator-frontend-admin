@@ -40,8 +40,8 @@ const Subscription = () => {
     {
       id: 'BASIC',
       name: 'Basic Plan',
-      price: '$9',
-      features: ['Up to 100 products', 'Basic analytics', 'Email support', 'Standard themes']
+      price: 'Free',
+      features: ['Up to 100 products', 'Basic analytics', 'Email support', 'Standard themes', 'Perfect for managers & couriers']
     },
     {
       id: 'ADVANCED', 
@@ -51,10 +51,21 @@ const Subscription = () => {
       features: ['Unlimited products', 'Advanced analytics', 'Priority support', 'Custom themes', 'API access']
     },
     {
-      id: 'UNLIMITED',
+      id: 'PRO',
       name: 'PRO Plan', 
       price: '$99',
       features: ['Everything in Advanced', 'White-label solution', 'Custom integrations', 'Dedicated account manager', 'SLA guarantee']
+    }
+  ];
+
+  // UNLIMITED план скрыт - только для админов, поэтому не включен в plans массив
+  const allPlans = [
+    ...plans,
+    {
+      id: 'UNLIMITED',
+      name: 'Unlimited Plan',
+      price: '$999',
+      features: ['Everything in PRO', 'Unlimited everything', 'Admin access', 'Custom development']
     }
   ];
 
@@ -222,7 +233,7 @@ const Subscription = () => {
           }}>
             <div>
               <h4 style={{ margin: '0 0 8px 0', fontSize: 18, fontWeight: 700, color: 'var(--color-text)' }}>
-                {plans.find(p => p.id === user?.subscriptionType)?.name || 'Unknown Plan'}
+                {allPlans.find(p => p.id === user?.subscriptionType)?.name || 'Unknown Plan'}
               </h4>
               <div style={{ display: 'flex', gap: 24, fontSize: 14, color: 'var(--color-text-secondary)' }}>
                 <span>Status: {user?.subscriptionActive ? 'Active' : 'Inactive'}</span>
@@ -231,7 +242,8 @@ const Subscription = () => {
               </div>
             </div>
             <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-text)' }}>
-              {plans.find(p => p.id === user?.subscriptionType)?.price || '$0'}<span style={{ fontSize: 14, fontWeight: 400 }}>/month</span>
+              {allPlans.find(p => p.id === user?.subscriptionType)?.price || 'Free'}
+              {user?.subscriptionType !== 'BASIC' && <span style={{ fontSize: 14, fontWeight: 400 }}>/month</span>}
             </div>
           </div>
         </motion.div>
@@ -294,7 +306,7 @@ const Subscription = () => {
                 </h4>
                 
                 <div style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}>
-                  {plan.price}<span style={{ fontSize: 14 }}>/month</span>
+                  {plan.price}{plan.id !== 'BASIC' && <span style={{ fontSize: 14 }}>/month</span>}
                 </div>
                 
                 <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
