@@ -47,6 +47,10 @@ export const LOGIN_MUTATION = `
         emailVerified
         phoneVerified
         role
+        subscriptionActive
+        subscriptionType
+        subscriptionStartDate
+        subscriptionEndDate
         createdAt
         updatedAt
       }
@@ -66,9 +70,41 @@ export const REGISTER_MUTATION = `
         emailVerified
         phoneVerified
         role
+        subscriptionActive
+        subscriptionType
+        subscriptionStartDate
+        subscriptionEndDate
         createdAt
         updatedAt
       }
+    }
+  }
+`;
+
+// Store mutations
+export const CREATE_STORE_MUTATION = `
+  mutation CreateStore($input: CreateStoreInput!) {
+    createStore(input: $input) {
+      id
+      name
+      description
+      contactEmail
+      contactPhone
+      contactAddress
+      contactCity
+      createdAt
+    }
+  }
+`;
+
+export const UPDATE_SUBSCRIPTION_MUTATION = `
+  mutation UpdateSubscription($input: UpdateSubscriptionInput!) {
+    updateSubscription(input: $input) {
+      id
+      subscriptionActive
+      subscriptionType
+      subscriptionStartDate
+      subscriptionEndDate
     }
   }
 `;
@@ -90,6 +126,29 @@ export const authService = {
       return data.register;
     } catch (error) {
       throw new Error(error.message || 'Registration failed');
+    }
+  },
+};
+
+// Store service functions
+export const storeService = {
+  async createStore(storeData) {
+    try {
+      const data = await graphqlClient.request(CREATE_STORE_MUTATION, { input: storeData });
+      return data.createStore;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to create store');
+    }
+  },
+
+  async updateSubscription(subscriptionType) {
+    try {
+      const data = await graphqlClient.request(UPDATE_SUBSCRIPTION_MUTATION, { 
+        input: { subscriptionType } 
+      });
+      return data.updateSubscription;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update subscription');
     }
   },
 }; 

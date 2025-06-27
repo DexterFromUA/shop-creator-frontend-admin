@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
+import { storeService } from '../utils/graphql';
 import './Dashboard.css';
 
 const CreateStore = () => {
@@ -101,15 +102,33 @@ const CreateStore = () => {
     setLoading(true);
 
     try {
-      // Simulate store creation
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // 1. Сначала обновляем подписку пользователя (Basic или Advanced)
+      const subscriptionType = formData.subscription.toUpperCase(); // BASIC или ADVANCED
+      await storeService.updateSubscription(subscriptionType);
       
-      showToast(`Store "${formData.name}" created successfully with ${formData.subscription} plan!`, 'success');
+      // 2. Затем создаем магазин с данными формы
+      const storeData = {
+        name: formData.name,
+        description: formData.description,
+        contactEmail: formData.email || null,
+        contactPhone: formData.phone || null,
+        contactAddress: formData.address || null,
+        contactCity: formData.city || null,
+        paymentCardNumber: formData.cardNumber,
+        paymentCardHolder: formData.cardHolder,
+        paymentCardExpiryMonth: parseInt(formData.expiryMonth),
+        paymentCardExpiryYear: parseInt(formData.expiryYear),
+        paymentCardCvv: formData.cvv
+      };
+      
+      const newStore = await storeService.createStore(storeData);
+      
+      showToast(`Store "${newStore.name}" created successfully with ${formData.subscription} plan!`, 'success');
       navigate('/stores');
       
     } catch (error) {
       console.error('Error creating store:', error);
-      showToast('Failed to create store. Please try again.', 'error');
+      showToast(error.message || 'Failed to create store. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
