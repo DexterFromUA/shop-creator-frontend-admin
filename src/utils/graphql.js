@@ -76,6 +76,11 @@ export const ME_QUERY = `
       subscriptionType
       subscriptionStartDate
       subscriptionEndDate
+      paymentCardNumber
+      paymentCardHolder
+      paymentCardExpiryMonth
+      paymentCardExpiryYear
+      paymentCardCvv
     }
   }
 `;
@@ -127,6 +132,11 @@ export const LOGIN_MUTATION = `
         subscriptionType
         subscriptionStartDate
         subscriptionEndDate
+        paymentCardNumber
+        paymentCardHolder
+        paymentCardExpiryMonth
+        paymentCardExpiryYear
+        paymentCardCvv
         createdAt
         updatedAt
       }
@@ -180,6 +190,11 @@ export const REGISTER_MUTATION = `
         subscriptionType
         subscriptionStartDate
         subscriptionEndDate
+        paymentCardNumber
+        paymentCardHolder
+        paymentCardExpiryMonth
+        paymentCardExpiryYear
+        paymentCardCvv
         createdAt
         updatedAt
       }
@@ -244,6 +259,115 @@ export const UPDATE_SUBSCRIPTION_MUTATION = `
       subscriptionType
       subscriptionStartDate
       subscriptionEndDate
+      paymentCardNumber
+      paymentCardHolder
+      paymentCardExpiryMonth
+      paymentCardExpiryYear
+      paymentCardCvv
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const UPDATE_PAYMENT_CARD_MUTATION = `
+  mutation UpdatePaymentCard($input: UpdatePaymentCardInput!) {
+    updatePaymentCard(input: $input) {
+      id
+      email
+      name
+      phone
+      stores {
+        id
+        name
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        createdAt
+      }
+      managingStores {
+        id
+        name
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        createdAt
+      }
+      deliveringStores {
+        id
+        name
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        createdAt
+      }
+      subscriptionActive
+      subscriptionType
+      subscriptionStartDate
+      subscriptionEndDate
+      paymentCardNumber
+      paymentCardHolder
+      paymentCardExpiryMonth
+      paymentCardExpiryYear
+      paymentCardCvv
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const REMOVE_PAYMENT_CARD_MUTATION = `
+  mutation RemovePaymentCard {
+    removePaymentCard {
+      id
+      email
+      name
+      phone
+      stores {
+        id
+        name
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        createdAt
+      }
+      managingStores {
+        id
+        name
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        createdAt
+      }
+      deliveringStores {
+        id
+        name
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        createdAt
+      }
+      subscriptionActive
+      subscriptionType
+      subscriptionStartDate
+      subscriptionEndDate
+      paymentCardNumber
+      paymentCardHolder
+      paymentCardExpiryMonth
+      paymentCardExpiryYear
+      paymentCardCvv
       createdAt
       updatedAt
     }
@@ -299,6 +423,26 @@ export const storeService = {
       return data.updateSubscription;
     } catch (error) {
       throw new Error(error.message || 'Failed to update subscription');
+    }
+  },
+
+  async updatePaymentCard(cardData) {
+    try {
+      const data = await graphqlClient.request(UPDATE_PAYMENT_CARD_MUTATION, { 
+        input: cardData 
+      });
+      return data.updatePaymentCard;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update payment card');
+    }
+  },
+
+  async removePaymentCard() {
+    try {
+      const data = await graphqlClient.request(REMOVE_PAYMENT_CARD_MUTATION);
+      return data.removePaymentCard;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to remove payment card');
     }
   },
 }; 

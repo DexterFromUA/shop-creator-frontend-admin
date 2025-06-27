@@ -14,11 +14,37 @@ const Subscription = () => {
   const [selectedPlan, setSelectedPlan] = useState(user?.subscriptionType || 'BASIC');
   
   // Payment Methods state
-  const [cards, setCards] = useState([
-    { id: 1, brand: 'Visa', last4: '4242', exp: '09/26' },
-    { id: 2, brand: 'Mastercard', last4: '4444', exp: '12/25' }
-  ]);
+  const getUserCard = () => {
+    if (user?.paymentCardNumber) {
+      const cardNumber = user.paymentCardNumber;
+      const lastFour = cardNumber.slice(-4);
+      const brand = cardNumber.startsWith('4') ? 'Visa' : 
+                   cardNumber.startsWith('5') ? 'Mastercard' : 'Card';
+      const exp = `${String(user.paymentCardExpiryMonth).padStart(2, '0')}/${String(user.paymentCardExpiryYear).slice(-2)}`;
+      
+      return { 
+        id: 1, 
+        brand, 
+        last4: lastFour, 
+        exp 
+      };
+    }
+    return null;
+  };
+  
+  const [cards, setCards] = useState(() => {
+    const userCard = getUserCard();
+    return userCard ? [userCard] : [];
+  });
   const [cardModalOpen, setCardModalOpen] = useState(false);
+  const [cardForm, setCardForm] = useState({
+    paymentCardNumber: '',
+    paymentCardHolder: '',
+    paymentCardExpiryMonth: '',
+    paymentCardExpiryYear: '',
+    paymentCardCvv: ''
+  });
+  const [cardLoading, setCardLoading] = useState(false);
   
   // Invoices state
   const [invoices] = useState([
@@ -87,6 +113,97 @@ const Subscription = () => {
     }
   };
 
+  // Валидация номера карты (Luhn algorithm)
+  const validateCardNumber = (number) => {
+    const cleaned = number.replace(/\s/g, '');
+    if (!/^\d+$/.test(cleaned) || cleaned.length < 13 || cleaned.length > 19) {
+      return false;
+    }
+    
+    let sum = 0;
+    let alternate = false;
+    for (let i = cleaned.length - 1; i >= 0; i--) {
+      let n = parseInt(cleaned.charAt(i), 10);
+      if (alternate) {
+        n *= 2;
+        if (n > 9) {
+          n = (n % 10) + 1;
+        }
+      }
+      sum += n;
+      alternate = !alternate;
+    }
+    return (sum % 10) === 0;
+  };
+
+  const formatCardNumber = (value) => {
+    const cleaned = value.replace(/\s/g, '');
+    const formatted = cleaned.replace(/(.{4})/g, '$1 ');
+    return formatted.trim();
+  };
+
+  const handleCardSubmit = async () => {
+    // Валидация полей
+    if (!cardForm.paymentCardNumber || !cardForm.paymentCardHolder || 
+        !cardForm.paymentCardExpiryMonth || !cardForm.paymentCardExpiryYear || 
+        !cardForm.paymentCardCvv) {
+      addToast('Please fill in all card details', 'error');
+      return;
+    }
+
+    // Валидация номера карты
+    const cleanedNumber = cardForm.paymentCardNumber.replace(/\s/g, '');
+    if (!validateCardNumber(cleanedNumber)) {
+      addToast('Please enter a valid card number', 'error');
+      return;
+    }
+
+    // Валидация CVV
+    if (!/^\d{3,4}$/.test(cardForm.paymentCardCvv)) {
+      addToast('CVV must be 3 or 4 digits', 'error');
+      return;
+    }
+
+    setCardLoading(true);
+    try {
+      const updatedUser = await storeService.updatePaymentCard({
+        paymentCardNumber: cleanedNumber,
+        paymentCardHolder: cardForm.paymentCardHolder,
+        paymentCardExpiryMonth: parseInt(cardForm.paymentCardExpiryMonth),
+        paymentCardExpiryYear: parseInt(cardForm.paymentCardExpiryYear),
+        paymentCardCvv: cardForm.paymentCardCvv
+      });
+      
+      updateUser(updatedUser);
+      setCardModalOpen(false);
+      setCardForm({
+        paymentCardNumber: '',
+        paymentCardHolder: '',
+        paymentCardExpiryMonth: '',
+        paymentCardExpiryYear: '',
+        paymentCardCvv: ''
+      });
+      addToast('Card added successfully!', 'success');
+    } catch (error) {
+      addToast(error.message || 'Failed to add card', 'error');
+    } finally {
+      setCardLoading(false);
+    }
+  };
+
+  const handleRemoveCard = async () => {
+    setCardLoading(true);
+    try {
+      const updatedUser = await storeService.removePaymentCard();
+      updateUser(updatedUser);
+      addToast('Card removed successfully!', 'success');
+    } catch (error) {
+      addToast(error.message || 'Failed to remove card', 'error');
+    } finally {
+      setCardLoading(false);
+    }
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     return new Date(parseInt(dateString)).toLocaleDateString('en-US', {
@@ -116,6 +233,12 @@ const Subscription = () => {
       document.documentElement.style.overflow = originalHtmlOverflow;
     };
   }, []);
+
+  useEffect(() => {
+    // Обновляем карты когда изменяется пользователь
+    const userCard = getUserCard();
+    setCards(userCard ? [userCard] : []);
+  }, [user]);
 
   const containerVariants = {
     initial: { opacity: 0 },
@@ -387,17 +510,19 @@ const Subscription = () => {
                     <div style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>Exp {card.exp}</div>
                   </div>
                   <button 
-                    onClick={() => setCards(cards.filter(c => c.id !== card.id))}
+                    onClick={handleRemoveCard}
+                    disabled={cardLoading}
                     style={{ 
                       padding: '6px 12px', 
                       borderRadius: 8, 
                       background: 'var(--color-bg)', 
                       border: '1px solid var(--color-border)', 
-                      cursor: 'pointer', 
-                      fontSize: 14 
+                      cursor: cardLoading ? 'not-allowed' : 'pointer', 
+                      fontSize: 14,
+                      opacity: cardLoading ? 0.6 : 1
                     }}
                   >
-                    Remove
+                    {cardLoading ? 'Removing...' : 'Remove'}
                   </button>
                 </div>
               ))}
@@ -508,9 +633,40 @@ const Subscription = () => {
               }}>
             <h2 style={{ margin: '0 0 24px 0', fontSize: 22, fontWeight: 700 }}>Add Card</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                              <div>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Card Holder Name</label>
+                  <input 
+                    type="text"
+                    value={cardForm.paymentCardHolder}
+                    onChange={(e) => {
+                      // Разрешаем только буквы, пробелы и дефисы
+                      const value = e.target.value.replace(/[^a-zA-Z\s-]/g, '');
+                      setCardForm(prev => ({ ...prev, paymentCardHolder: value }));
+                    }}
+                    placeholder="John Doe" 
+                    style={{ 
+                      width: '100%', 
+                      padding: '12px 16px', 
+                      borderRadius: 10, 
+                      border: '1px solid var(--color-border)', 
+                      background: 'var(--color-bg-secondary)', 
+                      color: 'var(--color-text)', 
+                      fontSize: 15,
+                      boxSizing: 'border-box'
+                    }} 
+                  />
+                </div>
               <div>
                 <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Card Number</label>
                 <input 
+                  type="text"
+                  value={cardForm.paymentCardNumber}
+                  onChange={(e) => {
+                    const formatted = formatCardNumber(e.target.value);
+                    if (formatted.replace(/\s/g, '').length <= 19) {
+                      setCardForm(prev => ({ ...prev, paymentCardNumber: formatted }));
+                    }
+                  }}
                   placeholder="1234 5678 9012 3456" 
                   style={{ 
                     width: '100%', 
@@ -526,9 +682,10 @@ const Subscription = () => {
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Expiry</label>
-                  <input 
-                    placeholder="MM/YY" 
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Expiry Month</label>
+                  <select 
+                    value={cardForm.paymentCardExpiryMonth}
+                    onChange={(e) => setCardForm(prev => ({ ...prev, paymentCardExpiryMonth: e.target.value }))}
                     style={{ 
                       width: '100%', 
                       padding: '12px 16px', 
@@ -538,12 +695,53 @@ const Subscription = () => {
                       color: 'var(--color-text)', 
                       fontSize: 15,
                       boxSizing: 'border-box'
-                    }} 
-                  />
+                    }}
+                  >
+                    <option value="">Month</option>
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {String(i + 1).padStart(2, '0')} - {new Date(2024, i).toLocaleString('default', { month: 'long' })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Expiry Year</label>
+                  <select 
+                    value={cardForm.paymentCardExpiryYear}
+                    onChange={(e) => setCardForm(prev => ({ ...prev, paymentCardExpiryYear: e.target.value }))}
+                    style={{ 
+                      width: '100%', 
+                      padding: '12px 16px', 
+                      borderRadius: 10, 
+                      border: '1px solid var(--color-border)', 
+                      background: 'var(--color-bg-secondary)', 
+                      color: 'var(--color-text)', 
+                      fontSize: 15,
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <option value="">Year</option>
+                    {Array.from({ length: 11 }, (_, i) => {
+                      const year = new Date().getFullYear() + i;
+                      return (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      );
+                    })}
+                  </select>
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>CVV</label>
                   <input 
+                    type="text"
+                    maxLength="4"
+                    value={cardForm.paymentCardCvv}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, ''); // Только цифры
+                      setCardForm(prev => ({ ...prev, paymentCardCvv: value }));
+                    }}
                     placeholder="123" 
                     style={{ 
                       width: '100%', 
@@ -561,6 +759,7 @@ const Subscription = () => {
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 12 }}>
                 <button 
                   onClick={() => setCardModalOpen(false)} 
+                  disabled={cardLoading}
                   style={{ 
                     padding: '12px 20px', 
                     borderRadius: 10, 
@@ -568,29 +767,39 @@ const Subscription = () => {
                     border: '1px solid var(--color-border)', 
                     color: 'var(--color-text)', 
                     fontWeight: 600,
-                    cursor: 'pointer'
+                    cursor: cardLoading ? 'not-allowed' : 'pointer',
+                    opacity: cardLoading ? 0.6 : 1
                   }}
                 >
                   Cancel
                 </button>
                 <button 
-                  onClick={() => {
-                    const newCard = { id: Date.now(), brand: 'Visa', last4: '1234', exp: '12/26' };
-                    setCards([...cards, newCard]);
-                    setCardModalOpen(false);
-                    addToast('Card added successfully!', 'success');
-                  }}
+                  onClick={handleCardSubmit}
+                  disabled={cardLoading}
                   style={{ 
                     padding: '12px 20px', 
                     borderRadius: 10, 
-                    background: '#111827', 
+                    background: cardLoading ? '#9ca3af' : '#111827', 
                     color: '#fff', 
                     border: 'none', 
                     fontWeight: 600,
-                    cursor: 'pointer'
+                    cursor: cardLoading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8
                   }}
                 >
-                  Add Card
+                  {cardLoading && (
+                    <div style={{
+                      width: 16,
+                      height: 16,
+                      border: '2px solid #fff3',
+                      borderTop: '2px solid #fff',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }} />
+                  )}
+                  {cardLoading ? 'Adding...' : 'Add Card'}
                 </button>
               </div>
             </div>

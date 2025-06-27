@@ -17,37 +17,11 @@ const CreateStore = () => {
     city: '',
     phone: '',
     email: '',
-    website: '',
-    cardNumber: '',
-    cardHolder: '',
-    expiryMonth: '',
-    expiryYear: '',
-    cvv: ''
+    website: ''
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    // Format card number with spaces
-    if (name === 'cardNumber') {
-      const numbersOnly = value.replace(/\D/g, '');
-      const formatted = numbersOnly.replace(/(\d{4})(?=\d)/g, '$1 ');
-      setFormData(prev => ({
-        ...prev,
-        [name]: formatted
-      }));
-      return;
-    }
-    
-    // Only allow numbers for CVV
-    if (name === 'cvv') {
-      const numbersOnly = value.replace(/\D/g, '');
-      setFormData(prev => ({
-        ...prev,
-        [name]: numbersOnly
-      }));
-      return;
-    }
     
     setFormData(prev => ({
       ...prev,
@@ -88,38 +62,6 @@ const CreateStore = () => {
       return;
     }
 
-    const cardNumberDigits = formData.cardNumber.replace(/\D/g, '');
-    if (!cardNumberDigits || cardNumberDigits.length !== 16) {
-      addToast('Please enter a valid 16-digit card number', 'error');
-      return;
-    }
-
-    if (!formData.cardHolder.trim()) {
-      addToast('Please enter card holder name', 'error');
-      return;
-    }
-
-    if (!formData.expiryMonth || !formData.expiryYear) {
-      addToast('Please enter card expiry date', 'error');
-      return;
-    }
-
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1;
-    const selectedYear = parseInt(formData.expiryYear);
-    const selectedMonth = parseInt(formData.expiryMonth);
-    
-    if (selectedYear < currentYear || (selectedYear === currentYear && selectedMonth < currentMonth)) {
-      addToast('Card expiry date cannot be in the past', 'error');
-      return;
-    }
-
-    if (!formData.cvv.trim() || formData.cvv.length < 3 || formData.cvv.length > 4) {
-      addToast('Please enter a valid CVV code (3-4 digits)', 'error');
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -130,12 +72,7 @@ const CreateStore = () => {
         contactEmail: formData.email || null,
         contactPhone: formData.phone || null,
         contactAddress: formData.address || null,
-        contactCity: formData.city || null,
-        paymentCardNumber: formData.cardNumber,
-        paymentCardHolder: formData.cardHolder,
-        paymentCardExpiryMonth: parseInt(formData.expiryMonth),
-        paymentCardExpiryYear: parseInt(formData.expiryYear),
-        paymentCardCvv: formData.cvv
+        contactCity: formData.city || null
       };
       
       const newStore = await storeService.createStore(storeData);
@@ -481,211 +418,7 @@ const CreateStore = () => {
                 </div>
               </div>
 
-            {/* Payment Information */}
-            <div style={{ marginBottom: 32 }}>
-              <h3 style={{ 
-                margin: '0 0 16px 0', 
-                fontSize: 18, 
-                fontWeight: 600, 
-                color: 'var(--color-text)' 
-              }}>
-                Payment Information
-              </h3>
-              
-              <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr' }}>
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: 8, 
-                    fontSize: 14, 
-                    fontWeight: 600, 
-                    color: 'var(--color-text)' 
-                  }}>
-                    Card Number *
-                  </label>
-                  <input
-                    type="text"
-                    name="cardNumber"
-                    value={formData.cardNumber}
-                    onChange={handleInputChange}
-                    placeholder="1234 5678 9012 3456"
-                    maxLength={19}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      border: '2px solid var(--color-border)',
-                      borderRadius: 12,
-                      background: 'var(--color-bg-secondary)',
-                      color: 'var(--color-text)',
-                      fontSize: 14,
-                      outline: 'none',
-                      transition: 'border-color 0.2s',
-                      boxSizing: 'border-box'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#111827'}
-                    onBlur={(e) => e.target.style.borderColor = 'var(--color-border)'}
-                  />
-                </div>
 
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: 8, 
-                    fontSize: 14, 
-                    fontWeight: 600, 
-                    color: 'var(--color-text)' 
-                  }}>
-                    Card Holder Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="cardHolder"
-                    value={formData.cardHolder}
-                    onChange={handleInputChange}
-                    placeholder="John Doe"
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      border: '2px solid var(--color-border)',
-                      borderRadius: 12,
-                      background: 'var(--color-bg-secondary)',
-                      color: 'var(--color-text)',
-                      fontSize: 14,
-                      outline: 'none',
-                      transition: 'border-color 0.2s',
-                      boxSizing: 'border-box'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#111827'}
-                    onBlur={(e) => e.target.style.borderColor = 'var(--color-border)'}
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr 1fr' }}>
-                  <div>
-                    <label style={{ 
-                      display: 'block', 
-                      marginBottom: 8, 
-                      fontSize: 14, 
-                      fontWeight: 600, 
-                      color: 'var(--color-text)' 
-                    }}>
-                      Expiry Month *
-                    </label>
-                    <select
-                      name="expiryMonth"
-                      value={formData.expiryMonth}
-                      onChange={handleInputChange}
-                      style={{
-                        width: '100%',
-                        padding: '12px 2.5rem 12px 16px',
-                        border: '2px solid var(--color-border)',
-                        borderRadius: 12,
-                        background: 'var(--color-bg-secondary)',
-                        color: 'var(--color-text)',
-                        fontSize: 14,
-                        outline: 'none',
-                        transition: 'border-color 0.2s',
-                        boxSizing: 'border-box',
-                        appearance: 'none',
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'right 1rem center',
-                        backgroundSize: '18px'
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = '#111827'}
-                      onBlur={(e) => e.target.style.borderColor = 'var(--color-border)'}
-                    >
-                      <option value="">Month</option>
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
-                          {String(i + 1).padStart(2, '0')}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label style={{ 
-                      display: 'block', 
-                      marginBottom: 8, 
-                      fontSize: 14, 
-                      fontWeight: 600, 
-                      color: 'var(--color-text)' 
-                    }}>
-                      Expiry Year *
-                    </label>
-                    <select
-                      name="expiryYear"
-                      value={formData.expiryYear}
-                      onChange={handleInputChange}
-                      style={{
-                        width: '100%',
-                        padding: '12px 2.5rem 12px 16px',
-                        border: '2px solid var(--color-border)',
-                        borderRadius: 12,
-                        background: 'var(--color-bg-secondary)',
-                        color: 'var(--color-text)',
-                        fontSize: 14,
-                        outline: 'none',
-                        transition: 'border-color 0.2s',
-                        boxSizing: 'border-box',
-                        appearance: 'none',
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'right 1rem center',
-                        backgroundSize: '18px'
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = '#111827'}
-                      onBlur={(e) => e.target.style.borderColor = 'var(--color-border)'}
-                    >
-                      <option value="">Year</option>
-                      {Array.from({ length: 20 }, (_, i) => {
-                        const year = new Date().getFullYear() + i;
-                        return (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label style={{ 
-                      display: 'block', 
-                      marginBottom: 8, 
-                      fontSize: 14, 
-                      fontWeight: 600, 
-                      color: 'var(--color-text)' 
-                    }}>
-                      CVV *
-                    </label>
-                    <input
-                      type="text"
-                      name="cvv"
-                      value={formData.cvv}
-                      onChange={handleInputChange}
-                      placeholder="123"
-                      maxLength={4}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        border: '2px solid var(--color-border)',
-                        borderRadius: 12,
-                        background: 'var(--color-bg-secondary)',
-                        color: 'var(--color-text)',
-                        fontSize: 14,
-                        outline: 'none',
-                        transition: 'border-color 0.2s',
-                        boxSizing: 'border-box'
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = '#111827'}
-                      onBlur={(e) => e.target.style.borderColor = 'var(--color-border)'}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
 
               {/* Form Actions */}
               <div style={{ 
