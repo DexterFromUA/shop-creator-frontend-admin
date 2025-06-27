@@ -34,6 +34,22 @@ class GraphQLClient {
 
 export const graphqlClient = new GraphQLClient();
 
+// Queries
+export const ME_QUERY = `
+  query Me {
+    me {
+      id
+      email
+      name
+      phone
+      subscriptionActive
+      subscriptionType
+      subscriptionStartDate
+      subscriptionEndDate
+    }
+  }
+`;
+
 // Auth mutations
 export const LOGIN_MUTATION = `
   mutation Login($email: String!, $password: String!) {
@@ -126,6 +142,15 @@ export const authService = {
       return data.register;
     } catch (error) {
       throw new Error(error.message || 'Registration failed');
+    }
+  },
+
+  async getCurrentUser() {
+    try {
+      const data = await graphqlClient.request(ME_QUERY);
+      return data.me;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get user info');
     }
   },
 };

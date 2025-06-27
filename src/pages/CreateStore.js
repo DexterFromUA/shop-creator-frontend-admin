@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import { storeService } from '../utils/graphql';
 import './Dashboard.css';
 
 const CreateStore = () => {
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const { user: currentUser, isAuthenticated, updateUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -102,11 +104,15 @@ const CreateStore = () => {
     setLoading(true);
 
     try {
-      // 1. Сначала обновляем подписку пользователя (Basic или Advanced)
-      const subscriptionType = formData.subscription.toUpperCase(); // BASIC или ADVANCED
-      await storeService.updateSubscription(subscriptionType);
+      // 1. Обновляем подписку только если у пользователя нет активной подписки
+      if (!currentUser?.subscriptionActive) {
+        const subscriptionType = formData.subscription.toUpperCase(); // BASIC или ADVANCED
+        const updatedUserData = await storeService.updateSubscription(subscriptionType);
+        // Обновляем user в AuthContext
+        updateUser(updatedUserData);
+      }
       
-      // 2. Затем создаем магазин с данными формы
+      // 2. Создаем магазин с данными формы
       const storeData = {
         name: formData.name,
         description: formData.description,
@@ -124,7 +130,10 @@ const CreateStore = () => {
       const newStore = await storeService.createStore(storeData);
       console.log('STORE', newStore);
       
-      addToast(`Store "${newStore.name}" created successfully with ${formData.subscription} plan!`, 'success');
+      const successMessage = currentUser?.subscriptionActive 
+        ? `Store "${newStore.name}" created successfully!`
+        : `Store "${newStore.name}" created successfully with ${formData.subscription} plan!`;
+      addToast(successMessage, 'success');
       navigate('/stores');
       
     } catch (error) {
@@ -154,6 +163,13 @@ const CreateStore = () => {
     };
   }, []);
 
+  useEffect(() => {
+    // Проверяем авторизацию
+    if (!isAuthenticated || !currentUser) {
+      navigate('/auth');
+    }
+  }, [isAuthenticated, currentUser, navigate]);
+
   return (
     <div style={{ 
       width: '100%',
@@ -174,23 +190,86 @@ const CreateStore = () => {
           </p>
         </div>
 
-        {/* Subscription Plan Card */}
-        <div className="dashboard-card" style={{ 
-          background: 'var(--color-bg)', 
-          borderRadius: 28, 
-          boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', 
-          padding: 32,
-          marginBottom: 32,
-          boxSizing: 'border-box'
-        }}>
-          <h3 style={{ 
-            margin: '0 0 16px 0', 
-            fontSize: 18, 
-            fontWeight: 600, 
-            color: 'var(--color-text)' 
+        {/* Subscription Plan Card - Only show if user doesn't have active subscription */}
+        {!currentUser ? (
+          <div className="dashboard-card" style={{ 
+            background: 'var(--color-bg)', 
+            borderRadius: 28, 
+            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', 
+            padding: 32,
+            marginBottom: 32,
+            boxSizing: 'border-box',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 120
           }}>
-            Choose Your Plan
-          </h3>
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>Loading subscription info...</p>
+          </div>
+        ) : currentUser.subscriptionActive ? (
+          <div className="dashboard-card" style={{ 
+            background: 'var(--color-bg)', 
+            borderRadius: 28, 
+            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', 
+            padding: 32,
+            marginBottom: 32,
+            boxSizing: 'border-box'
+          }}>
+            <h3 style={{ 
+              margin: '0 0 16px 0', 
+              fontSize: 18, 
+              fontWeight: 600, 
+              color: 'var(--color-text)' 
+            }}>
+              Your Current Plan
+            </h3>
+            <div style={{ 
+              padding: 24,
+              border: '2px solid #22c55e',
+              borderRadius: 16,
+              background: 'rgba(34, 197, 94, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <div>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: 16, fontWeight: 600, color: 'var(--color-text)' }}>
+                  {currentUser.subscriptionType.charAt(0) + currentUser.subscriptionType.slice(1).toLowerCase()} Plan
+                </h4>
+                <p style={{ margin: 0, fontSize: 14, color: 'var(--color-text-secondary)' }}>
+                  Active subscription • No additional payment required
+                </p>
+              </div>
+              <div style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: '#22c55e',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <span style={{ color: '#fff', fontSize: 18 }}>✓</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="dashboard-card" style={{ 
+            background: 'var(--color-bg)', 
+            borderRadius: 28, 
+            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', 
+            padding: 32,
+            marginBottom: 32,
+            boxSizing: 'border-box'
+          }}>
+            <h3 style={{ 
+              margin: '0 0 16px 0', 
+              fontSize: 18, 
+              fontWeight: 600, 
+              color: 'var(--color-text)' 
+            }}>
+              Choose Your Plan
+            </h3>
           
           <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr' }}>
             {/* Basic Plan */}
@@ -385,6 +464,7 @@ const CreateStore = () => {
             </div>
           </div>
         </div>
+        )}
 
         {/* Store Information Form Card */}
         <div className="dashboard-card" style={{ 
