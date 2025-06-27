@@ -326,7 +326,7 @@ const Subscription = () => {
             </p>
           </div>
           <button
-            onClick={() => navigate('/stores')}
+            onClick={() => navigate('/stores', { state: { fromStorePage: true } })}
             style={{
               padding: '8px 16px',
               borderRadius: 8,

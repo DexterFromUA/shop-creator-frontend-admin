@@ -143,7 +143,7 @@ const AppHeader = () => {
             <div className="app-header-right" style={{ gap: 12 }}>
         <button
           className="header-icon-btn"
-          onClick={() => navigate('/stores')}
+          onClick={() => navigate('/stores', { state: { fromStorePage: true } })}
           aria-label="View all stores"
           title="View all stores"
           style={{

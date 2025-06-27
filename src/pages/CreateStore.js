@@ -82,7 +82,7 @@ const CreateStore = () => {
       await refreshUser();
       
       addToast(`Store "${newStore.name}" created successfully!`, 'success');
-      navigate('/stores');
+      navigate('/stores', { state: { fromStorePage: true } });
       
     } catch (error) {
       console.error('Error creating store:', error);
@@ -93,7 +93,7 @@ const CreateStore = () => {
   };
 
   const handleCancel = () => {
-    navigate('/stores');
+    navigate('/stores', { state: { fromStorePage: true } });
   };
 
   useEffect(() => {

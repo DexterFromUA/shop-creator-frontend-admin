@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import './Dashboard.css';
@@ -8,6 +8,7 @@ const StoreSelection = () => {
   const { user, logout, refreshUser } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,13 +43,6 @@ const StoreSelection = () => {
     navigate('/stores/create');
   };
 
-  // Обновляем данные пользователя один раз при монтировании
-  useEffect(() => {
-    if (user) {
-      refreshUser();
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   useEffect(() => {
     if (user) {
       // Объединяем все сторы пользователя с указанием роли
@@ -57,16 +51,40 @@ const StoreSelection = () => {
         ...(user.managingStores || []).map(store => ({ ...store, role: 'MANAGER' })),
         ...(user.deliveringStores || []).map(store => ({ ...store, role: 'COURIER' }))
       ];
-      
 
-      
+      // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей)
+      const availableStores = allStores.filter(store => {
+        // Если у пользователя план BASIC и он владелец стора - считаем недоступным
+        if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {
+          return false;
+        }
+        return true;
+      });
+
       setStores(allStores);
       setLoading(false);
+
+      // Автоматическое перенаправление если доступен только один стор
+      // НО только если пользователь не пришел явно на страницу выбора сторов
+      const cameFromStore = location.state?.fromStorePage === true;
+      
+      if (availableStores.length === 1 && !cameFromStore) {
+        const store = availableStores[0];
+        navigate(`/store/${store.id}/dashboard`);
+        return;
+      }
     } else {
       // Если нет пользователя, перенаправляем на страницу авторизации
       navigate('/auth');
     }
   }, [user, navigate]);
+
+  // Обновляем данные пользователя один раз при монтировании
+  useEffect(() => {
+    if (user) {
+      refreshUser();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStoreSelect = (store) => {
     // Если у пользователя план BASIC и он владелец стора - блокируем доступ
