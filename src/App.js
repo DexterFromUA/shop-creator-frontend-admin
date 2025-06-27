@@ -28,16 +28,6 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/auth" />;
 };
 
-const StoreProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/auth" />;
-  }
-  
-  return children;
-};
-
 function App() {
   return (
     <AuthProvider>
@@ -68,11 +58,11 @@ function App() {
                 <Route
                   path="/store/:storeId/*"
                   element={
-                    <StoreProtectedRoute>
+                    <ProtectedRoute>
                       <StoreProvider>
                         <Layout />
                       </StoreProvider>
-                    </StoreProtectedRoute>
+                    </ProtectedRoute>
                   }
                 >
                   <Route index element={<Navigate to="dashboard" replace />} />
