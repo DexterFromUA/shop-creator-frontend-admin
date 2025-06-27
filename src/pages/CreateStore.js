@@ -6,7 +6,7 @@ import './Dashboard.css';
 
 const CreateStore = () => {
   const navigate = useNavigate();
-  const { showToast } = useToast();
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -58,28 +58,28 @@ const CreateStore = () => {
     e.preventDefault();
     
     if (!formData.name.trim()) {
-      showToast('Please enter a store name', 'error');
+      addToast('Please enter a store name', 'error');
       return;
     }
 
     if (!formData.description.trim()) {
-      showToast('Please enter a store description', 'error');
+      addToast('Please enter a store description', 'error');
       return;
     }
 
     const cardNumberDigits = formData.cardNumber.replace(/\D/g, '');
     if (!cardNumberDigits || cardNumberDigits.length !== 16) {
-      showToast('Please enter a valid 16-digit card number', 'error');
+      addToast('Please enter a valid 16-digit card number', 'error');
       return;
     }
 
     if (!formData.cardHolder.trim()) {
-      showToast('Please enter card holder name', 'error');
+      addToast('Please enter card holder name', 'error');
       return;
     }
 
     if (!formData.expiryMonth || !formData.expiryYear) {
-      showToast('Please enter card expiry date', 'error');
+      addToast('Please enter card expiry date', 'error');
       return;
     }
 
@@ -90,12 +90,12 @@ const CreateStore = () => {
     const selectedMonth = parseInt(formData.expiryMonth);
     
     if (selectedYear < currentYear || (selectedYear === currentYear && selectedMonth < currentMonth)) {
-      showToast('Card expiry date cannot be in the past', 'error');
+      addToast('Card expiry date cannot be in the past', 'error');
       return;
     }
 
     if (!formData.cvv.trim() || formData.cvv.length < 3 || formData.cvv.length > 4) {
-      showToast('Please enter a valid CVV code (3-4 digits)', 'error');
+      addToast('Please enter a valid CVV code (3-4 digits)', 'error');
       return;
     }
 
@@ -122,13 +122,14 @@ const CreateStore = () => {
       };
       
       const newStore = await storeService.createStore(storeData);
+      console.log('STORE', newStore);
       
-      showToast(`Store "${newStore.name}" created successfully with ${formData.subscription} plan!`, 'success');
+      addToast(`Store "${newStore.name}" created successfully with ${formData.subscription} plan!`, 'success');
       navigate('/stores');
       
     } catch (error) {
       console.error('Error creating store:', error);
-      showToast(error.message || 'Failed to create store. Please try again.', 'error');
+      addToast(error.message || 'Failed to create store. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
