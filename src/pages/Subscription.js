@@ -101,6 +101,12 @@ const Subscription = () => {
       return;
     }
 
+    // Проверяем наличие карты для платных планов
+    if (selectedPlan !== 'BASIC' && cards.length === 0) {
+      addToast('Please add a payment card before upgrading to a paid plan', 'error');
+      return;
+    }
+
     setLoading(true);
     try {
       const updatedUser = await storeService.updateSubscription(selectedPlan);
@@ -451,24 +457,53 @@ const Subscription = () => {
                     </li>
                   ))}
                 </ul>
+                
+                {plan.id !== 'BASIC' && cards.length === 0 && (
+                  <div style={{ 
+                    marginTop: 12, 
+                    padding: '8px 12px', 
+                    background: 'rgba(239, 68, 68, 0.1)', 
+                    borderRadius: 6, 
+                    fontSize: 12, 
+                    color: '#dc2626',
+                    fontWeight: 500
+                  }}>
+                    💳 Card required
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>
           
           {/* Update Button */}
           <div style={{ marginTop: 32, textAlign: 'center' }}>
+            {selectedPlan !== 'BASIC' && cards.length === 0 && (
+              <div style={{ 
+                marginBottom: 16, 
+                padding: '12px 16px', 
+                background: 'rgba(239, 68, 68, 0.1)', 
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: 8, 
+                color: '#dc2626', 
+                fontSize: 14,
+                fontWeight: 500
+              }}>
+                ⚠️ Add a payment card first to upgrade to a paid plan
+              </div>
+            )}
             <button
               onClick={handlePlanChange}
-              disabled={loading}
+              disabled={loading || (selectedPlan !== 'BASIC' && cards.length === 0)}
               style={{
                 padding: '12px 32px',
                 borderRadius: 12,
                 border: 'none',
-                background: loading ? '#9ca3af' : '#111827',
+                background: loading || (selectedPlan !== 'BASIC' && cards.length === 0) ? '#9ca3af' : '#111827',
                 color: '#fff',
-                cursor: loading ? 'not-allowed' : 'pointer',
+                cursor: loading || (selectedPlan !== 'BASIC' && cards.length === 0) ? 'not-allowed' : 'pointer',
                 fontSize: 16,
-                fontWeight: 600
+                fontWeight: 600,
+                opacity: loading || (selectedPlan !== 'BASIC' && cards.length === 0) ? 0.6 : 1
               }}
             >
               {loading ? 'Updating...' : 'Update Subscription'}
