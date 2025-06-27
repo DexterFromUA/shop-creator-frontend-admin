@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useStore } from '../context/StoreContext';
 import './Dashboard.css';
 
 const initialManagers = [
@@ -72,6 +74,9 @@ const AddUserModal = ({ open, onClose, onAdd, role }) => {
 };
 
 const Team = () => {
+  const { currentStore } = useStore();
+  const navigate = useNavigate();
+  
   const [managers, setManagers] = useState(initialManagers);
   const [couriers, setCouriers] = useState(initialCouriers);
   const [modal, setModal] = useState({ open: false, role: null });
@@ -127,6 +132,68 @@ const Team = () => {
   const getStatusBgColor = (status) => {
     return status === 'active' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(107, 114, 128, 0.1)';
   };
+
+  // Проверяем подписку владельца стора
+  const isOwnerProOrUnlimited = currentStore?.owner?.subscriptionType === 'PRO' || 
+                                 currentStore?.owner?.subscriptionType === 'UNLIMITED';
+
+  // Если подписка не подходит, показываем сообщение об ограничении
+  if (!isOwnerProOrUnlimited) {
+    return (
+      <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: '48px 16px', boxSizing: 'border-box' }}>
+        <div style={{ maxWidth: 800, width: '100%', margin: '0 auto' }}>
+          <div className="dashboard-card" style={{ 
+            background: 'var(--color-bg)', 
+            borderRadius: 28, 
+            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', 
+            padding: 48,
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: 64, marginBottom: 24 }}>🔒</div>
+            <h1 style={{ margin: '0 0 16px 0', fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
+              Premium Feature
+            </h1>
+            <p style={{ margin: '0 0 32px 0', fontSize: 16, color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+              Team management is available for stores with PRO subscriptions. 
+              The store owner needs to upgrade their subscription to access this feature.
+            </p>
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
+              <button
+                onClick={() => navigate(`/store/${currentStore?.id}/dashboard`)}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: 12,
+                  border: '2px solid var(--color-border)',
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text)',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 600
+                }}
+              >
+                Back to Dashboard
+              </button>
+              <button
+                onClick={() => navigate('/stores')}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: 12,
+                  border: 'none',
+                  background: '#111827',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 600
+                }}
+              >
+                Manage Stores
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>

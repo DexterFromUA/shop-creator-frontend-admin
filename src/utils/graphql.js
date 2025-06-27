@@ -285,6 +285,10 @@ export const GET_STORE_QUERY = `
         email
         name
         phone
+        subscriptionActive
+        subscriptionType
+        subscriptionStartDate
+        subscriptionEndDate
       }
       managers {
         id

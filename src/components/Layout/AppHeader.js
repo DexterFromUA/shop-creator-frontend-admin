@@ -51,11 +51,17 @@ const AppHeader = () => {
     }
   ]);
 
+  // Проверяем подписку владельца стора для ограничения доступа
+  // Проверяем только если данные загружены
+  const isOwnerProOrUnlimited = !loading && currentStore?.owner && 
+                                 (currentStore.owner.subscriptionType === 'PRO' || 
+                                  currentStore.owner.subscriptionType === 'UNLIMITED');
+
   const menuItems = storeId ? [
     { to: `/store/${storeId}/dashboard`, label: 'Dashboard', icon: '📊' },
     { to: `/store/${storeId}/orders`, label: 'Orders', icon: '🛒' },
     { to: `/store/${storeId}/products`, label: 'Products', icon: '📦' },
-    { to: `/store/${storeId}/notifications`, label: 'Notifications', icon: '🔔' },
+    ...(isOwnerProOrUnlimited ? [{ to: `/store/${storeId}/notifications`, label: 'Notifications', icon: '🔔' }] : []),
   ] : [];
   
   const menuRefs = useRef([]);
@@ -258,10 +264,12 @@ const AppHeader = () => {
           </button>
           {dropdownOpen && (
             <div className="user-dropdown">
-              <div className="user-dropdown-item" onClick={() => { toggleTheme(); setDropdownOpen(false); }}>
+                             <div className="user-dropdown-item" onClick={() => { toggleTheme(); setDropdownOpen(false); }}>
                  {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
                </div>
-               <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/team` : '/team'); setDropdownOpen(false); }}>Team</div>
+               {isOwnerProOrUnlimited && (
+                 <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/team` : '/team'); setDropdownOpen(false); }}>Team</div>
+               )}
                <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/users` : '/users'); setDropdownOpen(false); }}>Users</div>
                <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/payouts` : '/payouts'); setDropdownOpen(false); }}>Payouts</div>
                <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/app-settings` : '/app-settings'); setDropdownOpen(false); }}>App Settings</div>
