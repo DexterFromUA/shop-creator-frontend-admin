@@ -76,7 +76,6 @@ const CreateStore = () => {
       };
       
       const newStore = await storeService.createStore(storeData);
-      console.log('STORE', newStore);
       
       // Обновляем данные пользователя чтобы новый стор появился в списке
       await refreshUser();

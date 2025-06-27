@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await authService.login(email, password);
-      console.log('RESPONSE', response);
+              console.log('RESPONSE', response);
       const userData = response.client;
       
       setUser(userData);
