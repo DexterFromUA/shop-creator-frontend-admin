@@ -138,7 +138,7 @@ const AppHeader = () => {
           </div>
         </div>
       </div>
-      <div className="app-header-right">
+      <div className="app-header-right" style={{ gap: 12 }}>
         {currentStore && (
           <div style={{ 
             display: 'flex', 
@@ -162,6 +162,30 @@ const AppHeader = () => {
             </svg>
           </div>
         )}
+        <button
+          className="header-icon-btn"
+          onClick={() => navigate('/stores')}
+          aria-label="View all stores"
+          title="View all stores"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '0 12px',
+            fontSize: 14,
+            fontWeight: 500,
+            minWidth: 'auto',
+            width: 'auto'
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          Stores
+        </button>
         <div className="notifications-wrapper" ref={notificationsRef}>
           <button
             className="header-icon-btn notifications-btn"
