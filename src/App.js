@@ -18,7 +18,7 @@ const WebNotifications = lazy(() => import('./pages/WebNotifications'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Team = lazy(() => import('./pages/Team'));
 const Users = lazy(() => import('./pages/Users'));
-const Billing = lazy(() => import('./pages/Billing'));
+const Payouts = lazy(() => import('./pages/Payouts'));
 const ProductView = lazy(() => import('./pages/ProductView'));
 const StoreSelection = lazy(() => import('./pages/StoreSelection'));
 const CreateStore = lazy(() => import('./pages/CreateStore'));
@@ -85,7 +85,7 @@ function App() {
                   <Route path="users" element={<Users />} />
                   <Route path="notifications" element={<Notifications />} />
                   <Route path="web-notifications" element={<WebNotifications />} />
-                  <Route path="billing" element={<Billing />} />
+                  <Route path="payouts" element={<Payouts />} />
                   <Route path="settings" element={<Settings />} />
                 </Route>
               </Routes>
