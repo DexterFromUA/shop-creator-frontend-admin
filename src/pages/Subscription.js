@@ -41,20 +41,20 @@ const Subscription = () => {
       id: 'BASIC',
       name: 'Basic Plan',
       price: 'Free',
-      features: ['Up to 100 products', 'Basic analytics', 'Email support', 'Standard themes', 'Perfect for managers & couriers']
+      features: ['Work in existing stores', 'Manager & courier access', 'Basic analytics', 'Email support', 'Standard themes']
     },
     {
       id: 'ADVANCED', 
       name: 'Advanced Plan',
       price: '$29',
       popular: true,
-      features: ['Unlimited products', 'Advanced analytics', 'Priority support', 'Custom themes', 'API access']
+      features: ['Own 1 store', 'Unlimited products', 'Advanced analytics', 'Priority support', 'Custom themes', 'API access']
     },
     {
       id: 'PRO',
       name: 'PRO Plan', 
       price: '$99',
-      features: ['Everything in Advanced', 'White-label solution', 'Custom integrations', 'Dedicated account manager', 'SLA guarantee']
+      features: ['Own up to 3 stores', 'Everything in Advanced', 'White-label solution', 'Custom integrations', 'Dedicated account manager', 'SLA guarantee']
     }
   ];
 
@@ -65,7 +65,7 @@ const Subscription = () => {
       id: 'UNLIMITED',
       name: 'Unlimited Plan',
       price: '$999',
-      features: ['Everything in PRO', 'Unlimited everything', 'Admin access', 'Custom development']
+      features: ['Unlimited stores', 'Everything in PRO', 'Admin access', 'Custom development', 'White-glove support']
     }
   ];
 

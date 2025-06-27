@@ -11,14 +11,35 @@ const StoreSelection = () => {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const getStoreLimit = (subscriptionType) => {
+    switch (subscriptionType) {
+      case 'BASIC': return 0;
+      case 'ADVANCED': return 1;
+      case 'PRO': return 3;
+      case 'UNLIMITED': return Infinity;
+      default: return 0;
+    }
+  };
+
   const handleCreateStoreClick = () => {
+    const ownedStores = stores.filter(store => store.role === 'OWNER');
+    const storeLimit = getStoreLimit(user?.subscriptionType);
+    
     // Если у пользователя базовый план, ведем на страницу подписки
     if (user?.subscriptionType === 'BASIC') {
       navigate('/subscription');
-    } else {
-      // Для платных планов ведем на создание стора
-      navigate('/stores/create');
+      return;
     }
+    
+    // Проверяем лимит магазинов
+    if (ownedStores.length >= storeLimit) {
+      addToast(`You can only own ${storeLimit} store${storeLimit > 1 ? 's' : ''} with your ${user?.subscriptionType} plan. Upgrade to create more stores.`, 'info');
+      navigate('/subscription');
+      return;
+    }
+    
+    // Для платных планов с доступными слотами ведем на создание стора
+    navigate('/stores/create');
   };
 
   // Обновляем данные пользователя один раз при монтировании
@@ -316,28 +337,46 @@ const StoreSelection = () => {
                 e.currentTarget.style.background = 'var(--color-bg-secondary)';
               }}
             >
-              <div style={{ fontSize: 32, marginBottom: 12, color: 'var(--color-text-secondary)' }}>
-                {user?.subscriptionType === 'BASIC' ? '⭐' : '+'}
-              </div>
-              <h3 style={{ 
-                margin: 0, 
-                fontSize: 16, 
-                fontWeight: 600, 
-                color: 'var(--color-text)',
-                marginBottom: 4
-              }}>
-                {user?.subscriptionType === 'BASIC' ? 'Upgrade to Create Store' : 'Create New Store'}
-              </h3>
-              <p style={{ 
-                margin: 0, 
-                color: 'var(--color-text-secondary)', 
-                fontSize: 14
-              }}>
-                {user?.subscriptionType === 'BASIC' 
-                  ? 'Upgrade to a paid plan to start creating your own stores'
-                  : 'Start a new store and begin selling your products'
-                }
-              </p>
+              {(() => {
+                const ownedStores = stores.filter(store => store.role === 'OWNER');
+                const storeLimit = getStoreLimit(user?.subscriptionType);
+                const isBasic = user?.subscriptionType === 'BASIC';
+                const isLimitReached = ownedStores.length >= storeLimit && storeLimit !== Infinity;
+                
+                return (
+                  <>
+                    <div style={{ fontSize: 32, marginBottom: 12, color: 'var(--color-text-secondary)' }}>
+                      {isBasic ? '⭐' : isLimitReached ? '🔒' : '+'}
+                    </div>
+                    <h3 style={{ 
+                      margin: 0, 
+                      fontSize: 16, 
+                      fontWeight: 600, 
+                      color: 'var(--color-text)',
+                      marginBottom: 4
+                    }}>
+                      {isBasic 
+                        ? 'Upgrade to Create Store' 
+                        : isLimitReached 
+                          ? 'Upgrade for More Stores'
+                          : 'Create New Store'
+                      }
+                    </h3>
+                    <p style={{ 
+                      margin: 0, 
+                      color: 'var(--color-text-secondary)', 
+                      fontSize: 14
+                    }}>
+                      {isBasic 
+                        ? 'Upgrade to a paid plan to start creating your own stores'
+                        : isLimitReached
+                          ? `You've reached your limit of ${storeLimit} store${storeLimit > 1 ? 's' : ''}. Upgrade to create more.`
+                          : `You can create ${storeLimit === Infinity ? 'unlimited' : storeLimit - ownedStores.length} more store${storeLimit === Infinity || (storeLimit - ownedStores.length) > 1 ? 's' : ''} with your ${user?.subscriptionType} plan.`
+                      }
+                    </p>
+                  </>
+                );
+              })()}
             </div>
             </div>
           </div>

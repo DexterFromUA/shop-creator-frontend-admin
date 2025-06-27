@@ -55,8 +55,28 @@ const CreateStore = () => {
     }));
   };
 
+  const getStoreLimit = (subscriptionType) => {
+    switch (subscriptionType) {
+      case 'BASIC': return 0;
+      case 'ADVANCED': return 1;
+      case 'PRO': return 3;
+      case 'UNLIMITED': return Infinity;
+      default: return 0;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Проверяем лимит магазинов
+    const ownedStores = currentUser?.stores || [];
+    const storeLimit = getStoreLimit(currentUser?.subscriptionType);
+    
+    if (ownedStores.length >= storeLimit) {
+      addToast(`You can only own ${storeLimit} store${storeLimit > 1 ? 's' : ''} with your ${currentUser?.subscriptionType} plan. Please upgrade your subscription.`, 'error');
+      navigate('/subscription');
+      return;
+    }
     
     if (!formData.name.trim()) {
       addToast('Please enter a store name', 'error');
