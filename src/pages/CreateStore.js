@@ -140,7 +140,12 @@ const CreateStore = () => {
       minHeight: '100vh',
       background: 'var(--color-bg-secondary)',
       padding: '48px 16px',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      animation: 'fadeIn 0.5s ease-out',
+      '@keyframes fadeIn': {
+        from: { opacity: 0, transform: 'translateY(10px)' },
+        to: { opacity: 1, transform: 'translateY(0)' }
+      }
     }}>
       <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto' }}>
         {/* Page Header */}
