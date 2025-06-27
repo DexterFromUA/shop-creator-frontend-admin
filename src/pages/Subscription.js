@@ -116,23 +116,31 @@ const Subscription = () => {
   // Валидация номера карты (Luhn algorithm)
   const validateCardNumber = (number) => {
     const cleaned = number.replace(/\s/g, '');
+    
+    // Проверяем, что только цифры и правильная длина
     if (!/^\d+$/.test(cleaned) || cleaned.length < 13 || cleaned.length > 19) {
       return false;
     }
     
     let sum = 0;
     let alternate = false;
+    
+    // Проходим справа налево
     for (let i = cleaned.length - 1; i >= 0; i--) {
       let n = parseInt(cleaned.charAt(i), 10);
+      
       if (alternate) {
         n *= 2;
+        // Если больше 9, вычитаем 9 (это то же самое что складывать цифры)
         if (n > 9) {
-          n = (n % 10) + 1;
+          n -= 9;
         }
       }
+      
       sum += n;
       alternate = !alternate;
     }
+    
     return (sum % 10) === 0;
   };
 
@@ -153,7 +161,11 @@ const Subscription = () => {
 
     // Валидация номера карты
     const cleanedNumber = cardForm.paymentCardNumber.replace(/\s/g, '');
-    if (!validateCardNumber(cleanedNumber)) {
+    console.log('Validating card number:', cleanedNumber);
+    const isValid = validateCardNumber(cleanedNumber);
+    console.log('Card validation result:', isValid);
+    
+    if (!isValid) {
       addToast('Please enter a valid card number', 'error');
       return;
     }
@@ -475,21 +487,23 @@ const Subscription = () => {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
             <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: 'var(--color-text)' }}>Payment Methods</h3>
-            <button 
-              onClick={() => setCardModalOpen(true)} 
-              style={{ 
-                padding: '8px 16px', 
-                borderRadius: 8, 
-                background: '#111827', 
-                color: '#fff', 
-                border: 'none', 
-                fontWeight: 600, 
-                fontSize: 14, 
-                cursor: 'pointer' 
-              }}
-            >
-              + Add Card
-            </button>
+            {cards.length === 0 && (
+              <button 
+                onClick={() => setCardModalOpen(true)} 
+                style={{ 
+                  padding: '8px 16px', 
+                  borderRadius: 8, 
+                  background: '#111827', 
+                  color: '#fff', 
+                  border: 'none', 
+                  fontWeight: 600, 
+                  fontSize: 14, 
+                  cursor: 'pointer' 
+                }}
+              >
+                + Add Card
+              </button>
+            )}
           </div>
           {cards.length === 0 ? (
             <div style={{ padding: '16px 0', color: 'var(--color-text-secondary)', fontSize: 15 }}>No cards added.</div>
