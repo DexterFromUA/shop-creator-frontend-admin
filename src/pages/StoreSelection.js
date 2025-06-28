@@ -196,9 +196,9 @@ const StoreSelection = () => {
             {/* Stores List */}
             {stores.length > 0 && (
               <div style={{ 
-                display: 'grid', 
+                display: 'flex',
+                flexDirection: 'column',
                 gap: 24, 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
                 marginBottom: 24
               }}>
                 {stores.map((store) => {
@@ -330,11 +330,7 @@ const StoreSelection = () => {
             )}
 
             {/* Create New Store Button */}
-            <div style={{ 
-              display: 'grid', 
-              gap: 24, 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))'
-            }}>
+            <div>
               <div 
                 onClick={handleCreateStoreClick}
                 style={{
