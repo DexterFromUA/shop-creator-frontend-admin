@@ -7,14 +7,73 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 
 const AppHeader = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { currentStore, storeId, loading } = useStore();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const dropdownRef = useRef();
+  const userDropdownRef = useRef();
+  const adminDropdownRef = useRef();
   const notificationsRef = useRef();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Определяем нужно ли показывать кнопку Stores используя свежие данные из StoreContext
+  const shouldShowStoresButton = () => {
+    if (!user) return true;
+    
+    // Если мы на странице стора, используем свежие данные из currentStore
+    if (!loading && currentStore?.owner && storeId) {
+      const subscription = currentStore.owner.subscriptionType;
+      const isCurrentUserOwner = currentStore.owner.id === user.id;
+      
+      if (subscription === 'ADVANCED' && isCurrentUserOwner) {
+        // Для ADVANCED владельца - скрываем кнопку
+        return false;
+      }
+      
+      if (subscription === 'BASIC' && isCurrentUserOwner) {
+        // Для BASIC владельца - скрываем кнопку  
+        return false;
+      }
+      
+      // Для PRO/UNLIMITED или не владельца - показываем
+      return true;
+    }
+    
+    // Если НЕ на странице стора, используем данные из AuthContext
+    const subscription = user.subscriptionType;
+    
+    // Получаем все сторы пользователя с ролями
+    const allStores = [
+      ...(user.stores || []).map(store => ({ ...store, role: 'OWNER' })),
+      ...(user.managingStores || []).map(store => ({ ...store, role: 'MANAGER' })),
+      ...(user.deliveringStores || []).map(store => ({ ...store, role: 'COURIER' }))
+    ];
+
+    // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей)
+    const availableStores = allStores.filter((store, index, arr) => {
+      const isUnique = arr.findIndex(s => s.id === store.id) === index;
+      if (!isUnique) return false;
+      
+      if (subscription === 'BASIC' && store.role === 'OWNER') {
+        return false;
+      }
+      return true;
+    });
+
+    if (subscription === 'BASIC') {
+      // Для BASIC: скрываем кнопку если ровно 1 доступный стор
+      return availableStores.length !== 1;
+    } else if (subscription === 'ADVANCED') {
+      // Для ADVANCED: скрываем кнопку если ровно 1 стор где он OWNER
+      const ownedStores = availableStores.filter(store => store.role === 'OWNER');
+      return ownedStores.length !== 1;
+    }
+    
+    // Для PRO и UNLIMITED всегда показываем кнопку
+    return true;
+  };
 
   const [notifications, setNotifications] = useState([
     {
@@ -83,19 +142,24 @@ const AppHeader = () => {
     }
   }, [location.pathname, activeMenuIndex]);
 
+
+
   // Close dropdowns on outside click
   React.useEffect(() => {
     function handleClick(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false);
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
+        setUserDropdownOpen(false);
+      }
+      if (adminDropdownRef.current && !adminDropdownRef.current.contains(e.target)) {
+        setAdminDropdownOpen(false);
       }
       if (notificationsRef.current && !notificationsRef.current.contains(e.target)) {
         setNotificationsOpen(false);
       }
     }
-    if (dropdownOpen || notificationsOpen) document.addEventListener('mousedown', handleClick);
+    if (userDropdownOpen || adminDropdownOpen || notificationsOpen) document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [dropdownOpen, notificationsOpen]);
+  }, [userDropdownOpen, adminDropdownOpen, notificationsOpen]);
 
   const markAllAsRead = () => {
     setNotifications(prev => prev.map(notification => ({ ...notification, read: true })));
@@ -147,30 +211,32 @@ const AppHeader = () => {
         </div>
       </div>
             <div className="app-header-right" style={{ gap: 12 }}>
-        <button
-          className="header-icon-btn"
-          onClick={() => navigate('/stores', { state: { fromStorePage: true } })}
-          aria-label="View all stores"
-          title="View all stores"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '0 12px',
-            fontSize: 14,
-            fontWeight: 500,
-            minWidth: 'auto',
-            width: 'auto'
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="7" height="7"/>
-            <rect x="14" y="3" width="7" height="7"/>
-            <rect x="14" y="14" width="7" height="7"/>
-            <rect x="3" y="14" width="7" height="7"/>
-          </svg>
-          Stores
-        </button>
+        {shouldShowStoresButton() && (
+          <button
+            className="header-icon-btn"
+            onClick={() => navigate('/stores', { state: { fromStorePage: true } })}
+            aria-label="View all stores"
+            title="View all stores"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '0 12px',
+              fontSize: 14,
+              fontWeight: 500,
+              minWidth: 'auto',
+              width: 'auto'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            Stores
+          </button>
+        )}
         <div className="notifications-wrapper" ref={notificationsRef}>
           <button
             className="header-icon-btn notifications-btn"
@@ -250,10 +316,37 @@ const AppHeader = () => {
           )}
         </div>
 
-        <div className="user-menu-wrapper" ref={dropdownRef}>
+        {/* Admin Menu */}
+        <div className="user-menu-wrapper" ref={adminDropdownRef}>
+          <button
+            className="header-icon-btn"
+            onClick={() => setAdminDropdownOpen((v) => !v)}
+            aria-label="Admin menu"
+            title="Admin menu"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+          {adminDropdownOpen && (
+            <div className="user-dropdown">
+              {isOwnerProOrUnlimited && (
+                <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/team` : '/team'); setAdminDropdownOpen(false); }}>Team</div>
+              )}
+              <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/users` : '/users'); setAdminDropdownOpen(false); }}>Users</div>
+              <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/payouts` : '/payouts'); setAdminDropdownOpen(false); }}>Payouts</div>
+              <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/app-settings` : '/app-settings'); setAdminDropdownOpen(false); }}>App Settings</div>
+              <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/settings` : '/settings'); setAdminDropdownOpen(false); }}>Settings</div>
+            </div>
+          )}
+        </div>
+
+        {/* User Menu */}
+        <div className="user-menu-wrapper" ref={userDropdownRef}>
           <button
             className="header-icon-btn user-avatar"
-            onClick={() => setDropdownOpen((v) => !v)}
+            onClick={() => setUserDropdownOpen((v) => !v)}
             aria-label="User menu"
           >
             <img 
@@ -262,19 +355,15 @@ const AppHeader = () => {
               style={{ width: 32, height: 32, borderRadius: '8px', objectFit: 'cover' }} 
             />
           </button>
-          {dropdownOpen && (
+          {userDropdownOpen && (
             <div className="user-dropdown">
-                             <div className="user-dropdown-item" onClick={() => { toggleTheme(); setDropdownOpen(false); }}>
-                 {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
-               </div>
-               {isOwnerProOrUnlimited && (
-                 <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/team` : '/team'); setDropdownOpen(false); }}>Team</div>
-               )}
-               <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/users` : '/users'); setDropdownOpen(false); }}>Users</div>
-               <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/payouts` : '/payouts'); setDropdownOpen(false); }}>Payouts</div>
-               <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/app-settings` : '/app-settings'); setDropdownOpen(false); }}>App Settings</div>
-               <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/settings` : '/settings'); setDropdownOpen(false); }}>Settings</div>
-               <div className="user-dropdown-item" style={{ color: '#ef4444' }} onClick={() => { logout(); setDropdownOpen(false); navigate('/auth'); }}>Logout</div>
+              <div className="user-dropdown-item" onClick={() => { navigate('/stores'); setUserDropdownOpen(false); }}>Profile</div>
+              <div className="user-dropdown-item" onClick={() => { navigate('/subscription'); setUserDropdownOpen(false); }}>Subscription</div>
+              <div className="user-dropdown-item" onClick={() => { refreshUser(); setUserDropdownOpen(false); }}>Refresh Data</div>
+              <div className="user-dropdown-item" onClick={() => { toggleTheme(); setUserDropdownOpen(false); }}>
+                {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
+              </div>
+              <div className="user-dropdown-item" style={{ color: '#ef4444' }} onClick={() => { logout(); setUserDropdownOpen(false); navigate('/auth'); }}>Logout</div>
             </div>
           )}
         </div>

@@ -8,10 +8,13 @@ import './Dashboard.css';
 
 const Subscription = () => {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, refreshUser } = useAuth();
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(user?.subscriptionType || 'BASIC');
+  
+  // Состояние для кнопки сторов
+  const [storeButtonConfig, setStoreButtonConfig] = useState({ text: 'Stores', action: () => navigate('/stores', { state: { fromStorePage: true } }) });
   
   // Payment Methods state
   const getUserCard = () => {
@@ -231,6 +234,60 @@ const Subscription = () => {
     });
   };
 
+  // Получаем доступные сторы для пользователя
+  const getAvailableStores = () => {
+    if (!user) return [];
+    
+    const allStores = [
+      ...(user.stores || []).map(store => ({ ...store, role: 'OWNER' })),
+      ...(user.managingStores || []).map(store => ({ ...store, role: 'MANAGER' })),
+      ...(user.deliveringStores || []).map(store => ({ ...store, role: 'COURIER' }))
+    ];
+
+    // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей)
+    const availableStores = allStores.filter((store, index, arr) => {
+      // Убираем дубликаты по ID
+      const isUnique = arr.findIndex(s => s.id === store.id) === index;
+      if (!isUnique) return false;
+      
+      // Если у пользователя план BASIC и он владелец стора - считаем недоступным
+      if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {
+        return false;
+      }
+      return true;
+    });
+
+    return availableStores;
+  };
+
+  // Определяем логику кнопки сторов
+  const getStoreButtonLogic = () => {
+    const availableStores = getAvailableStores();
+    const subscription = user?.subscriptionType;
+    
+    let shouldGoToSingleStore = false;
+    let targetStore = null;
+    
+    if (subscription === 'BASIC') {
+      // Для BASIC: показываем Store если ровно 1 доступный стор (любая роль)
+      shouldGoToSingleStore = availableStores.length === 1;
+      targetStore = availableStores[0];
+    } else if (subscription === 'ADVANCED') {
+      // Для ADVANCED: показываем Store если ровно 1 стор где он OWNER
+      const ownedStores = availableStores.filter(store => store.role === 'OWNER');
+      shouldGoToSingleStore = ownedStores.length === 1;
+      targetStore = ownedStores[0];
+    }
+    // Для PRO и UNLIMITED всегда показываем Stores
+    
+    return {
+      text: shouldGoToSingleStore ? 'Store' : 'Stores',
+      action: shouldGoToSingleStore ? 
+        () => navigate(`/store/${targetStore.id}/dashboard`) :
+        () => navigate('/stores', { state: { fromStorePage: true } })
+    };
+  };
+
   const statusStyles = {
     paid: { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981' },
     due: { bg: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' },
@@ -257,6 +314,16 @@ const Subscription = () => {
     const userCard = getUserCard();
     setCards(userCard ? [userCard] : []);
   }, [user]);
+
+  useEffect(() => {
+    // Автоматически обновляем данные пользователя при загрузке страницы
+    refreshUser();
+  }, []);
+
+  useEffect(() => {
+    // Обновляем конфигурацию кнопки сторов при изменении подписки пользователя
+    setStoreButtonConfig(getStoreButtonLogic());
+  }, [user?.subscriptionType, user?.stores, user?.managingStores, user?.deliveringStores]);
 
   const containerVariants = {
     initial: { opacity: 0 },
@@ -326,7 +393,7 @@ const Subscription = () => {
             </p>
           </div>
           <button
-            onClick={() => navigate('/stores', { state: { fromStorePage: true } })}
+            onClick={storeButtonConfig.action}
             style={{
               padding: '8px 16px',
               borderRadius: 8,
@@ -338,7 +405,7 @@ const Subscription = () => {
               fontWeight: 600
             }}
           >
-            Stores
+            {storeButtonConfig.text}
           </button>
         </div>
 
