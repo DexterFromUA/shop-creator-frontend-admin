@@ -29,7 +29,6 @@ export const StoreProvider = ({ children }) => {
       
       try {
         const store = await fetchStoreById(storeId);
-        console.log('STORE', store);
         
         // Проверяем активность стора
         if (!store.isActive) {

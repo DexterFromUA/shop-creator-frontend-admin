@@ -7,7 +7,7 @@ const THEME_KEY = 'shop_admin_theme';
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem(THEME_KEY);
-    return stored ? stored : 'dark';
+    return stored ? stored : 'light';
   });
 
   useEffect(() => {
