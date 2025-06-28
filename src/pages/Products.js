@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import './Dashboard.css';
 
 export const initialProducts = [
@@ -64,6 +64,7 @@ const Products = () => {
   const buttonsRef = useRef([]);
   const containerRef = useRef(null);
   const navigate = useNavigate();
+  const { storeId } = useParams();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -208,7 +209,7 @@ const Products = () => {
                   <motion.div
                     key={product.id}
                     variants={gridItemVariants}
-                    onClick={() => navigate(`/products/${product.id}`)}
+                    onClick={() => navigate(`/store/${storeId}/products/${product.id}`)}
                     style={{ cursor: 'pointer', background: 'var(--color-bg-secondary)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column', gap: 16, border: '1px solid var(--color-border)' }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -249,7 +250,7 @@ const Products = () => {
                   </thead>
                   <tbody>
                     {filtered.map((product, i) => (
-                      <motion.tr key={product.id} variants={listVariants} initial="initial" animate="animate" exit="exit" style={{ cursor: 'pointer' }} onClick={() => navigate(`/products/${product.id}`)}>
+                      <motion.tr key={product.id} variants={listVariants} initial="initial" animate="animate" exit="exit" style={{ cursor: 'pointer' }} onClick={() => navigate(`/store/${storeId}/products/${product.id}`)}>
                         <td style={{ padding: '20px 32px' }}>{product.name}</td>
                         <td style={{ padding: '20px 32px' }}>{product.category}</td>
                         <td style={{ padding: '20px 32px', color: 'var(--color-accent)', fontWeight: 600 }}>{product.price}</td>

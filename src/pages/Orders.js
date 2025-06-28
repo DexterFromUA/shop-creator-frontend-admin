@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import './Dashboard.css';
 
 const orders = [
@@ -54,6 +54,7 @@ const statusOptions = ['All', 'Delivered', 'Pending', 'Shipped', 'Failed'];
 
 const Orders = () => {
   const navigate = useNavigate();
+  const { storeId } = useParams();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('All');
 
@@ -135,9 +136,9 @@ const Orders = () => {
             <React.Fragment key={order.id}>
               <div
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 32px', gap: 16, cursor: 'pointer', transition: 'background 0.15s' }}
-                onClick={() => navigate(`/orders/${order.id.replace('#', '')}`)}
+                onClick={() => navigate(`/store/${storeId}/orders/${order.id.replace('#', '')}`)}
                 tabIndex={0}
-                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate(`/orders/${order.id.replace('#', '')}`); }}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate(`/store/${storeId}/orders/${order.id.replace('#', '')}`); }}
                 role="button"
                 aria-label={`View order ${order.id}`}
                 onMouseOver={e => e.currentTarget.style.background = 'var(--color-bg-secondary)'}
@@ -166,7 +167,7 @@ const Orders = () => {
                   <button
                     title="View"
                     style={{ background: 'var(--color-bg-secondary)', border: 'none', borderRadius: 8, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.18s', color: 'var(--color-accent)' }}
-                    onClick={e => { e.stopPropagation(); navigate(`/orders/${order.id.replace('#', '')}`); }}
+                    onClick={e => { e.stopPropagation(); navigate(`/store/${storeId}/orders/${order.id.replace('#', '')}`); }}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
                   </button>
