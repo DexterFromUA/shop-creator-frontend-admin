@@ -22,19 +22,39 @@ const AppHeader = () => {
   const shouldShowStoresButton = () => {
     if (!user) return true;
     
-    // Если мы на странице стора, используем свежие данные из currentStore
+    // Если мы на странице стора, проверяем нужно ли использовать свежие данные
     if (!loading && currentStore?.owner && storeId) {
       const subscription = currentStore.owner.subscriptionType;
       const isCurrentUserOwner = currentStore.owner.id === user.id;
       
-      if (subscription === 'ADVANCED' && isCurrentUserOwner) {
-        // Для ADVANCED владельца - скрываем кнопку
-        return false;
-      }
-      
-      if (subscription === 'BASIC' && isCurrentUserOwner) {
-        // Для BASIC владельца - скрываем кнопку  
-        return false;
+      // Если текущий пользователь - владелец и подписка ограниченная, 
+      // нужно проверить общее количество сторов пользователя
+      if ((subscription === 'ADVANCED' || subscription === 'BASIC') && isCurrentUserOwner) {
+        // Используем данные из AuthContext для подсчета всех сторов
+        const allStores = [
+          ...(user.stores || []).map(store => ({ ...store, role: 'OWNER' })),
+          ...(user.managingStores || []).map(store => ({ ...store, role: 'MANAGER' })),
+          ...(user.deliveringStores || []).map(store => ({ ...store, role: 'COURIER' }))
+        ];
+
+        const availableStores = allStores.filter((store, index, arr) => {
+          const isUnique = arr.findIndex(s => s.id === store.id) === index;
+          if (!isUnique) return false;
+          
+          if (subscription === 'BASIC' && store.role === 'OWNER') {
+            return false;
+          }
+          return true;
+        });
+
+        if (subscription === 'BASIC') {
+          // Для BASIC: скрываем кнопку если ровно 1 доступный стор
+          return availableStores.length !== 1;
+        } else if (subscription === 'ADVANCED') {
+          // Для ADVANCED: скрываем кнопку если ровно 1 стор где он OWNER
+          const ownedStores = availableStores.filter(store => store.role === 'OWNER');
+          return ownedStores.length !== 1;
+        }
       }
       
       // Для PRO/UNLIMITED или не владельца - показываем
