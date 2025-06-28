@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { storeService } from '../utils/graphql';
+import { useToast } from './ToastContext';
 
 const StoreContext = createContext(null);
 
@@ -10,6 +11,8 @@ const fetchStoreById = async (storeId) => {
 
 export const StoreProvider = ({ children }) => {
   const { storeId } = useParams();
+  const navigate = useNavigate();
+  const { addToast } = useToast();
   const [currentStore, setCurrentStore] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -27,6 +30,14 @@ export const StoreProvider = ({ children }) => {
       try {
         const store = await fetchStoreById(storeId);
         console.log('STORE', store);
+        
+        // Проверяем активность стора
+        if (!store.isActive) {
+          addToast('This store is currently inactive and unavailable', 'error');
+          navigate('/stores');
+          return;
+        }
+        
         setCurrentStore(store);
       } catch (err) {
         setError(err.message);

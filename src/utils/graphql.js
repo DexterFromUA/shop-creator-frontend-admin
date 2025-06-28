@@ -50,6 +50,7 @@ export const ME_QUERY = `
         contactPhone
         contactAddress
         contactCity
+        isActive
         createdAt
       }
       managingStores {
@@ -60,6 +61,7 @@ export const ME_QUERY = `
         contactPhone
         contactAddress
         contactCity
+        isActive
         createdAt
       }
       deliveringStores {
@@ -70,6 +72,7 @@ export const ME_QUERY = `
         contactPhone
         contactAddress
         contactCity
+        isActive
         createdAt
       }
       subscriptionActive
@@ -106,6 +109,7 @@ export const LOGIN_MUTATION = `
           contactPhone
           contactAddress
           contactCity
+          isActive
           createdAt
         }
         managingStores {
@@ -116,6 +120,7 @@ export const LOGIN_MUTATION = `
           contactPhone
           contactAddress
           contactCity
+          isActive
           createdAt
         }
         deliveringStores {
@@ -126,6 +131,7 @@ export const LOGIN_MUTATION = `
           contactPhone
           contactAddress
           contactCity
+          isActive
           createdAt
         }
         subscriptionActive
@@ -164,6 +170,7 @@ export const REGISTER_MUTATION = `
           contactPhone
           contactAddress
           contactCity
+          isActive
           createdAt
         }
         managingStores {
@@ -174,6 +181,7 @@ export const REGISTER_MUTATION = `
           contactPhone
           contactAddress
           contactCity
+          isActive
           createdAt
         }
         deliveringStores {
@@ -184,6 +192,7 @@ export const REGISTER_MUTATION = `
           contactPhone
           contactAddress
           contactCity
+          isActive
           createdAt
         }
         subscriptionActive
@@ -233,6 +242,7 @@ export const UPDATE_SUBSCRIPTION_MUTATION = `
         contactPhone
         contactAddress
         contactCity
+        isActive
         createdAt
       }
       managingStores {
@@ -243,6 +253,7 @@ export const UPDATE_SUBSCRIPTION_MUTATION = `
         contactPhone
         contactAddress
         contactCity
+        isActive
         createdAt
       }
       deliveringStores {
@@ -253,6 +264,7 @@ export const UPDATE_SUBSCRIPTION_MUTATION = `
         contactPhone
         contactAddress
         contactCity
+        isActive
         createdAt
       }
       subscriptionActive
@@ -280,6 +292,7 @@ export const GET_STORE_QUERY = `
       contactPhone
       contactAddress
       contactCity
+      isActive
       owner {
         id
         email
@@ -322,6 +335,7 @@ export const UPDATE_PAYMENT_CARD_MUTATION = `
         contactPhone
         contactAddress
         contactCity
+        isActive
         createdAt
       }
       managingStores {
@@ -332,6 +346,7 @@ export const UPDATE_PAYMENT_CARD_MUTATION = `
         contactPhone
         contactAddress
         contactCity
+        isActive
         createdAt
       }
       deliveringStores {
@@ -342,6 +357,7 @@ export const UPDATE_PAYMENT_CARD_MUTATION = `
         contactPhone
         contactAddress
         contactCity
+        isActive
         createdAt
       }
       subscriptionActive
@@ -374,6 +390,7 @@ export const REMOVE_PAYMENT_CARD_MUTATION = `
         contactPhone
         contactAddress
         contactCity
+        isActive
         createdAt
       }
       managingStores {
@@ -384,6 +401,7 @@ export const REMOVE_PAYMENT_CARD_MUTATION = `
         contactPhone
         contactAddress
         contactCity
+        isActive
         createdAt
       }
       deliveringStores {
@@ -394,6 +412,7 @@ export const REMOVE_PAYMENT_CARD_MUTATION = `
         contactPhone
         contactAddress
         contactCity
+        isActive
         createdAt
       }
       subscriptionActive

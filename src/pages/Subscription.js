@@ -244,11 +244,16 @@ const Subscription = () => {
       ...(user.deliveringStores || []).map(store => ({ ...store, role: 'COURIER' }))
     ];
 
-    // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей)
+    // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей и неактивные)
     const availableStores = allStores.filter((store, index, arr) => {
       // Убираем дубликаты по ID
       const isUnique = arr.findIndex(s => s.id === store.id) === index;
       if (!isUnique) return false;
+      
+      // Если стор неактивен - считаем недоступным
+      if (!store.isActive) {
+        return false;
+      }
       
       // Если у пользователя план BASIC и он владелец стора - считаем недоступным
       if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {

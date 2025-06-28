@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useStore } from '../../context/StoreContext';
@@ -18,50 +18,10 @@ const AppHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Определяем нужно ли показывать кнопку Stores используя свежие данные из StoreContext
-  const shouldShowStoresButton = () => {
+  // Мемоизируем видимость кнопки Stores
+  const shouldShowStoresButton = useMemo(() => {
     if (!user) return true;
     
-    // Если мы на странице стора, проверяем нужно ли использовать свежие данные
-    if (!loading && currentStore?.owner && storeId) {
-      const subscription = currentStore.owner.subscriptionType;
-      const isCurrentUserOwner = currentStore.owner.id === user.id;
-      
-      // Если текущий пользователь - владелец и подписка ограниченная, 
-      // нужно проверить общее количество сторов пользователя
-      if ((subscription === 'ADVANCED' || subscription === 'BASIC') && isCurrentUserOwner) {
-        // Используем данные из AuthContext для подсчета всех сторов
-        const allStores = [
-          ...(user.stores || []).map(store => ({ ...store, role: 'OWNER' })),
-          ...(user.managingStores || []).map(store => ({ ...store, role: 'MANAGER' })),
-          ...(user.deliveringStores || []).map(store => ({ ...store, role: 'COURIER' }))
-        ];
-
-        const availableStores = allStores.filter((store, index, arr) => {
-          const isUnique = arr.findIndex(s => s.id === store.id) === index;
-          if (!isUnique) return false;
-          
-          if (subscription === 'BASIC' && store.role === 'OWNER') {
-            return false;
-          }
-          return true;
-        });
-
-        if (subscription === 'BASIC') {
-          // Для BASIC: скрываем кнопку если ровно 1 доступный стор
-          return availableStores.length !== 1;
-        } else if (subscription === 'ADVANCED') {
-          // Для ADVANCED: скрываем кнопку если ровно 1 стор где он OWNER
-          const ownedStores = availableStores.filter(store => store.role === 'OWNER');
-          return ownedStores.length !== 1;
-        }
-      }
-      
-      // Для PRO/UNLIMITED или не владельца - показываем
-      return true;
-    }
-    
-    // Если НЕ на странице стора, используем данные из AuthContext
     const subscription = user.subscriptionType;
     
     // Получаем все сторы пользователя с ролями
@@ -71,10 +31,15 @@ const AppHeader = () => {
       ...(user.deliveringStores || []).map(store => ({ ...store, role: 'COURIER' }))
     ];
 
-    // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей)
+    // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей и неактивные)
     const availableStores = allStores.filter((store, index, arr) => {
       const isUnique = arr.findIndex(s => s.id === store.id) === index;
       if (!isUnique) return false;
+      
+      // Если стор неактивен - считаем недоступным
+      if (!store.isActive) {
+        return false;
+      }
       
       if (subscription === 'BASIC' && store.role === 'OWNER') {
         return false;
@@ -88,12 +53,12 @@ const AppHeader = () => {
     } else if (subscription === 'ADVANCED') {
       // Для ADVANCED: скрываем кнопку если ровно 1 стор где он OWNER
       const ownedStores = availableStores.filter(store => store.role === 'OWNER');
-      return ownedStores.length !== 1;
+      return ownedStores.length !== 1 || availableStores.length !== 1;
     }
     
     // Для PRO и UNLIMITED всегда показываем кнопку
     return true;
-  };
+  }, [user?.subscriptionType, user?.stores, user?.managingStores, user?.deliveringStores]);
 
   const [notifications, setNotifications] = useState([
     {
@@ -231,7 +196,7 @@ const AppHeader = () => {
         </div>
       </div>
             <div className="app-header-right" style={{ gap: 12 }}>
-        {shouldShowStoresButton() && (
+        {shouldShowStoresButton && (
           <button
             className="header-icon-btn"
             onClick={() => navigate('/stores', { state: { fromStorePage: true } })}

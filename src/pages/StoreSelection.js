@@ -52,8 +52,13 @@ const StoreSelection = () => {
         ...(user.deliveringStores || []).map(store => ({ ...store, role: 'COURIER' }))
       ];
 
-      // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей)
+      // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей и неактивные)
       const availableStores = allStores.filter(store => {
+        // Если стор неактивен - считаем недоступным
+        if (!store.isActive) {
+          return false;
+        }
+        
         // Если у пользователя план BASIC и он владелец стора - считаем недоступным
         if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {
           return false;
@@ -87,10 +92,16 @@ const StoreSelection = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStoreSelect = (store) => {
+    // Если стор неактивен - блокируем доступ
+    if (!store.isActive) {
+      addToast('This store is currently inactive and unavailable', 'error');
+      return;
+    }
+    
     // Если у пользователя план BASIC и он владелец стора - блокируем доступ
     if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {
       addToast('Upgrade to a paid plan to access your owned stores', 'info');
-      return; // Не делаем ничего
+      return;
     }
     
     // Навигация на страницу конкретного магазина
@@ -203,32 +214,34 @@ const StoreSelection = () => {
               }}>
                 {stores.map((store) => {
                   const isBlocked = user?.subscriptionType === 'BASIC' && store.role === 'OWNER';
+                  const isInactive = !store.isActive;
+                  const isDisabled = isBlocked || isInactive;
                   
                   return (
                 <div
                   key={store.id}
-                  onClick={() => handleStoreSelect(store)}
+                  onClick={() => !isDisabled && handleStoreSelect(store)}
                   style={{
-                    background: isBlocked ? 'var(--color-bg-tertiary)' : 'var(--color-bg-secondary)',
-                    border: isBlocked ? '2px dashed #d1d5db' : '2px dashed var(--color-border)',
+                    background: isDisabled ? 'var(--color-bg-tertiary)' : 'var(--color-bg-secondary)',
+                    border: isDisabled ? '2px dashed #d1d5db' : '2px dashed var(--color-border)',
                     borderRadius: 18,
                     padding: 24,
-                    cursor: isBlocked ? 'not-allowed' : 'pointer',
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
                     transition: 'all 0.2s ease',
                     textAlign: 'left',
                     display: 'flex',
                     alignItems: 'center',
                     gap: 24,
-                    opacity: isBlocked ? 0.6 : 1
+                    opacity: isDisabled ? 0.6 : 1
                   }}
                   onMouseEnter={(e) => {
-                    if (!isBlocked) {
+                    if (!isDisabled) {
                       e.currentTarget.style.borderColor = '#111827';
                       e.currentTarget.style.background = 'var(--color-bg)';
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (!isBlocked) {
+                    if (!isDisabled) {
                       e.currentTarget.style.borderColor = 'var(--color-border)';
                       e.currentTarget.style.background = 'var(--color-bg-secondary)';
                     }
@@ -261,6 +274,20 @@ const StoreSelection = () => {
                       }}>
                         {getRoleLabel(store.role)}
                       </div>
+                      {isInactive && (
+                        <div style={{
+                          padding: '4px 12px',
+                          borderRadius: 12,
+                          background: '#ef444420',
+                          color: '#ef4444',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          INACTIVE
+                        </div>
+                      )}
                     </div>
                     <p style={{ 
                       margin: 0, 
@@ -315,13 +342,13 @@ const StoreSelection = () => {
                   <div style={{
                     padding: '12px 20px',
                     borderRadius: 12,
-                    background: isBlocked ? '#9ca3af' : '#111827',
+                    background: isDisabled ? '#9ca3af' : '#111827',
                     color: '#fff',
                     fontWeight: 600,
                     fontSize: 14,
                     whiteSpace: 'nowrap'
                   }}>
-                    {isBlocked ? 'Upgrade to Access' : 'Manage →'}
+                    {isInactive ? 'Store Inactive' : isBlocked ? 'Upgrade to Access' : 'Manage →'}
                   </div>
                 </div>
               );
