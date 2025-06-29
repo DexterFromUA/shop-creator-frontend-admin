@@ -17,44 +17,47 @@ export const StoreProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const refreshStore = async () => {
+    if (!storeId) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const store = await fetchStoreById(storeId);
+      
+      // Проверяем активность стора
+      if (!store.isActive) {
+        addToast('This store is currently inactive and unavailable', 'error');
+        navigate('/stores');
+        return;
+      }
+      
+      setCurrentStore(store);
+    } catch (err) {
+      setError(err.message);
+      setCurrentStore(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!storeId) {
       setCurrentStore(null);
       return;
     }
 
-    const loadStore = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const store = await fetchStoreById(storeId);
-        
-        // Проверяем активность стора
-        if (!store.isActive) {
-          addToast('This store is currently inactive and unavailable', 'error');
-          navigate('/stores');
-          return;
-        }
-        
-        setCurrentStore(store);
-      } catch (err) {
-        setError(err.message);
-        setCurrentStore(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadStore();
-  }, [storeId]);
+    refreshStore();
+  }, [storeId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <StoreContext.Provider value={{ 
       currentStore, 
       loading, 
       error,
-      storeId
+      storeId,
+      refreshStore
     }}>
       {children}
     </StoreContext.Provider>

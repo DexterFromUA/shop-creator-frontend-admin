@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import { useStore } from '../context/StoreContext';
 import { appService } from '../utils/graphql';
 import './Dashboard.css';
 
@@ -10,6 +11,7 @@ const CreateApp = () => {
   const { storeId } = useParams();
   const { addToast } = useToast();
   const { user: currentUser, isAuthenticated } = useAuth();
+  const { currentStore, refreshStore } = useStore();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -173,6 +175,9 @@ const CreateApp = () => {
       
       const newApp = await appService.createApp(appData);
       
+      // Обновляем данные магазина, чтобы appId был актуальным
+      await refreshStore();
+      
       addToast(`App "${newApp.name}" created successfully!`, 'success');
       navigate(`/store/${storeId}/dashboard`, { state: { fromAppPage: true } });
       
@@ -227,6 +232,55 @@ const CreateApp = () => {
     { value: 'RUB', label: 'Russian Ruble (RUB)' },
     { value: 'GBP', label: 'British Pound (GBP)' }
   ];
+
+  // Если у магазина уже есть приложение, показываем сообщение
+  if (currentStore && currentStore.appId) {
+    return (
+      <div style={{ 
+        width: '100%',
+        minHeight: '100vh',
+        background: 'var(--color-bg-secondary)',
+        padding: '48px 16px',
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ 
+          maxWidth: 600, 
+          width: '100%', 
+          textAlign: 'center',
+          background: 'var(--color-bg)',
+          borderRadius: 28,
+          padding: 48,
+          boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)'
+        }}>
+          <div style={{ fontSize: 64, marginBottom: 24 }}>📱</div>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: 'var(--color-text)', marginBottom: 16 }}>
+            App Already Exists
+          </h1>
+          <p style={{ margin: 0, fontSize: 16, color: 'var(--color-text-secondary)', marginBottom: 32 }}>
+            This store already has a mobile app. You can only have one app per store.
+          </p>
+          <button
+            onClick={() => navigate(`/store/${storeId}/dashboard`)}
+            style={{
+              padding: '12px 24px',
+              borderRadius: 12,
+              border: 'none',
+              background: '#111827',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: 14,
+              fontWeight: 600
+            }}
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ 
