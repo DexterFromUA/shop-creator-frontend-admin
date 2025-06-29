@@ -80,8 +80,9 @@ const CreateStore = () => {
       // Обновляем данные пользователя чтобы новый стор появился в списке
       await refreshUser();
       
-      addToast(`Store "${newStore.name}" created successfully!`, 'success');
-      navigate('/stores', { state: { fromStorePage: true } });
+      addToast(`Store "${newStore.name}" created successfully! Now you can create an app for your store.`, 'success');
+      // Переходим к созданию приложения для нового стора
+      navigate(`/store/${newStore.id}/create-app`);
       
     } catch (error) {
       console.error('Error creating store:', error);

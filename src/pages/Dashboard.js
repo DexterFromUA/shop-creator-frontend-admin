@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useStore } from '../context/StoreContext';
 import './Dashboard.css';
 
 const chartData = [32000, 37000, 29000, 41000, 42890, 39000];
@@ -7,9 +9,19 @@ const chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { currentStore } = useStore();
+  const navigate = useNavigate();
   const [period, setPeriod] = useState(() => {
     return localStorage.getItem('dashboardPeriod') || '24h';
   });
+
+  const handleCreateApp = () => {
+    if (currentStore) {
+      navigate(`/store/${currentStore.id}/create-app`);
+    } else {
+      console.log('No current store available');
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('dashboardPeriod', period);
@@ -128,6 +140,54 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
+
+        {/* Create App Action Card - показывать только если приложение еще не создано */}
+        {currentStore && !currentStore.appId && (
+          <div style={{ 
+            background: 'var(--color-bg)', 
+            borderRadius: 28, 
+            padding: 32, 
+            marginTop: 32, 
+            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div>
+              <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--color-text)' }}>
+                Create Mobile App 📱
+              </h3>
+              <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
+                Turn your store into a mobile app with custom branding and features
+              </p>
+            </div>
+            <button
+              onClick={handleCreateApp}
+              style={{
+                padding: '14px 28px',
+                borderRadius: 16,
+                border: 'none',
+                background: '#111827',
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: 16,
+                fontWeight: 600,
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#374151';
+                e.target.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = '#111827';
+                e.target.style.transform = 'translateY(0)';
+              }}
+            >
+              Create App
+            </button>
+          </div>
+        )}
 
         <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, padding: 32, marginTop: 32, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>

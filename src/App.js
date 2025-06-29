@@ -22,10 +22,27 @@ const Payouts = lazy(() => import('./pages/Payouts'));
 const ProductView = lazy(() => import('./pages/ProductView'));
 const StoreSelection = lazy(() => import('./pages/StoreSelection'));
 const CreateStore = lazy(() => import('./pages/CreateStore'));
+const CreateApp = lazy(() => import('./pages/CreateApp'));
 const Subscription = lazy(() => import('./pages/Subscription'));
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, initializing } = useAuth();
+  
+  // Показываем загрузку пока инициализируется
+  if (initializing) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        background: 'var(--color-bg-secondary)'
+      }}>
+        <div style={{ fontSize: 18, color: 'var(--color-text)' }}>Loading...</div>
+      </div>
+    );
+  }
+  
   return isAuthenticated ? children : <Navigate to="/auth" />;
 };
 
@@ -55,6 +72,7 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
+
                 <Route 
                   path="/subscription" 
                   element={
@@ -80,6 +98,7 @@ function App() {
                   <Route path="orders" element={<Orders />} />
                   <Route path="orders/:id" element={<OrderPreview />} />
                   <Route path="products/:id" element={<ProductView />} />
+                  <Route path="create-app" element={<CreateApp />} />
                   <Route path="app-settings" element={<AppSettings />} />
                   <Route path="team" element={<Team />} />
                   <Route path="users" element={<Users />} />

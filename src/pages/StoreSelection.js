@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { storeService } from '../utils/graphql';
 import './Dashboard.css';
 
 const StoreSelection = () => {
-  const { user, logout, refreshUser } = useAuth();
+  const { user, logout } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,52 +45,67 @@ const StoreSelection = () => {
   };
 
   useEffect(() => {
-    if (user) {
-      // Объединяем все сторы пользователя с указанием роли
-      const allStores = [
-        ...(user.stores || []).map(store => ({ ...store, role: 'OWNER' })),
-        ...(user.managingStores || []).map(store => ({ ...store, role: 'MANAGER' })),
-        ...(user.deliveringStores || []).map(store => ({ ...store, role: 'COURIER' }))
-      ];
+    const loadStores = async () => {
+      if (user) {
+        try {
+          setLoading(true);
+          
+          // Загружаем магазины с сервера
+          const serverStores = await storeService.getMyStores();
+          
+          // Определяем роль пользователя для каждого магазина
+          const allStores = serverStores.map(store => {
+            if (store.owner.id === user.id) {
+              return { ...store, role: 'OWNER' };
+            } else if (store.managers.some(manager => manager.id === user.id)) {
+              return { ...store, role: 'MANAGER' };
+            } else if (store.couriers.some(courier => courier.id === user.id)) {
+              return { ...store, role: 'COURIER' };
+            }
+            return { ...store, role: 'UNKNOWN' };
+          });
 
-      // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей и неактивные)
-      const availableStores = allStores.filter(store => {
-        // Если стор неактивен - считаем недоступным
-        if (!store.isActive) {
-          return false;
+          // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей и неактивные)
+          const availableStores = allStores.filter(store => {
+            // Если стор неактивен - считаем недоступным
+            if (!store.isActive) {
+              return false;
+            }
+            
+            // Если у пользователя план BASIC и он владелец стора - считаем недоступным
+            if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {
+              return false;
+            }
+            return true;
+          });
+
+          setStores(allStores);
+
+          // Автоматическое перенаправление если доступен только один стор
+          // НО только если пользователь не пришел явно на страницу выбора сторов
+          const cameFromStore = location.state?.fromStorePage === true;
+          
+          if (availableStores.length === 1 && !cameFromStore) {
+            const store = availableStores[0];
+            navigate(`/store/${store.id}/dashboard`);
+            return;
+          }
+        } catch (error) {
+          console.error('Failed to load stores:', error);
+          addToast('Failed to load stores', 'error');
+        } finally {
+          setLoading(false);
         }
-        
-        // Если у пользователя план BASIC и он владелец стора - считаем недоступным
-        if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {
-          return false;
-        }
-        return true;
-      });
-
-      setStores(allStores);
-      setLoading(false);
-
-      // Автоматическое перенаправление если доступен только один стор
-      // НО только если пользователь не пришел явно на страницу выбора сторов
-      const cameFromStore = location.state?.fromStorePage === true;
-      
-      if (availableStores.length === 1 && !cameFromStore) {
-        const store = availableStores[0];
-        navigate(`/store/${store.id}/dashboard`);
-        return;
+      } else {
+        // Если нет пользователя, перенаправляем на страницу авторизации
+        navigate('/auth');
       }
-    } else {
-      // Если нет пользователя, перенаправляем на страницу авторизации
-      navigate('/auth');
-    }
-  }, [user, navigate]);
+    };
 
-  // Обновляем данные пользователя один раз при монтировании
-  useEffect(() => {
-    if (user) {
-      refreshUser();
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    loadStores();
+  }, [user, navigate, addToast]);
+
+
 
   const handleStoreSelect = (store) => {
     // Если стор неактивен - блокируем доступ

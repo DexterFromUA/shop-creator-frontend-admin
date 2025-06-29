@@ -42,39 +42,6 @@ export const ME_QUERY = `
       email
       name
       phone
-      stores {
-        id
-        name
-        description
-        contactEmail
-        contactPhone
-        contactAddress
-        contactCity
-        isActive
-        createdAt
-      }
-      managingStores {
-        id
-        name
-        description
-        contactEmail
-        contactPhone
-        contactAddress
-        contactCity
-        isActive
-        createdAt
-      }
-      deliveringStores {
-        id
-        name
-        description
-        contactEmail
-        contactPhone
-        contactAddress
-        contactCity
-        isActive
-        createdAt
-      }
       subscriptionActive
       subscriptionType
       subscriptionStartDate
@@ -84,6 +51,32 @@ export const ME_QUERY = `
       paymentCardExpiryMonth
       paymentCardExpiryYear
       paymentCardCvv
+    }
+  }
+`;
+
+export const MY_STORES_QUERY = `
+  query MyStores {
+    myStores {
+      id
+      name
+      description
+      contactEmail
+      contactPhone
+      contactAddress
+      contactCity
+      isActive
+      appId
+      owner {
+        id
+      }
+      managers {
+        id
+      }
+      couriers {
+        id
+      }
+      createdAt
     }
   }
 `;
@@ -227,6 +220,31 @@ export const CREATE_STORE_MUTATION = `
   }
 `;
 
+// App mutations
+export const CREATE_APP_MUTATION = `
+  mutation CreateApp($input: CreateAppInput!) {
+    createApp(input: $input) {
+      id
+      name
+      description
+      slug
+      version
+      iconUrl
+      splashScreenUrl
+      primaryColor
+      secondaryColor
+      targetPlatforms
+      defaultLanguage
+      currency
+      keywords
+      screenshots
+      storeId
+      appUrl
+      createdAt
+    }
+  }
+`;
+
 export const UPDATE_SUBSCRIPTION_MUTATION = `
   mutation UpdateSubscription($input: UpdateSubscriptionInput!) {
     updateSubscription(input: $input) {
@@ -293,6 +311,7 @@ export const GET_STORE_QUERY = `
       contactAddress
       contactCity
       isActive
+      appId
       owner {
         id
         email
@@ -462,6 +481,15 @@ export const authService = {
 
 // Store service functions
 export const storeService = {
+  async getMyStores() {
+    try {
+      const data = await graphqlClient.request(MY_STORES_QUERY);
+      return data.myStores;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get stores');
+    }
+  },
+
   async createStore(storeData) {
     try {
       const data = await graphqlClient.request(CREATE_STORE_MUTATION, { input: storeData });
@@ -508,6 +536,18 @@ export const storeService = {
       return data.store;
     } catch (error) {
       throw new Error(error.message || 'Failed to get store');
+    }
+  },
+};
+
+// App service functions
+export const appService = {
+  async createApp(appData) {
+    try {
+      const data = await graphqlClient.request(CREATE_APP_MUTATION, { input: appData });
+      return data.createApp;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to create app');
     }
   },
 }; 

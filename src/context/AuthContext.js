@@ -1,32 +1,27 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { authService } from '../utils/graphql';
 
-const AUTH_KEY = 'shop_admin_auth';
 const TOKEN_KEY = 'shop_admin_token';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem(AUTH_KEY);
-    return stored ? JSON.parse(stored) : null;
-  });
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return !!localStorage.getItem(TOKEN_KEY);
-  });
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
 
   const login = async (email, password) => {
     setLoading(true);
     try {
       const response = await authService.login(email, password);
-              console.log('RESPONSE', response);
-      const userData = response.client;
       
-      setUser(userData);
       setIsAuthenticated(true);
-      localStorage.setItem(AUTH_KEY, JSON.stringify(userData));
       localStorage.setItem(TOKEN_KEY, response.token);
+      
+      // Загружаем актуальные данные пользователя с сервера
+      const userData = await authService.getCurrentUser();
+      setUser(userData);
       
       return { success: true };
     } catch (error) {
@@ -40,12 +35,13 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await authService.register(email, password, name);
-      const userData = response.client;
       
-      setUser(userData);
       setIsAuthenticated(true);
-      localStorage.setItem(AUTH_KEY, JSON.stringify(userData));
       localStorage.setItem(TOKEN_KEY, response.token);
+      
+      // Загружаем актуальные данные пользователя с сервера
+      const userData = await authService.getCurrentUser();
+      setUser(userData);
       
       return { success: true };
     } catch (error) {
@@ -58,22 +54,11 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem(AUTH_KEY);
     localStorage.removeItem(TOKEN_KEY);
   };
 
-  // Keep localStorage in sync if user object changes elsewhere
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      localStorage.setItem(AUTH_KEY, JSON.stringify(user));
-    }
-  }, [user, isAuthenticated]);
-
   const updateUser = (userData) => {
     setUser(userData);
-    if (isAuthenticated) {
-      localStorage.setItem(AUTH_KEY, JSON.stringify(userData));
-    }
   };
 
   const refreshUser = async () => {
@@ -82,17 +67,47 @@ export const AuthProvider = ({ children }) => {
     try {
       const fresh = await authService.getCurrentUser();
       setUser(fresh);
-      localStorage.setItem(AUTH_KEY, JSON.stringify(fresh));
     } catch (error) {
       console.error('Failed to refresh user:', error);
+      // Если не удалось получить пользователя, возможно токен недействителен
+      logout();
     }
   };
+
+  // Инициализация при загрузке приложения
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const token = localStorage.getItem(TOKEN_KEY);
+      
+      if (token) {
+        try {
+          setLoading(true);
+          const userData = await authService.getCurrentUser();
+          setUser(userData);
+          setIsAuthenticated(true);
+        } catch (error) {
+          console.error('Token validation failed:', error);
+          // Токен недействителен, удаляем его
+          localStorage.removeItem(TOKEN_KEY);
+          setUser(null);
+          setIsAuthenticated(false);
+        } finally {
+          setLoading(false);
+        }
+      }
+      
+      setInitializing(false);
+    };
+
+    initializeAuth();
+  }, []); // Выполняется только один раз при инициализации
 
   return (
     <AuthContext.Provider value={{ 
       user, 
       isAuthenticated, 
       loading,
+      initializing,
       login, 
       register, 
       logout,
