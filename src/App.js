@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
 import { StoreProvider } from './context/StoreContext';
 import Layout from './components/Layout/Layout';
+import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 import Auth from './pages/auth/Auth';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -50,6 +51,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <ThemeProvider>
           <ToastProvider>
             <Suspense fallback={null}>
