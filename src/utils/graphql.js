@@ -46,6 +46,15 @@ export const ME_QUERY = `
       subscriptionType
       subscriptionStartDate
       subscriptionEndDate
+      stores {
+          id
+      }
+      managingStores {
+          id
+      }
+      deliveringStores {
+          id
+      }
       paymentCardNumber
       paymentCardHolder
       paymentCardExpiryMonth

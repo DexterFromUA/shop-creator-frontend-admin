@@ -18,10 +18,7 @@ export const AuthProvider = ({ children }) => {
       
       setIsAuthenticated(true);
       localStorage.setItem(TOKEN_KEY, response.token);
-      
-      // Загружаем актуальные данные пользователя с сервера
-      const userData = await authService.getCurrentUser();
-      setUser(userData);
+      setUser(response.client);
       
       return { success: true };
     } catch (error) {
@@ -74,7 +71,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Инициализация при загрузке приложения
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem(TOKEN_KEY);
@@ -83,6 +79,7 @@ export const AuthProvider = ({ children }) => {
         try {
           setLoading(true);
           const userData = await authService.getCurrentUser();
+          console.log(userData)
           setUser(userData);
           setIsAuthenticated(true);
         } catch (error) {

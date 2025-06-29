@@ -33,7 +33,8 @@ const AppHeader = () => {
       ...(user.deliveringStores || []).map((store) => ({ ...store, role: 'COURIER' })),
     ];
 
-    if (subscription === 'ADVANCED' && !allStores.filter(el => el.role === 'OWNER').length) {
+    if (subscription === 'ADVANCED' && allStores.filter(el => el.role === 'OWNER').length < 1) {
+      console.log(subscription, user)
       return true;
     }
 
