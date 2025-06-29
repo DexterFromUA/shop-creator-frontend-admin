@@ -19,11 +19,22 @@ const CreateApp = () => {
     splashScreenUrl: '',
     primaryColor: '#111827',
     secondaryColor: '#6b7280',
-    targetPlatforms: ['WEB'],
+    targetPlatforms: ['ANDROID', 'IOS'],
     defaultLanguage: 'en',
     currency: 'USD',
     keywords: '',
     screenshots: ''
+  });
+
+  // eslint-disable-next-line no-unused-vars
+  const [_, setFiles] = useState({
+    icon: null,
+    splashScreen: null
+  });
+
+  const [filePreviews, setFilePreviews] = useState({
+    icon: null,
+    splashScreen: null
   });
 
 
@@ -72,6 +83,50 @@ const CreateApp = () => {
     }));
   };
 
+  const handleFileChange = (e, fileType) => {
+    const file = e.target.files[0];
+    
+    if (file) {
+      // Проверяем тип файла
+      if (!file.type.startsWith('image/')) {
+        addToast('Please select an image file', 'error');
+        return;
+      }
+
+      // Проверяем размер файла (максимум 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        addToast('File size must be less than 5MB', 'error');
+        return;
+      }
+
+      setFiles(prev => ({
+        ...prev,
+        [fileType]: file
+      }));
+
+      // Создаем превью
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setFilePreviews(prev => ({
+          ...prev,
+          [fileType]: event.target.result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeFile = (fileType) => {
+    setFiles(prev => ({
+      ...prev,
+      [fileType]: null
+    }));
+    setFilePreviews(prev => ({
+      ...prev,
+      [fileType]: null
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -104,8 +159,8 @@ const CreateApp = () => {
         name: formData.name,
         description: formData.description || null,
         slug: formData.slug,
-        iconUrl: formData.iconUrl || null,
-        splashScreenUrl: formData.splashScreenUrl || null,
+        // iconUrl: files.icon ? filePreviews.icon : (formData.iconUrl || null),
+        // splashScreenUrl: files.splashScreen ? filePreviews.splashScreen : (formData.splashScreenUrl || null),
         primaryColor: formData.primaryColor,
         secondaryColor: formData.secondaryColor,
         targetPlatforms: formData.targetPlatforms,
@@ -152,10 +207,8 @@ const CreateApp = () => {
   }, [isAuthenticated, currentUser, navigate, storeId, addToast]);
 
   const platformOptions = [
-    { value: 'WEB', label: 'Web App' },
     { value: 'ANDROID', label: 'Android' },
-    { value: 'IOS', label: 'iOS' },
-    { value: 'PWA', label: 'Progressive Web App' }
+    { value: 'IOS', label: 'iOS' }
   ];
 
   const languageOptions = [
@@ -336,27 +389,90 @@ const CreateApp = () => {
                       fontWeight: 600, 
                       color: 'var(--color-text)' 
                     }}>
-                      App Icon URL
+                      App Icon
                     </label>
-                    <input
-                      type="url"
-                      name="iconUrl"
-                      value={formData.iconUrl}
-                      onChange={handleInputChange}
-                      placeholder="https://example.com/icon.png"
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        border: '2px solid var(--color-border)',
-                        borderRadius: 12,
-                        background: 'var(--color-bg-secondary)',
-                        color: 'var(--color-text)',
-                        fontSize: 14,
-                        outline: 'none',
-                        transition: 'border-color 0.2s',
-                        boxSizing: 'border-box'
-                      }}
-                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, 'icon')}
+                        style={{ display: 'none' }}
+                        id="icon-upload"
+                      />
+                      <label
+                        htmlFor="icon-upload"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '16px',
+                          border: '2px dashed var(--color-border)',
+                          borderRadius: 12,
+                          background: 'var(--color-bg-secondary)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          textAlign: 'center',
+                          minHeight: 80
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.borderColor = '#111827';
+                          e.target.style.background = 'var(--color-bg)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.borderColor = 'var(--color-border)';
+                          e.target.style.background = 'var(--color-bg-secondary)';
+                        }}
+                      >
+                        {filePreviews.icon ? (
+                          <div style={{ position: 'relative', width: '100%' }}>
+                            <img 
+                              src={filePreviews.icon} 
+                              alt="App icon preview" 
+                              style={{ 
+                                maxWidth: '80px', 
+                                maxHeight: '80px', 
+                                borderRadius: 8,
+                                objectFit: 'cover'
+                              }} 
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                removeFile('icon');
+                              }}
+                              style={{
+                                position: 'absolute',
+                                top: -8,
+                                right: -8,
+                                width: 24,
+                                height: 24,
+                                borderRadius: '50%',
+                                border: 'none',
+                                background: '#ef4444',
+                                color: 'white',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: 12,
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : (
+                          <div style={{ color: 'var(--color-text-secondary)' }}>
+                            📱 Click to upload app icon
+                            <div style={{ fontSize: 12, marginTop: 4 }}>
+                              PNG, JPG up to 5MB
+                            </div>
+                          </div>
+                        )}
+                      </label>
+                    </div>
                   </div>
 
                   <div>
@@ -367,27 +483,90 @@ const CreateApp = () => {
                       fontWeight: 600, 
                       color: 'var(--color-text)' 
                     }}>
-                      Splash Screen URL
+                      Splash Screen
                     </label>
-                    <input
-                      type="url"
-                      name="splashScreenUrl"
-                      value={formData.splashScreenUrl}
-                      onChange={handleInputChange}
-                      placeholder="https://example.com/splash.png"
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        border: '2px solid var(--color-border)',
-                        borderRadius: 12,
-                        background: 'var(--color-bg-secondary)',
-                        color: 'var(--color-text)',
-                        fontSize: 14,
-                        outline: 'none',
-                        transition: 'border-color 0.2s',
-                        boxSizing: 'border-box'
-                      }}
-                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, 'splashScreen')}
+                        style={{ display: 'none' }}
+                        id="splash-upload"
+                      />
+                      <label
+                        htmlFor="splash-upload"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '16px',
+                          border: '2px dashed var(--color-border)',
+                          borderRadius: 12,
+                          background: 'var(--color-bg-secondary)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          textAlign: 'center',
+                          minHeight: 80
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.borderColor = '#111827';
+                          e.target.style.background = 'var(--color-bg)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.borderColor = 'var(--color-border)';
+                          e.target.style.background = 'var(--color-bg-secondary)';
+                        }}
+                      >
+                        {filePreviews.splashScreen ? (
+                          <div style={{ position: 'relative', width: '100%' }}>
+                            <img 
+                              src={filePreviews.splashScreen} 
+                              alt="Splash screen preview" 
+                              style={{ 
+                                maxWidth: '120px', 
+                                maxHeight: '80px', 
+                                borderRadius: 8,
+                                objectFit: 'cover'
+                              }} 
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                removeFile('splashScreen');
+                              }}
+                              style={{
+                                position: 'absolute',
+                                top: -8,
+                                right: -8,
+                                width: 24,
+                                height: 24,
+                                borderRadius: '50%',
+                                border: 'none',
+                                background: '#ef4444',
+                                color: 'white',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: 12,
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : (
+                          <div style={{ color: 'var(--color-text-secondary)' }}>
+                            🖼️ Click to upload splash screen
+                            <div style={{ fontSize: 12, marginTop: 4 }}>
+                              PNG, JPG up to 5MB
+                            </div>
+                          </div>
+                        )}
+                      </label>
+                    </div>
                   </div>
 
                   <div>
