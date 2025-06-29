@@ -18,46 +18,26 @@ const AppHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Мемоизируем видимость кнопки Stores
   const shouldShowStoresButton = useMemo(() => {
     if (!user) return true;
-    
+
     const subscription = user.subscriptionType;
-    
-    // Получаем все сторы пользователя с ролями
+
+    if (subscription === 'PRO' || subscription === 'UNLIMITED') {
+      return true;
+    }
+
     const allStores = [
-      ...(user.stores || []).map(store => ({ ...store, role: 'OWNER' })),
-      ...(user.managingStores || []).map(store => ({ ...store, role: 'MANAGER' })),
-      ...(user.deliveringStores || []).map(store => ({ ...store, role: 'COURIER' }))
+      ...(user.stores || []).map((store) => ({ ...store, role: 'OWNER' })),
+      ...(user.managingStores || []).map((store) => ({ ...store, role: 'MANAGER' })),
+      ...(user.deliveringStores || []).map((store) => ({ ...store, role: 'COURIER' })),
     ];
 
-    // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей и неактивные)
-    const availableStores = allStores.filter((store, index, arr) => {
-      const isUnique = arr.findIndex(s => s.id === store.id) === index;
-      if (!isUnique) return false;
-      
-      // Если стор неактивен - считаем недоступным
-      if (!store.isActive) {
-        return false;
-      }
-      
-      if (subscription === 'BASIC' && store.role === 'OWNER') {
-        return false;
-      }
+    if (subscription === 'ADVANCED' && !allStores.filter(el => el.role === 'OWNER').length) {
       return true;
-    });
-
-    if (subscription === 'BASIC') {
-      // Для BASIC: скрываем кнопку если ровно 1 доступный стор
-      return availableStores.length !== 1;
-    } else if (subscription === 'ADVANCED') {
-      // Для ADVANCED: скрываем кнопку если ровно 1 стор где он OWNER
-      const ownedStores = availableStores.filter(store => store.role === 'OWNER');
-      return ownedStores.length !== 1 || availableStores.length !== 1;
     }
-    
-    // Для PRO и UNLIMITED всегда показываем кнопку
-    return true;
+
+    return allStores.length > 1;
   }, [user?.subscriptionType, user?.stores, user?.managingStores, user?.deliveringStores]);
 
   const [notifications, setNotifications] = useState([
@@ -67,7 +47,7 @@ const AppHeader = () => {
       message: 'Order #12345 has been placed by John Doe',
       time: '2 minutes ago',
       read: false,
-      type: 'order'
+      type: 'order',
     },
     {
       id: 2,
@@ -75,7 +55,7 @@ const AppHeader = () => {
       message: 'Payment for order #12344 has been processed',
       time: '15 minutes ago',
       read: false,
-      type: 'payment'
+      type: 'payment',
     },
     {
       id: 3,
@@ -83,7 +63,7 @@ const AppHeader = () => {
       message: 'Product "Wireless Headphones" is running low on stock',
       time: '1 hour ago',
       read: true,
-      type: 'stock'
+      type: 'stock',
     },
     {
       id: 4,
@@ -91,28 +71,35 @@ const AppHeader = () => {
       message: 'New dashboard features are now available',
       time: '2 hours ago',
       read: true,
-      type: 'system'
-    }
+      type: 'system',
+    },
   ]);
 
   // Проверяем подписку владельца стора для ограничения доступа
   // Проверяем только если данные загружены
-  const isOwnerProOrUnlimited = !loading && currentStore?.owner && 
-                                 (currentStore.owner.subscriptionType === 'PRO' || 
-                                  currentStore.owner.subscriptionType === 'UNLIMITED');
+  const isOwnerProOrUnlimited =
+    !loading &&
+    currentStore?.owner &&
+    (currentStore.owner.subscriptionType === 'PRO' ||
+      currentStore.owner.subscriptionType === 'UNLIMITED');
 
-  const menuItems = storeId ? [
-    { to: `/store/${storeId}/dashboard`, label: 'Dashboard', icon: '📊' },
-    { to: `/store/${storeId}/orders`, label: 'Orders', icon: '🛒' },
-    { to: `/store/${storeId}/products`, label: 'Products', icon: '📦' },
-    ...(isOwnerProOrUnlimited ? [{ to: `/store/${storeId}/notifications`, label: 'Notifications', icon: '🔔' }] : []),
-  ] : [];
-  
+  const menuItems = storeId
+    ? [
+        { to: `/store/${storeId}/dashboard`, label: 'Dashboard', icon: '📊' },
+        { to: `/store/${storeId}/orders`, label: 'Orders', icon: '🛒' },
+        { to: `/store/${storeId}/products`, label: 'Products', icon: '📦' },
+        ...(isOwnerProOrUnlimited
+          ? [{ to: `/store/${storeId}/notifications`, label: 'Notifications', icon: '🔔' }]
+          : []),
+      ]
+    : [];
+
   const menuRefs = useRef([]);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
-  const getActiveMenuIndex = () => menuItems.findIndex(item =>
-    location.pathname === item.to || location.pathname.startsWith(item.to + '/')
-  );
+  const getActiveMenuIndex = () =>
+    menuItems.findIndex(
+      (item) => location.pathname === item.to || location.pathname.startsWith(item.to + '/')
+    );
   const activeMenuIndex = getActiveMenuIndex();
 
   useEffect(() => {
@@ -120,14 +107,12 @@ const AppHeader = () => {
       const el = menuRefs.current[activeMenuIndex];
       setIndicatorStyle({
         left: el.offsetLeft,
-        width: el.offsetWidth
+        width: el.offsetWidth,
       });
     } else {
       setIndicatorStyle({ left: 0, width: 0 });
     }
   }, [location.pathname, activeMenuIndex]);
-
-
 
   // Close dropdowns on outside click
   React.useEffect(() => {
@@ -142,29 +127,37 @@ const AppHeader = () => {
         setNotificationsOpen(false);
       }
     }
-    if (userDropdownOpen || adminDropdownOpen || notificationsOpen) document.addEventListener('mousedown', handleClick);
+    if (userDropdownOpen || adminDropdownOpen || notificationsOpen)
+      document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [userDropdownOpen, adminDropdownOpen, notificationsOpen]);
 
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(notification => ({ ...notification, read: true })));
+    setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })));
   };
 
   const markAsRead = (id) => {
-    setNotifications(prev => prev.map(notification => 
-      notification.id === id ? { ...notification, read: true } : notification
-    ));
+    setNotifications((prev) =>
+      prev.map((notification) =>
+        notification.id === id ? { ...notification, read: true } : notification
+      )
+    );
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const getNotificationIcon = (type) => {
     switch (type) {
-      case 'order': return '🛒';
-      case 'payment': return '💳';
-      case 'stock': return '⚠️';
-      case 'system': return '⚙️';
-      default: return '🔔';
+      case 'order':
+        return '🛒';
+      case 'payment':
+        return '💳';
+      case 'stock':
+        return '⚠️';
+      case 'system':
+        return '⚙️';
+      default:
+        return '🔔';
     }
   };
 
@@ -172,21 +165,27 @@ const AppHeader = () => {
     <header className="app-header">
       <div className="app-header-left">
         <span className="app-header-title">
-          {loading ? 'Loading...' : (currentStore?.name || 'Shop Admin')}
+          {loading ? 'Loading...' : currentStore?.name || 'Shop Admin'}
         </span>
         <div className="app-header-center">
           <div className="app-header-menu-container small">
             <nav className="app-header-menu">
-              <span className="app-header-menu-indicator" style={{ left: indicatorStyle.left, width: indicatorStyle.width, opacity: activeMenuIndex !== -1 ? 1 : 0 }} />
+              <span
+                className="app-header-menu-indicator"
+                style={{
+                  left: indicatorStyle.left,
+                  width: indicatorStyle.width,
+                  opacity: activeMenuIndex !== -1 ? 1 : 0,
+                }}
+              />
               {menuItems.map((item, idx) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
                   className={({ isActive }) =>
-                    "app-header-menu-item" +
-                    (idx === activeMenuIndex ? " active" : "")
+                    'app-header-menu-item' + (idx === activeMenuIndex ? ' active' : '')
                   }
-                  ref={el => menuRefs.current[idx] = el}
+                  ref={(el) => (menuRefs.current[idx] = el)}
                 >
                   {item.label}
                 </NavLink>
@@ -195,7 +194,7 @@ const AppHeader = () => {
           </div>
         </div>
       </div>
-            <div className="app-header-right" style={{ gap: 12 }}>
+      <div className="app-header-right" style={{ gap: 12 }}>
         {shouldShowStoresButton && (
           <button
             className="header-icon-btn"
@@ -210,14 +209,23 @@ const AppHeader = () => {
               fontSize: 14,
               fontWeight: 500,
               minWidth: 'auto',
-              width: 'auto'
+              width: 'auto',
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="7" height="7"/>
-              <rect x="14" y="3" width="7" height="7"/>
-              <rect x="14" y="14" width="7" height="7"/>
-              <rect x="3" y="14" width="7" height="7"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
             </svg>
             Stores
           </button>
@@ -226,29 +234,37 @@ const AppHeader = () => {
           <button
             className="header-icon-btn notifications-btn"
             aria-label="Notifications"
-            onClick={() => setNotificationsOpen(v => !v)}
+            onClick={() => setNotificationsOpen((v) => !v)}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 0 0 2 2zm6-6V11c0-3.07-1.63-5.64-5-6.32V4a1 1 0 1 0-2 0v.68C7.63 5.36 6 7.92 6 11v5l-1.29 1.29A1 1 0 0 0 6 19h12a1 1 0 0 0 .71-1.71L18 16z" />
             </svg>
-            {unreadCount > 0 && (
-              <span className="notification-badge">{unreadCount}</span>
-            )}
+            {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
           </button>
           {notificationsOpen && (
             <div className="notifications-dropdown">
               <div className="notifications-header">
                 <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Notifications</h3>
                 {unreadCount > 0 && (
-                  <button 
+                  <button
                     onClick={markAllAsRead}
-                    style={{ 
-                      background: 'none', 
-                      border: 'none', 
-                      color: 'var(--color-accent)', 
-                      fontSize: 14, 
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--color-accent)',
+                      fontSize: 14,
                       cursor: 'pointer',
-                      fontWeight: 500
+                      fontWeight: 500,
                     }}
                   >
                     Mark all as read
@@ -257,7 +273,13 @@ const AppHeader = () => {
               </div>
               <div className="notifications-list">
                 {notifications.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-secondary)' }}>
+                  <div
+                    style={{
+                      textAlign: 'center',
+                      padding: '20px',
+                      color: 'var(--color-text-secondary)',
+                    }}
+                  >
                     No notifications
                   </div>
                 ) : (
@@ -281,17 +303,22 @@ const AppHeader = () => {
                 )}
               </div>
               <div className="notifications-footer">
-                <button 
-                  onClick={() => { navigate(storeId ? `/store/${storeId}/web-notifications` : '/web-notifications'); setNotificationsOpen(false); }}
-                  style={{ 
-                    width: '100%', 
-                    padding: '8px 16px', 
-                    background: 'var(--color-bg-secondary)', 
-                    border: '1px solid var(--color-border)', 
-                    borderRadius: 8, 
-                    color: 'var(--color-text)', 
+                <button
+                  onClick={() => {
+                    navigate(
+                      storeId ? `/store/${storeId}/web-notifications` : '/web-notifications'
+                    );
+                    setNotificationsOpen(false);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '8px 16px',
+                    background: 'var(--color-bg-secondary)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 8,
+                    color: 'var(--color-text)',
                     cursor: 'pointer',
-                    fontSize: 14
+                    fontSize: 14,
                   }}
                 >
                   View All Notifications
@@ -309,20 +336,69 @@ const AppHeader = () => {
             aria-label="Admin menu"
             title="Admin menu"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
             </svg>
           </button>
           {adminDropdownOpen && (
             <div className="user-dropdown">
               {isOwnerProOrUnlimited && (
-                <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/team` : '/team'); setAdminDropdownOpen(false); }}>Team</div>
+                <div
+                  className="user-dropdown-item"
+                  onClick={() => {
+                    navigate(storeId ? `/store/${storeId}/team` : '/team');
+                    setAdminDropdownOpen(false);
+                  }}
+                >
+                  Team
+                </div>
               )}
-              <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/users` : '/users'); setAdminDropdownOpen(false); }}>Users</div>
-              <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/payouts` : '/payouts'); setAdminDropdownOpen(false); }}>Payouts</div>
-              <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/app-settings` : '/app-settings'); setAdminDropdownOpen(false); }}>App Settings</div>
-              <div className="user-dropdown-item" onClick={() => { navigate(storeId ? `/store/${storeId}/settings` : '/settings'); setAdminDropdownOpen(false); }}>Settings</div>
+              <div
+                className="user-dropdown-item"
+                onClick={() => {
+                  navigate(storeId ? `/store/${storeId}/users` : '/users');
+                  setAdminDropdownOpen(false);
+                }}
+              >
+                Users
+              </div>
+              <div
+                className="user-dropdown-item"
+                onClick={() => {
+                  navigate(storeId ? `/store/${storeId}/payouts` : '/payouts');
+                  setAdminDropdownOpen(false);
+                }}
+              >
+                Payouts
+              </div>
+              <div
+                className="user-dropdown-item"
+                onClick={() => {
+                  navigate(storeId ? `/store/${storeId}/app-settings` : '/app-settings');
+                  setAdminDropdownOpen(false);
+                }}
+              >
+                App Settings
+              </div>
+              <div
+                className="user-dropdown-item"
+                onClick={() => {
+                  navigate(storeId ? `/store/${storeId}/settings` : '/settings');
+                  setAdminDropdownOpen(false);
+                }}
+              >
+                Settings
+              </div>
             </div>
           )}
         </div>
@@ -334,21 +410,61 @@ const AppHeader = () => {
             onClick={() => setUserDropdownOpen((v) => !v)}
             aria-label="User menu"
           >
-            <img 
-              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || user?.email || 'User')}&background=ececff&color=6d28d9&size=32`} 
-              alt="User avatar" 
-              style={{ width: 32, height: 32, borderRadius: '8px', objectFit: 'cover' }} 
+            <img
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || user?.email || 'User')}&background=ececff&color=6d28d9&size=32`}
+              alt="User avatar"
+              style={{ width: 32, height: 32, borderRadius: '8px', objectFit: 'cover' }}
             />
           </button>
           {userDropdownOpen && (
             <div className="user-dropdown">
-              <div className="user-dropdown-item" onClick={() => { navigate('/stores'); setUserDropdownOpen(false); }}>Profile</div>
-              <div className="user-dropdown-item" onClick={() => { navigate('/subscription'); setUserDropdownOpen(false); }}>Subscription</div>
-              <div className="user-dropdown-item" onClick={() => { refreshUser(); setUserDropdownOpen(false); }}>Refresh Data</div>
-              <div className="user-dropdown-item" onClick={() => { toggleTheme(); setUserDropdownOpen(false); }}>
+              <div
+                className="user-dropdown-item"
+                onClick={() => {
+                  navigate('/stores');
+                  setUserDropdownOpen(false);
+                }}
+              >
+                Profile
+              </div>
+              <div
+                className="user-dropdown-item"
+                onClick={() => {
+                  navigate('/subscription');
+                  setUserDropdownOpen(false);
+                }}
+              >
+                Subscription
+              </div>
+              <div
+                className="user-dropdown-item"
+                onClick={() => {
+                  refreshUser();
+                  setUserDropdownOpen(false);
+                }}
+              >
+                Refresh Data
+              </div>
+              <div
+                className="user-dropdown-item"
+                onClick={() => {
+                  toggleTheme();
+                  setUserDropdownOpen(false);
+                }}
+              >
                 {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
               </div>
-              <div className="user-dropdown-item" style={{ color: '#ef4444' }} onClick={() => { logout(); setUserDropdownOpen(false); navigate('/auth'); }}>Logout</div>
+              <div
+                className="user-dropdown-item"
+                style={{ color: '#ef4444' }}
+                onClick={() => {
+                  logout();
+                  setUserDropdownOpen(false);
+                  navigate('/auth');
+                }}
+              >
+                Logout
+              </div>
             </div>
           )}
         </div>
@@ -357,4 +473,4 @@ const AppHeader = () => {
   );
 };
 
-export default AppHeader; 
+export default AppHeader;
