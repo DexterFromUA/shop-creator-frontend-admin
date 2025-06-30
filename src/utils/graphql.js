@@ -642,6 +642,32 @@ export const CREATE_PRODUCT_MUTATION = `
   }
 `;
 
+export const DELETE_PRODUCT_MUTATION = `
+  mutation DeleteProduct($id: ID!) {
+    deleteProduct(id: $id) {
+      id
+      name
+    }
+  }
+`;
+
+export const UPDATE_PRODUCT_STOCK_MUTATION = `
+  mutation UpdateProductStock($id: ID!, $sizeInventory: [ProductSizeInput!]!) {
+    updateProductStock(id: $id, sizeInventory: $sizeInventory) {
+      id
+      name
+      amount
+      sizeInventory {
+        id
+        size
+        quantity
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
 // Product service functions
 export const productService = {
   async getStoreProducts(storeId) {
@@ -668,6 +694,24 @@ export const productService = {
       return data.createProduct;
     } catch (error) {
       throw new Error(error.message || 'Failed to create product');
+    }
+  },
+
+  async deleteProduct(id) {
+    try {
+      const data = await graphqlClient.request(DELETE_PRODUCT_MUTATION, { id });
+      return data.deleteProduct;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to delete product');
+    }
+  },
+
+  async updateProductStock(id, sizeInventory) {
+    try {
+      const data = await graphqlClient.request(UPDATE_PRODUCT_STOCK_MUTATION, { id, sizeInventory });
+      return data.updateProductStock;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update product stock');
     }
   },
 };

@@ -220,10 +220,7 @@ const Products = () => {
                         <span style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}>Stock: {product.amount}</span>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
-                      <button style={{ flex: 1, padding: '0.7rem', border: '1px solid var(--color-border)', borderRadius: 8, background: 'var(--color-bg)', color: 'var(--color-text)', cursor: 'pointer' }}>Edit</button>
-                      <button style={{ flex: 1, padding: '0.7rem', border: '1px solid var(--color-error-bg)', borderRadius: 8, background: 'var(--color-error-bg)', color: 'var(--color-error)', cursor: 'pointer' }}>Delete</button>
-                    </div>
+
                   </motion.div>
                 ))}
               </motion.div>
@@ -243,7 +240,6 @@ const Products = () => {
                       <th style={{ padding: '20px 32px' }}>Category</th>
                       <th style={{ padding: '20px 32px' }}>Price</th>
                       <th style={{ padding: '20px 32px' }}>Stock</th>
-                      <th style={{ padding: '20px 32px' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -253,12 +249,6 @@ const Products = () => {
                         <td style={{ padding: '20px 32px' }}>{product.category || 'Uncategorized'}</td>
                         <td style={{ padding: '20px 32px', color: 'var(--color-accent)', fontWeight: 600 }}>{formatPrice(product.price)}</td>
                         <td style={{ padding: '20px 32px' }}>{product.amount}</td>
-                        <td style={{ padding: '20px 32px' }}>
-                          <div style={{ display: 'flex', gap: 8 }}>
-                            <button style={{ padding: '0.5rem 1rem', border: '1px solid var(--color-border)', borderRadius: 6, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', cursor: 'pointer' }}>Edit</button>
-                            <button style={{ padding: '0.5rem 1rem', border: '1px solid var(--color-error-bg)', borderRadius: 6, background: 'var(--color-error-bg)', color: 'var(--color-error)', cursor: 'pointer' }}>Delete</button>
-                          </div>
-                        </td>
                       </motion.tr>
                     ))}
                   </tbody>
