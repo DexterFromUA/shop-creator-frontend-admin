@@ -10,6 +10,7 @@ import './App.css';
 import Auth from './pages/auth/Auth';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Products = lazy(() => import('./pages/Products'));
+const AddProduct = lazy(() => import('./pages/AddProduct'));
 const Orders = lazy(() => import('./pages/Orders'));
 const OrderPreview = lazy(() => import('./pages/OrderPreview'));
 const AppSettings = lazy(() => import('./pages/AppSettings'));
@@ -97,6 +98,7 @@ function App() {
                   <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="products" element={<Products />} />
+                  <Route path="products/add" element={<AddProduct />} />
                   <Route path="orders" element={<Orders />} />
                   <Route path="orders/:id" element={<OrderPreview />} />
                   <Route path="products/:id" element={<ProductView />} />

@@ -47,17 +47,10 @@ export const initialProducts = [
 ];
 
 const Products = () => {
-  const [products, setProducts] = useState(initialProducts);
+  const [products] = useState(initialProducts);
   const [search, setSearch] = useState('');
-  const [showModal, setShowModal] = useState(false);
   const [viewMode, setViewMode] = useState(() => {
     return localStorage.getItem('productsViewMode') || 'grid';
-  });
-  const [newProduct, setNewProduct] = useState({
-    name: '',
-    price: '',
-    stock: '',
-    category: 'Electronics'
   });
 
   const [indicatorStyle, setIndicatorStyle] = useState({});
@@ -66,13 +59,7 @@ const Products = () => {
   const navigate = useNavigate();
   const { storeId } = useParams();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const id = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-    setProducts([...products, { ...newProduct, id }]);
-    setNewProduct({ name: '', price: '', stock: '', category: 'Electronics' });
-    setShowModal(false);
-  };
+
 
   const filtered = products.filter(product => {
     const term = search.toLowerCase();
@@ -187,7 +174,7 @@ const Products = () => {
                 List
               </button>
             </div>
-            <button onClick={() => setShowModal(true)} style={{ background: '#111827', color: '#fff', border: 'none', borderRadius: 10, padding: '0.7rem 1.2rem', fontWeight: 600, fontSize: 15, cursor: 'pointer', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)' }}>
+            <button onClick={() => navigate(`/store/${storeId}/products/add`)} style={{ background: '#111827', color: '#fff', border: 'none', borderRadius: 10, padding: '0.7rem 1.2rem', fontWeight: 600, fontSize: 15, cursor: 'pointer', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)' }}>
               + Add Product
             </button>
           </div>
@@ -271,72 +258,6 @@ const Products = () => {
         </div>
       </div>
       
-      {showModal && (
-        <AnimatePresence>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
-          >
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 20, opacity: 0 }}
-              style={{ background: 'var(--color-bg)', padding: '24px 32px', borderRadius: 24, width: '100%', maxWidth: 480, position: 'relative', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>Add New Product</h2>
-                <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: 'var(--color-text-secondary)', padding: 0 }}>×</button>
-              </div>
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 15 }}>Name</label>
-                  <input 
-                    required 
-                    value={newProduct.name} 
-                    onChange={e => setNewProduct({ ...newProduct, name: e.target.value })} 
-                    style={{ boxSizing: 'border-box', width: '100%', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', borderRadius: 10, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 15 }} 
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 15 }}>Price</label>
-                  <input 
-                    required 
-                    value={newProduct.price} 
-                    onChange={e => setNewProduct({ ...newProduct, price: e.target.value })} 
-                    style={{ boxSizing: 'border-box', width: '100%', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', borderRadius: 10, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 15 }} 
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 15 }}>Stock</label>
-                  <input 
-                    required 
-                    type="number" 
-                    value={newProduct.stock} 
-                    onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })} 
-                    style={{ boxSizing: 'border-box', width: '100%', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', borderRadius: 10, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 15 }} 
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 15 }}>Category</label>
-                  <select 
-                    value={newProduct.category} 
-                    onChange={e => setNewProduct({ ...newProduct, category: e.target.value })} 
-                    style={{ boxSizing: 'border-box', width: '100%', padding: '0.8rem 1rem', border: '1px solid var(--color-border)', borderRadius: 10, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 15, appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '18px' }}
-                  >
-                    {/* Category dropdown removed */}
-                  </select>
-                </div>
-                <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
-                  <button type="button" onClick={() => setShowModal(false)} style={{ padding: '0.8rem 1.4rem', borderRadius: 10, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', border: 'none', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>Cancel</button>
-                  <button type="submit" style={{ padding: '0.8rem 1.4rem', borderRadius: 10, background: '#111827', color: '#fff', border: 'none', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>Add Product</button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        </AnimatePresence>
-      )}
     </div>
   );
 };
