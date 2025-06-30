@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
+import { productService } from '../utils/graphql';
 import './Dashboard.css';
 
+// Keep this export for ProductView.js compatibility 
 export const initialProducts = [
   { id: 1, name: 'Wireless Earbuds', price: '$129.99', stock: 45, category: 'Electronics' },
   { id: 2, name: 'Smart Watch', price: '$199.99', stock: 28, category: 'Electronics' },
@@ -14,40 +16,11 @@ export const initialProducts = [
   { id: 8, name: 'Phone Case', price: '$24.99', stock: 95, category: 'Accessories' },
   { id: 9, name: 'Laptop Stand', price: '$39.99', stock: 52, category: 'Electronics' },
   { id: 10, name: 'Water Bottle', price: '$19.99', stock: 150, category: 'Accessories' },
-  { id: 11, name: 'Gym Bag', price: '$69.99', stock: 41, category: 'Bags' },
-  { id: 12, name: 'Hiking Boots', price: '$189.99', stock: 23, category: 'Footwear' },
-  { id: 13, name: 'Wireless Mouse', price: '$34.99', stock: 67, category: 'Electronics' },
-  { id: 14, name: 'Belt', price: '$29.99', stock: 88, category: 'Accessories' },
-  { id: 15, name: 'Crossbody Bag', price: '$54.99', stock: 29, category: 'Bags' },
-  { id: 16, name: 'Sneakers', price: '$119.99', stock: 73, category: 'Footwear' },
-  { id: 17, name: 'Tablet Stand', price: '$44.99', stock: 31, category: 'Electronics' },
-  { id: 18, name: 'Watch Band', price: '$19.99', stock: 112, category: 'Accessories' },
-  { id: 19, name: 'Tote Bag', price: '$39.99', stock: 47, category: 'Bags' },
-  { id: 20, name: 'Sandals', price: '$79.99', stock: 58, category: 'Footwear' },
-  { id: 21, name: 'USB Cable', price: '$12.99', stock: 200, category: 'Electronics' },
-  { id: 22, name: 'Keychain', price: '$9.99', stock: 180, category: 'Accessories' },
-  { id: 23, name: 'Duffel Bag', price: '$89.99', stock: 25, category: 'Bags' },
-  { id: 24, name: 'Formal Shoes', price: '$149.99', stock: 34, category: 'Footwear' },
-  { id: 25, name: 'Power Bank', price: '$59.99', stock: 42, category: 'Electronics' },
-  { id: 26, name: 'Scarf', price: '$34.99', stock: 66, category: 'Accessories' },
-  { id: 27, name: 'Messenger Bag', price: '$99.99', stock: 19, category: 'Bags' },
-  { id: 28, name: 'Boots', price: '$169.99', stock: 27, category: 'Footwear' },
-  { id: 29, name: 'Headphones', price: '$149.99', stock: 33, category: 'Electronics' },
-  { id: 30, name: 'Gloves', price: '$24.99', stock: 89, category: 'Accessories' },
-  { id: 31, name: 'Travel Bag', price: '$129.99', stock: 16, category: 'Bags' },
-  { id: 32, name: 'Slides', price: '$49.99', stock: 71, category: 'Footwear' },
-  { id: 33, name: 'Keyboard', price: '$79.99', stock: 38, category: 'Electronics' },
-  { id: 34, name: 'Hat', price: '$29.99', stock: 94, category: 'Accessories' },
-  { id: 35, name: 'Clutch Bag', price: '$64.99', stock: 22, category: 'Bags' },
-  { id: 36, name: 'Loafers', price: '$139.99', stock: 31, category: 'Footwear' },
-  { id: 37, name: 'Webcam', price: '$89.99', stock: 28, category: 'Electronics' },
-  { id: 38, name: 'Socks', price: '$14.99', stock: 156, category: 'Accessories' },
-  { id: 39, name: 'Mini Backpack', price: '$44.99', stock: 53, category: 'Bags' },
-  { id: 40, name: 'Flip Flops', price: '$19.99', stock: 128, category: 'Footwear' },
 ];
 
 const Products = () => {
-  const [products] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState(() => {
     return localStorage.getItem('productsViewMode') || 'grid';
@@ -59,15 +32,36 @@ const Products = () => {
   const navigate = useNavigate();
   const { storeId } = useParams();
 
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const data = await productService.getStoreProducts(storeId);
+        setProducts(data);
+      } catch (error) {
+        console.error('Error loading products:', error);
+        alert('Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    if (storeId) {
+      loadProducts();
+    }
+  }, [storeId]);
 
   const filtered = products.filter(product => {
     const term = search.toLowerCase();
     return (
       product.name.toLowerCase().includes(term) ||
-      product.category.toLowerCase().includes(term)
+      (product.category && product.category.toLowerCase().includes(term))
     );
   });
+
+  const formatPrice = (price) => {
+    return `$${price.toFixed(2)}`;
+  };
 
   useEffect(() => {
     const calculateIndicator = () => {
@@ -181,7 +175,24 @@ const Products = () => {
         </div>
 
         {/* Content Card */}
-        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, width: '100%', maxHeight: '60vh', overflowY: 'auto' }}>
+        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, width: '100%', height: '60vh', overflowY: 'auto' }}>
+          {loading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 64 }}>
+              <div style={{ color: 'var(--color-text-secondary)', fontSize: 16 }}>Loading products...</div>
+            </div>
+          ) : products.length === 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 64, textAlign: 'center' }}>
+              <div style={{ fontSize: 24, marginBottom: 8 }}>📦</div>
+              <div style={{ color: 'var(--color-text)', fontSize: 18, fontWeight: 600, marginBottom: 8 }}>No products yet</div>
+              <div style={{ color: 'var(--color-text-secondary)', fontSize: 14, marginBottom: 24 }}>Create your first product to get started</div>
+              <button 
+                onClick={() => navigate(`/store/${storeId}/products/add`)} 
+                style={{ background: '#111827', color: '#fff', border: 'none', borderRadius: 10, padding: '0.7rem 1.2rem', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}
+              >
+                + Add Product
+              </button>
+            </div>
+          ) : (
           <AnimatePresence mode="wait">
             {viewMode === 'grid' ? (
               <motion.div
@@ -202,11 +213,11 @@ const Products = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
                         <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{product.name}</h3>
-                        <p style={{ margin: '8px 0 0 0', color: 'var(--color-text-secondary)', fontSize: 14 }}>{product.category}</p>
+                        <p style={{ margin: '8px 0 0 0', color: 'var(--color-text-secondary)', fontSize: 14 }}>{product.category || 'Uncategorized'}</p>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                        <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-accent)' }}>{product.price}</span>
-                        <span style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}>Stock: {product.stock}</span>
+                        <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-accent)' }}>{formatPrice(product.price)}</span>
+                        <span style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}>Stock: {product.amount}</span>
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
@@ -239,9 +250,9 @@ const Products = () => {
                     {filtered.map((product, i) => (
                       <motion.tr key={product.id} variants={listVariants} initial="initial" animate="animate" exit="exit" style={{ cursor: 'pointer' }} onClick={() => navigate(`/store/${storeId}/products/${product.id}`)}>
                         <td style={{ padding: '20px 32px' }}>{product.name}</td>
-                        <td style={{ padding: '20px 32px' }}>{product.category}</td>
-                        <td style={{ padding: '20px 32px', color: 'var(--color-accent)', fontWeight: 600 }}>{product.price}</td>
-                        <td style={{ padding: '20px 32px' }}>{product.stock}</td>
+                        <td style={{ padding: '20px 32px' }}>{product.category || 'Uncategorized'}</td>
+                        <td style={{ padding: '20px 32px', color: 'var(--color-accent)', fontWeight: 600 }}>{formatPrice(product.price)}</td>
+                        <td style={{ padding: '20px 32px' }}>{product.amount}</td>
                         <td style={{ padding: '20px 32px' }}>
                           <div style={{ display: 'flex', gap: 8 }}>
                             <button style={{ padding: '0.5rem 1rem', border: '1px solid var(--color-border)', borderRadius: 6, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', cursor: 'pointer' }}>Edit</button>
@@ -255,6 +266,7 @@ const Products = () => {
               </motion.div>
             )}
           </AnimatePresence>
+          )}
         </div>
       </div>
       

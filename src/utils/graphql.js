@@ -549,6 +549,129 @@ export const storeService = {
   },
 };
 
+// Product queries and mutations
+export const GET_STORE_PRODUCTS_QUERY = `
+  query GetStoreProducts($storeId: ID!) {
+    storeProducts(storeId: $storeId) {
+      id
+      name
+      description
+      price
+      category
+      amount
+      isPreOrder
+      isDiscount
+      discountPercent
+      imgUrls
+      orderCount
+      isActive
+      sizeInventory {
+        id
+        size
+        quantity
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const GET_PRODUCT_QUERY = `
+  query GetProduct($id: ID!) {
+    product(id: $id) {
+      id
+      name
+      description
+      price
+      category
+      amount
+      isPreOrder
+      isDiscount
+      discountPercent
+      imgUrls
+      orderCount
+      isActive
+      sizeInventory {
+        id
+        size
+        quantity
+        createdAt
+        updatedAt
+      }
+      store {
+        id
+        name
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const CREATE_PRODUCT_MUTATION = `
+  mutation CreateProduct($input: CreateProductInput!) {
+    createProduct(input: $input) {
+      id
+      name
+      description
+      price
+      category
+      amount
+      isPreOrder
+      isDiscount
+      discountPercent
+      imgUrls
+      orderCount
+      isActive
+      sizeInventory {
+        id
+        size
+        quantity
+        createdAt
+        updatedAt
+      }
+      store {
+        id
+        name
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+// Product service functions
+export const productService = {
+  async getStoreProducts(storeId) {
+    try {
+      const data = await graphqlClient.request(GET_STORE_PRODUCTS_QUERY, { storeId });
+      return data.storeProducts;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get products');
+    }
+  },
+
+  async getProduct(id) {
+    try {
+      const data = await graphqlClient.request(GET_PRODUCT_QUERY, { id });
+      return data.product;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get product');
+    }
+  },
+
+  async createProduct(productData) {
+    try {
+      const data = await graphqlClient.request(CREATE_PRODUCT_MUTATION, { input: productData });
+      return data.createProduct;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to create product');
+    }
+  },
+};
+
 // App service functions
 export const appService = {
   async createApp(appData) {

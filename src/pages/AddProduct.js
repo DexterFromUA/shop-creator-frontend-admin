@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { productService } from '../utils/graphql';
 import './Dashboard.css';
 
 const AddProduct = () => {
@@ -140,11 +141,40 @@ const AddProduct = () => {
     setLoading(true);
     
     try {
-      // Here you would typically make an API call to save the product
-      // For now, we'll just simulate success and navigate back
-      
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Prepare size inventory data
+      const sizeInventory = selectedSizes.map(([size, sizeData]) => ({
+        size: size,
+        quantity: sizeData.quantity
+      }));
+
+      // Convert images to base64 URLs (for now, in real app you'd upload to storage)
+      const imgUrls = [];
+      for (const image of newProduct.images) {
+        const reader = new FileReader();
+        const imageUrl = await new Promise((resolve) => {
+          reader.onload = (e) => resolve(e.target.result);
+          reader.readAsDataURL(image);
+        });
+        imgUrls.push(imageUrl);
+      }
+
+      // Parse price to number 
+      const price = parseFloat(newProduct.price.replace(/[^0-9.]/g, ''));
+
+      const productData = {
+        name: newProduct.name.trim(),
+        description: newProduct.description.trim(),
+        price: price,
+        category: newProduct.category.trim() || null,
+        isPreOrder: newProduct.isPreorder,
+        isDiscount: newProduct.isDiscount,
+        discountPercent: newProduct.discountPercent || 0,
+        imgUrls: imgUrls,
+        sizeInventory: sizeInventory,
+        storeId: storeId
+      };
+
+      await productService.createProduct(productData);
       
       // Navigate back to products page
       navigate(`/store/${storeId}/products`);
