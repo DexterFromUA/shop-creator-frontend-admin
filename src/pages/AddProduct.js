@@ -119,11 +119,6 @@ const AddProduct = () => {
       return;
     }
     
-    if (newProduct.images.length === 0) {
-      alert('Please add at least one image');
-      return;
-    }
-    
     // Check that at least one size is selected
     const selectedSizes = Object.entries(newProduct.sizes).filter(([_, sizeData]) => sizeData.selected);
     if (selectedSizes.length === 0) {
@@ -227,7 +222,7 @@ const AddProduct = () => {
                 fontWeight: 600, 
                 color: 'var(--color-text)' 
               }}>
-                Product Images
+                Product Images (Optional)
               </h3>
               
               <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr' }}>
@@ -313,7 +308,7 @@ const AddProduct = () => {
                       <div style={{ color: 'var(--color-text-secondary)' }}>
                         📷 Click to upload product images ({newProduct.images.length}/5)
                         <div style={{ fontSize: 12, marginTop: 4 }}>
-                          PNG, JPG, WebP up to 5MB each
+                          PNG, JPG, WebP up to 5MB each (optional)
                         </div>
                       </div>
                     </label>
