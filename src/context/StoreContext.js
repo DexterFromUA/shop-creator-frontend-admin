@@ -26,7 +26,6 @@ export const StoreProvider = ({ children }) => {
     try {
       const store = await fetchStoreById(storeId);
       
-      // Проверяем активность стора
       if (!store.isActive) {
         addToast('This store is currently inactive and unavailable', 'error');
         navigate('/stores');

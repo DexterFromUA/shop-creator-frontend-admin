@@ -66,7 +66,6 @@ export const AuthProvider = ({ children }) => {
       setUser(fresh);
     } catch (error) {
       console.error('Failed to refresh user:', error);
-      // Если не удалось получить пользователя, возможно токен недействителен
       logout();
     }
   };
@@ -84,7 +83,6 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(true);
         } catch (error) {
           console.error('Token validation failed:', error);
-          // Токен недействителен, удаляем его
           localStorage.removeItem(TOKEN_KEY);
           setUser(null);
           setIsAuthenticated(false);
