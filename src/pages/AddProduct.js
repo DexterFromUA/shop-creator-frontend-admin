@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { productService } from '../utils/graphql';
 import './Dashboard.css';
 
 const AddProduct = () => {
   const navigate = useNavigate();
-  const { storeId } = useParams();
+  const { storeId, id: productId } = useParams();
+  const isEditMode = !!productId;
   
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -27,6 +28,106 @@ const AddProduct = () => {
   });
   const [imagePreviews, setImagePreviews] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(isEditMode);
+
+  // Load product data for edit mode
+  useEffect(() => {
+    let isMounted = true;
+    
+    if (isEditMode && productId) {
+      const loadProduct = async () => {
+        try {
+          if (!isMounted) return;
+          setInitialLoading(true);
+          
+          const product = await productService.getProduct(productId);
+          
+          if (!isMounted) return;
+          
+          // Convert product data to form format
+          const sizes = {
+            XS: { selected: false, quantity: 0 },
+            S: { selected: false, quantity: 0 },
+            M: { selected: false, quantity: 0 },
+            L: { selected: false, quantity: 0 },
+            XL: { selected: false, quantity: 0 },
+            XXL: { selected: false, quantity: 0 }
+          };
+
+          // Populate sizes with existing data
+          if (product.sizeInventory) {
+            product.sizeInventory.forEach(sizeItem => {
+              if (sizes[sizeItem.size]) {
+                sizes[sizeItem.size] = {
+                  selected: true,
+                  quantity: sizeItem.quantity
+                };
+              }
+            });
+          }
+
+          setNewProduct({
+            name: product.name || '',
+            description: product.description || '',
+            price: product.price ? `$${product.price.toFixed(2)}` : '',
+            images: [], // Will be set separately
+            isPreorder: product.isPreOrder || false,
+            isDiscount: product.isDiscount || false,
+            discountPercent: product.discountPercent || 0,
+            category: product.category || '',
+            sizes: sizes
+          });
+
+          // Set image previews if product has images
+          if (product.imgUrls && product.imgUrls.length > 0) {
+            setImagePreviews(product.imgUrls);
+          }
+
+        } catch (error) {
+          console.error('Error loading product for edit:', error);
+          if (isMounted) {
+            navigate(`/store/${storeId}/products`);
+          }
+        } finally {
+          if (isMounted) {
+            setInitialLoading(false);
+          }
+        }
+      };
+
+      loadProduct();
+    }
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [isEditMode, productId, storeId]); // Removed navigate from dependencies
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Clear form state on unmount to prevent state leaks
+      setNewProduct({
+        name: '',
+        description: '',
+        price: '',
+        images: [],
+        isPreorder: false,
+        isDiscount: false,
+        discountPercent: 0,
+        category: '',
+        sizes: {
+          XS: { selected: false, quantity: 0 },
+          S: { selected: false, quantity: 0 },
+          M: { selected: false, quantity: 0 },
+          L: { selected: false, quantity: 0 },
+          XL: { selected: false, quantity: 0 },
+          XXL: { selected: false, quantity: 0 }
+        }
+      });
+      setImagePreviews([]);
+    };
+  }, []);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -142,15 +243,35 @@ const AddProduct = () => {
         quantity: sizeData.quantity
       }));
 
-      // Convert images to base64 URLs (for now, in real app you'd upload to storage)
-      const imgUrls = [];
-      for (const image of newProduct.images) {
-        const reader = new FileReader();
-        const imageUrl = await new Promise((resolve) => {
-          reader.onload = (e) => resolve(e.target.result);
-          reader.readAsDataURL(image);
-        });
-        imgUrls.push(imageUrl);
+      // Handle images differently for edit vs create
+      let imgUrls = [];
+      
+      if (isEditMode) {
+        // For edit mode, use existing image previews if no new images uploaded
+        if (newProduct.images.length > 0) {
+          // Convert new uploaded images to base64
+          for (const image of newProduct.images) {
+            const reader = new FileReader();
+            const imageUrl = await new Promise((resolve) => {
+              reader.onload = (e) => resolve(e.target.result);
+              reader.readAsDataURL(image);
+            });
+            imgUrls.push(imageUrl);
+          }
+        } else {
+          // Use existing previews (URLs from database)
+          imgUrls = imagePreviews;
+        }
+      } else {
+        // For create mode, convert all images to base64
+        for (const image of newProduct.images) {
+          const reader = new FileReader();
+          const imageUrl = await new Promise((resolve) => {
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(image);
+          });
+          imgUrls.push(imageUrl);
+        }
       }
 
       // Parse price to number 
@@ -165,18 +286,26 @@ const AddProduct = () => {
         isDiscount: newProduct.isDiscount,
         discountPercent: newProduct.discountPercent || 0,
         imgUrls: imgUrls,
-        sizeInventory: sizeInventory,
-        storeId: storeId
+        sizeInventory: sizeInventory
       };
 
-      await productService.createProduct(productData);
+      if (isEditMode) {
+        // For update, don't include storeId
+        await productService.updateProduct(productId, productData);
+      } else {
+        // For create, include storeId
+        await productService.createProduct({
+          ...productData,
+          storeId: storeId
+        });
+      }
       
       // Navigate back to products page
       navigate(`/store/${storeId}/products`);
       
     } catch (error) {
-      console.error('Error creating product:', error);
-      alert('Failed to create product. Please try again.');
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} product:`, error);
+      alert(`Failed to ${isEditMode ? 'update' : 'create'} product. Please try again.`);
     } finally {
       setLoading(false);
     }
@@ -185,6 +314,26 @@ const AddProduct = () => {
   const handleCancel = () => {
     navigate(`/store/${storeId}/products`);
   };
+
+  // Show loading state while fetching product data for edit
+  if (initialLoading) {
+    return (
+      <div style={{ 
+        width: '100%',
+        minHeight: '100vh',
+        background: 'var(--color-bg-secondary)',
+        padding: '48px 16px',
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ color: 'var(--color-text)', fontSize: 18 }}>Loading product data...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ 
@@ -198,10 +347,13 @@ const AddProduct = () => {
         {/* Page Header */}
         <div style={{ marginBottom: 32 }}>
           <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
-            Add New Product
+            {isEditMode ? 'Edit Product' : 'Add New Product'}
           </h1>
           <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-            Create a new product for your store with images, descriptions, and inventory management.
+            {isEditMode 
+              ? 'Update your product information, images, descriptions, and inventory.'
+              : 'Create a new product for your store with images, descriptions, and inventory management.'
+            }
           </p>
         </div>
 
@@ -677,7 +829,10 @@ const AddProduct = () => {
                   transition: 'all 0.2s'
                 }}
               >
-                {loading ? 'Creating Product...' : 'Create Product'}
+                {loading 
+                  ? (isEditMode ? 'Updating Product...' : 'Creating Product...') 
+                  : (isEditMode ? 'Update Product' : 'Create Product')
+                }
               </button>
             </div>
           </form>

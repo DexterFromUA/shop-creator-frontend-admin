@@ -1,5 +1,5 @@
 // GraphQL client utility
-const GRAPHQL_ENDPOINT = process.env.REACT_APP_GRAPHQL_ENDPOINT || 'http://localhost:3000/graphql';
+const GRAPHQL_ENDPOINT = process.env.REACT_APP_GRAPHQL_ENDPOINT || 'http://localhost:3001/graphql';
 
 class GraphQLClient {
   constructor(endpoint = GRAPHQL_ENDPOINT) {
@@ -668,12 +668,44 @@ export const UPDATE_PRODUCT_STOCK_MUTATION = `
   }
 `;
 
+export const UPDATE_PRODUCT_MUTATION = `
+  mutation UpdateProduct($id: ID!, $input: UpdateProductInput!) {
+    updateProduct(id: $id, input: $input) {
+      id
+      name
+      description
+      price
+      category
+      amount
+      isPreOrder
+      isDiscount
+      discountPercent
+      imgUrls
+      orderCount
+      isActive
+      sizeInventory {
+        id
+        size
+        quantity
+        createdAt
+        updatedAt
+      }
+      store {
+        id
+        name
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 // Product service functions
 export const productService = {
   async getStoreProducts(storeId) {
     try {
       const data = await graphqlClient.request(GET_STORE_PRODUCTS_QUERY, { storeId });
-      return data.storeProducts;
+      return data.storeProducts || [];
     } catch (error) {
       throw new Error(error.message || 'Failed to get products');
     }
@@ -712,6 +744,15 @@ export const productService = {
       return data.updateProductStock;
     } catch (error) {
       throw new Error(error.message || 'Failed to update product stock');
+    }
+  },
+
+  async updateProduct(id, productData) {
+    try {
+      const data = await graphqlClient.request(UPDATE_PRODUCT_MUTATION, { id, input: productData });
+      return data.updateProduct;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update product');
     }
   },
 };

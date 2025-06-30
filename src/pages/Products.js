@@ -29,24 +29,33 @@ const Products = () => {
   const [indicatorStyle, setIndicatorStyle] = useState({});
   const buttonsRef = useRef([]);
   const containerRef = useRef(null);
+  const loadingRef = useRef(false);
   const navigate = useNavigate();
   const { storeId } = useParams();
 
   useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        setLoading(true);
-        const data = await productService.getStoreProducts(storeId);
-        setProducts(data);
-      } catch (error) {
+          const loadProducts = async () => {
+        // Prevent multiple simultaneous loads
+        if (loadingRef.current) {
+          return;
+        }
+        
+        try {
+          loadingRef.current = true;
+          setLoading(true);
+          const data = await productService.getStoreProducts(storeId);
+          setProducts(data);
+        } catch (error) {
         console.error('Error loading products:', error);
         alert('Failed to load products');
+        setProducts([]); // Clear products on error
       } finally {
         setLoading(false);
+        loadingRef.current = false;
       }
     };
 
-    if (storeId) {
+    if (storeId && !loadingRef.current) {
       loadProducts();
     }
   }, [storeId]);

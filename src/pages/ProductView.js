@@ -153,6 +153,7 @@ const ProductView = () => {
               Update Stock
             </button>
             <button 
+              onClick={() => navigate(`/store/${product.store.id}/products/${product.id}/edit`)}
               style={{ 
                 padding:'0.8rem', 
                 borderRadius:10, 

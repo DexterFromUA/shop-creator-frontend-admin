@@ -77,14 +77,13 @@ const AppHeader = () => {
   ]);
 
   // Проверяем подписку владельца стора для ограничения доступа
-  // Проверяем только если данные загружены
-  const isOwnerProOrUnlimited =
-    !loading &&
+  // Проверяем только если данные загружены, но не блокируем если loading
+  const isOwnerProOrUnlimited = 
     currentStore?.owner &&
     (currentStore.owner.subscriptionType === 'PRO' ||
       currentStore.owner.subscriptionType === 'UNLIMITED');
 
-  const menuItems = storeId
+  const menuItems = storeId && !loading
     ? [
         { to: `/store/${storeId}/dashboard`, label: 'Dashboard', icon: '📊' },
         { to: `/store/${storeId}/orders`, label: 'Orders', icon: '🛒' },
