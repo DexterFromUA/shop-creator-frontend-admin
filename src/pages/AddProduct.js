@@ -461,31 +461,42 @@ const AddProduct = () => {
                     </small>
                   </div>
 
-                  <div>
-                    <label style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: 8,
-                      padding: '12px 16px',
-                      border: '2px solid var(--color-border)',
-                      borderRadius: 12,
-                      background: 'var(--color-bg-secondary)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: newProduct.isDiscount ? 12 : 0, transition: 'gap 0.3s ease-in-out' }}>
+                    <div style={{ flex: newProduct.isDiscount ? 0.5 : 1, transition: 'flex 0.3s ease-in-out' }}>
+                      <label style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 8,
+                        padding: '12px 16px',
+                        border: '2px solid var(--color-border)',
+                        borderRadius: 12,
+                        background: 'var(--color-bg-secondary)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        width: '100%',
+                        boxSizing: 'border-box'
+                      }}>
+                        <input
+                          type="checkbox"
+                          name="isDiscount"
+                          checked={newProduct.isDiscount}
+                          onChange={handleInputChange}
+                          style={{ margin: 0 }}
+                        />
+                        <span style={{ fontSize: 14, color: 'var(--color-text)', fontWeight: 600 }}>
+                          Discount
+                        </span>
+                      </label>
+                    </div>
+                    
+                    <div style={{ 
+                      overflow: 'hidden',
+                      flex: newProduct.isDiscount ? 0.5 : 0,
+                      opacity: newProduct.isDiscount ? 1 : 0,
+                      transition: 'all 0.3s ease-in-out',
+                      transform: newProduct.isDiscount ? 'translateX(0)' : 'translateX(-20px)'
                     }}>
-                      <input
-                        type="checkbox"
-                        name="isDiscount"
-                        checked={newProduct.isDiscount}
-                        onChange={handleInputChange}
-                        style={{ margin: 0 }}
-                      />
-                      <span style={{ fontSize: 14, color: 'var(--color-text)', fontWeight: 600 }}>
-                        Discount available
-                      </span>
-                    </label>
-                    {newProduct.isDiscount && (
-                      <div style={{ marginTop: 8 }}>
+                      <div style={{ width: '100%' }}>
                         <input
                           type="number"
                           name="discountPercent"
@@ -496,22 +507,30 @@ const AddProduct = () => {
                           max="100"
                           style={{
                             width: '100%',
-                            padding: '8px 12px',
+                            padding: '12px 8px',
                             border: '2px solid var(--color-border)',
-                            borderRadius: 8,
+                            borderRadius: 12,
                             background: 'var(--color-bg)',
                             color: 'var(--color-text)',
                             fontSize: 14,
                             outline: 'none',
                             transition: 'border-color 0.2s',
-                            boxSizing: 'border-box'
+                            boxSizing: 'border-box',
+                            textAlign: 'center'
                           }}
                         />
-                        <small style={{ color: 'var(--color-text-secondary)', fontSize: 12 }}>
-                          Discount percentage (0-100%)
+                        <small style={{ 
+                          color: 'var(--color-text-secondary)', 
+                          fontSize: 11,
+                          display: 'block',
+                          textAlign: 'center',
+                          marginTop: 4,
+                          whiteSpace: 'nowrap'
+                        }}>
+                          % off
                         </small>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               </div>
