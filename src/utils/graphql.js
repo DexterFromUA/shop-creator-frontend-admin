@@ -873,6 +873,16 @@ export const REVOKE_INVITE_MUTATION = `
   }
 `;
 
+export const REMOVE_TEAM_MEMBER_MUTATION = `
+  mutation RemoveTeamMember($storeId: String!, $userId: String!) {
+    removeTeamMember(storeId: $storeId, userId: $userId) {
+      id
+      name
+      email
+    }
+  }
+`;
+
 // Invite service functions
 export const inviteService = {
   async getInvite(token) {
@@ -917,6 +927,15 @@ export const inviteService = {
       return data.revokeInvite;
     } catch (error) {
       throw new Error(error.message || 'Failed to revoke invite');
+    }
+  },
+
+  async removeTeamMember(storeId, userId) {
+    try {
+      const data = await graphqlClient.request(REMOVE_TEAM_MEMBER_MUTATION, { storeId, userId });
+      return data.removeTeamMember;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to remove team member');
     }
   },
 }; 

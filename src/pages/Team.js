@@ -7,6 +7,88 @@ import './Dashboard.css';
 
 
 
+const ConfirmDeleteModal = ({ open, onClose, onConfirm, userName }) => {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 20, opacity: 0 }}
+            style={{
+              background: 'var(--color-bg)',
+              padding: '32px',
+              borderRadius: 24,
+              width: '100%',
+              maxWidth: 420,
+              position: 'relative',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+            <h2 style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 700, color: 'var(--color-text)' }}>
+              Remove Team Member
+            </h2>
+            <p style={{ margin: '0 0 24px 0', fontSize: 16, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+              Are you sure you want to remove <strong>{userName}</strong> from the team? This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              <button
+                onClick={onClose}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: 12,
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text)',
+                  border: '1px solid var(--color-border)',
+                  fontWeight: 600,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={onConfirm}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: 12,
+                  background: '#ef4444',
+                  color: '#fff',
+                  border: 'none',
+                  fontWeight: 600,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
   const [form, setForm] = useState({ role: 'MANAGER' });
   const [loading, setLoading] = useState(false);
@@ -255,6 +337,7 @@ const Team = () => {
   const navigate = useNavigate();
   
   const [modal, setModal] = useState({ open: false });
+  const [deleteModal, setDeleteModal] = useState({ open: false, user: null });
   const [search, setSearch] = useState('');
   const [invites, setInvites] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -368,6 +451,25 @@ const Team = () => {
       alert('Invite link copied to clipboard!');
     } catch (error) {
       alert('Failed to copy link');
+    }
+  };
+
+  const handleRemoveTeamMember = (userId, userName) => {
+    setDeleteModal({ 
+      open: true, 
+      user: { id: userId, name: userName } 
+    });
+  };
+
+  const confirmRemoveTeamMember = async () => {
+    if (!deleteModal.user) return;
+    
+    try {
+      await inviteService.removeTeamMember(currentStore.id, deleteModal.user.id);
+      refreshStore(); // Refresh store data to update team list
+      setDeleteModal({ open: false, user: null });
+    } catch (error) {
+      alert('Failed to remove team member: ' + error.message);
     }
   };
 
@@ -707,6 +809,21 @@ const Team = () => {
                             >
                               {role}
                             </span>
+                            <button
+                              onClick={() => handleRemoveTeamMember(user.id, user.name || user.email)}
+                              style={{
+                                background: 'transparent',
+                                border: '1px solid #ef4444',
+                                borderRadius: 8,
+                                padding: '6px 10px',
+                                fontSize: 13,
+                                cursor: 'pointer',
+                                color: '#ef4444',
+                                fontWeight: 600,
+                              }}
+                            >
+                              Remove
+                            </button>
                           </div>
                         </div>
                       );
@@ -858,6 +975,13 @@ const Team = () => {
           onClose={() => setModal({ open: false })}
           onInviteCreated={handleInviteCreated}
           storeId={currentStore?.id}
+        />
+
+        <ConfirmDeleteModal
+          open={deleteModal.open}
+          onClose={() => setDeleteModal({ open: false, user: null })}
+          onConfirm={confirmRemoveTeamMember}
+          userName={deleteModal.user?.name || 'Unknown User'}
         />
       </div>
     </div>
