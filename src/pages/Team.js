@@ -256,9 +256,7 @@ const Team = () => {
   const [search, setSearch] = useState('');
   const [invites, setInvites] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState(() => {
-    return localStorage.getItem('teamViewMode') || 'members';
-  });
+  const [viewMode, setViewMode] = useState('members');
 
   const [indicatorStyle, setIndicatorStyle] = useState({});
   const buttonsRef = useRef([]);
@@ -297,26 +295,38 @@ const Team = () => {
     loadInvites();
   }, [currentStore?.id]);
 
+  const calculateIndicator = () => {
+    const activeButton = buttonsRef.current.find((btn) => btn && btn.dataset.view === viewMode);
+    if (activeButton && containerRef.current) {
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const buttonRect = activeButton.getBoundingClientRect();
+      setIndicatorStyle({
+        width: buttonRect.width,
+        left: buttonRect.left - containerRect.left,
+      });
+    }
+  };
+
   useEffect(() => {
-    const calculateIndicator = () => {
-      const activeButton = buttonsRef.current.find((btn) => btn && btn.dataset.view === viewMode);
-      if (activeButton && containerRef.current) {
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const buttonRect = activeButton.getBoundingClientRect();
-        setIndicatorStyle({
-          width: buttonRect.width,
-          left: buttonRect.left - containerRect.left,
-        });
-      }
-    };
-    calculateIndicator();
+    // Calculate indicator when viewMode changes
+    const timer = setTimeout(calculateIndicator, 10);
     window.addEventListener('resize', calculateIndicator);
-    return () => window.removeEventListener('resize', calculateIndicator);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', calculateIndicator);
+    };
   }, [viewMode]);
 
   useEffect(() => {
-    localStorage.setItem('teamViewMode', viewMode);
-  }, [viewMode]);
+    // Calculate indicator after data is loaded
+    if (!loading) {
+      const timer = setTimeout(calculateIndicator, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, viewMode]);
+
+
 
   const handleInviteCreated = (newInvite) => {
     setInvites((prev) => [newInvite, ...prev]);
