@@ -81,18 +81,14 @@ const Team = () => {
   const [couriers, setCouriers] = useState(initialCouriers);
   const [modal, setModal] = useState({ open: false, role: null });
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
 
   const allUsers = [...managers, ...couriers];
 
   const filteredUsers = allUsers.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(search.toLowerCase()) ||
                          user.email.toLowerCase().includes(search.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
     
-    return matchesSearch && matchesRole && matchesStatus;
+    return matchesSearch;
   });
 
   const handleAdd = (role, user) => {
@@ -210,69 +206,23 @@ const Team = () => {
 
         {/* Search and Filter Toolbar */}
         <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: '24px 32px', marginBottom: 32, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-            <div style={{ position: 'relative', minWidth: 140, maxWidth: 220, flexShrink: 1 }}>
-              <input
-                type="text"
-                placeholder="Search team..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                style={{
-                  padding: '0.7rem 1rem 0.7rem 2.5rem',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 10,
-                  fontSize: 15,
-                  background: 'var(--color-bg-secondary)',
-                  color: 'var(--color-text)',
-                  width: '100%',
-                }}
-              />
-              <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-secondary)', fontSize: '1.1rem', pointerEvents: 'none' }}>🔍</span>
-            </div>
-            <select
-              value={roleFilter}
-              onChange={e => setRoleFilter(e.target.value)}
+          <div style={{ position: 'relative', minWidth: 140, maxWidth: 220, flexShrink: 1 }}>
+            <input
+              type="text"
+              placeholder="Search team..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
               style={{
-                padding: '0.7rem 2.5rem 0.7rem 1rem',
-                borderRadius: 10,
+                padding: '0.7rem 1rem 0.7rem 2.5rem',
                 border: '1px solid var(--color-border)',
+                borderRadius: 10,
+                fontSize: 15,
                 background: 'var(--color-bg-secondary)',
                 color: 'var(--color-text)',
-                fontSize: 15,
-                minWidth: 140,
-                appearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 1rem center',
-                backgroundSize: '18px'
+                width: '100%',
               }}
-            >
-              <option value="all">All Roles</option>
-              <option value="manager">Managers</option>
-              <option value="courier">Couriers</option>
-            </select>
-            <select
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
-              style={{
-                padding: '0.7rem 2.5rem 0.7rem 1rem',
-                borderRadius: 10,
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-bg-secondary)',
-                color: 'var(--color-text)',
-                fontSize: 15,
-                minWidth: 140,
-                appearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 1rem center',
-                backgroundSize: '18px'
-              }}
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
+            />
+            <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-secondary)', fontSize: '1.1rem', pointerEvents: 'none' }}>🔍</span>
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
             <button 
@@ -293,9 +243,9 @@ const Team = () => {
             <button 
               onClick={() => setModal({ open: true, role: 'courier' })} 
               style={{ 
-                background: '#111827', 
-                color: '#fff', 
-                border: 'none', 
+                background: 'var(--color-bg-secondary)', 
+                color: 'var(--color-text)', 
+                border: '1px solid var(--color-border)', 
                 borderRadius: 10, 
                 padding: '0.7rem 1.2rem', 
                 fontWeight: 600, 
@@ -309,7 +259,7 @@ const Team = () => {
         </div>
 
         {/* Search and Filter Card */}
-        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, width: '100%', maxHeight: '60vh', overflowY: 'auto' }}>
+        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, width: '100%', height: '60vh', overflowY: 'auto' }}>
           {filteredUsers.length === 0 ? (
             <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>No users found</div>
           ) : (
