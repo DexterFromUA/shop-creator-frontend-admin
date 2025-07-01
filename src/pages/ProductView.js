@@ -145,7 +145,39 @@ const ProductView = () => {
       <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto' }}>
         <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:32 }}>
           <div style={{ display:'flex',alignItems:'center',gap:18 }}>
-            <button onClick={() => navigate(-1)} className="order-back-btn" style={{ fontSize:18 }}><span style={{fontSize:20}}>&larr;</span> Back</button>
+            <button 
+              onClick={() => navigate(-1)} 
+              style={{ 
+                padding:'0.8rem 1.2rem', 
+                borderRadius:10, 
+                background:'transparent', 
+                color:'var(--color-text)', 
+                border:'2px solid var(--color-border)', 
+                fontWeight:600, 
+                cursor:'pointer',
+                fontSize: 14,
+                height: 40,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = 'var(--color-text)';
+                e.target.style.color = 'var(--color-bg)';
+                e.target.style.borderColor = 'var(--color-text)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = 'transparent';
+                e.target.style.color = 'var(--color-text)';
+                e.target.style.borderColor = 'var(--color-border)';
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Back
+            </button>
             <span style={{ fontWeight:800,fontSize:32,color:'var(--color-text)' }}>{product.name}</span>
           </div>
           
