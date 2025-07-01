@@ -183,7 +183,7 @@ const ProductView = () => {
               onClick={() => navigate(`/store/${product.store.id}/products/${product.id}/edit`)}
               className="icon-button"
               style={{ 
-                padding:'0.8rem', 
+                padding:'0.5rem', 
                 borderRadius:10, 
                 background:'transparent', 
                 color:'var(--color-text)', 
@@ -208,7 +208,7 @@ const ProductView = () => {
               onClick={() => setShowDeleteModal(true)}
               className="delete-button"
               style={{ 
-                padding:'0.8rem', 
+                padding:'0.5rem', 
                 borderRadius:10, 
                 background:'transparent', 
                 color:'#ef4444', 
@@ -467,7 +467,7 @@ const ProductView = () => {
                 
                 <div style={{ textAlign:'right', minWidth:120 }}>
                   <div style={{ color:'var(--color-text-secondary)', fontSize:15, marginBottom:8 }}>Price</div>
-                  <div style={{ fontWeight:700,color:'var(--color-accent)', fontSize:24 }}>{formatPrice(product.price)}</div>
+                  <div style={{ fontWeight:700,color:'#111827', fontSize:32 }}>{formatPrice(product.price)}</div>
                   {product.isDiscount && product.discountPercent > 0 && (
                     <div style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}>
                       Final: {formatPrice(product.price * (1 - product.discountPercent / 100))}
