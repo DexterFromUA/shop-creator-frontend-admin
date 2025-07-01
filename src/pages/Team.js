@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
@@ -251,7 +251,7 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
 };
 
 const Team = () => {
-  const { currentStore } = useStore();
+  const { currentStore, refreshStore } = useStore();
   const navigate = useNavigate();
 
   const [modal, setModal] = useState({ open: false });
@@ -279,23 +279,34 @@ const Team = () => {
     return matchesSearch;
   });
 
+  const loadInvites = useCallback(async () => {
+    if (!currentStore?.id) return;
+
+    try {
+      setLoading(true);
+      const storeInvites = await inviteService.getStoreInvites(currentStore.id);
+      setInvites(storeInvites);
+    } catch (error) {
+      console.error('Failed to load invites:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentStore?.id]);
+
   useEffect(() => {
-    const loadInvites = async () => {
-      if (!currentStore?.id) return;
-
-      try {
-        setLoading(true);
-        const storeInvites = await inviteService.getStoreInvites(currentStore.id);
-        setInvites(storeInvites);
-      } catch (error) {
-        console.error('Failed to load invites:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadInvites();
   }, [currentStore?.id]);
+
+  // Reload data when window gets focus (e.g., after accepting invite)
+  useEffect(() => {
+    const handleFocus = () => {
+      loadInvites();
+      refreshStore(); // Also refresh store data to get updated team members
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [loadInvites, refreshStore]);
 
   const calculateIndicator = () => {
     const activeButton = buttonsRef.current.find((btn) => btn && btn.dataset.view === viewMode);
@@ -336,8 +347,15 @@ const Team = () => {
 
   const handleRevokeInvite = async (inviteId) => {
     try {
-      await inviteService.revokeInvite(inviteId);
-      setInvites((prev) => prev.filter((invite) => invite.id !== inviteId));
+      const revokedInvite = await inviteService.revokeInvite(inviteId);
+      // Update the invite in the list instead of removing it
+      setInvites((prev) => 
+        prev.map((invite) => 
+          invite.id === inviteId 
+            ? { ...invite, revoked: true, revokedAt: revokedInvite.revokedAt }
+            : invite
+        )
+      );
     } catch (error) {
       alert('Failed to revoke invite: ' + error.message);
     }
@@ -707,6 +725,7 @@ const Team = () => {
                     const expiresAt = new Date(parseInt(invite.expiresAt));
                     const isExpired = !isNaN(expiresAt.getTime()) && now > expiresAt;
                     const isUsed = invite.isUsed;
+                    const isRevoked = invite.revoked;
                     
                     return (
                       <div
@@ -722,7 +741,7 @@ const Team = () => {
                               : '1px solid var(--color-border)',
                           gap: 16,
                           flexWrap: 'wrap',
-                          opacity: isExpired ? 0.7 : 1,
+                          opacity: (isUsed || isRevoked || isExpired) ? 0.7 : 1,
                         }}
                       >
                         <div
@@ -755,7 +774,8 @@ const Team = () => {
                             >
                               Created {new Date(parseInt(invite.createdAt)).toLocaleDateString()}
                               {isUsed && invite.usedAt && ` • Used ${new Date(parseInt(invite.usedAt)).toLocaleDateString()}`}
-                              {!isUsed && ` • Expires ${new Date(parseInt(invite.expiresAt)).toLocaleDateString()}`}
+                              {isRevoked && invite.revokedAt && ` • Revoked ${new Date(parseInt(invite.revokedAt)).toLocaleDateString()}`}
+                              {!isUsed && !isRevoked && ` • Expires ${new Date(parseInt(invite.expiresAt)).toLocaleDateString()}`}
                               {isUsed && invite.usedBy && ` by ${invite.usedBy.name || invite.usedBy.email}`}
                             </p>
                           </div>
@@ -765,14 +785,18 @@ const Team = () => {
                             style={{
                               background: isUsed 
                                 ? 'rgba(16, 185, 129, 0.1)' 
-                                : isExpired 
-                                  ? 'rgba(107, 114, 128, 0.1)' 
-                                  : 'rgba(251, 191, 36, 0.1)',
+                                : isRevoked
+                                  ? 'rgba(239, 68, 68, 0.1)'
+                                  : isExpired 
+                                    ? 'rgba(107, 114, 128, 0.1)' 
+                                    : 'rgba(251, 191, 36, 0.1)',
                               color: isUsed 
                                 ? '#10b981' 
-                                : isExpired 
-                                  ? '#6b7280' 
-                                  : '#f59e0b',
+                                : isRevoked
+                                  ? '#ef4444'
+                                  : isExpired 
+                                    ? '#6b7280' 
+                                    : '#f59e0b',
                               padding: '4px 10px',
                               borderRadius: 8,
                               fontSize: 13,
@@ -780,9 +804,9 @@ const Team = () => {
                               textTransform: 'capitalize',
                             }}
                           >
-                            {isUsed ? 'Used' : isExpired ? 'Expired' : `Pending ${invite.role.toLowerCase()}`}
+                            {isUsed ? 'Used' : isRevoked ? 'Revoked' : isExpired ? 'Expired' : `Pending ${invite.role.toLowerCase()}`}
                           </span>
-                          {!isUsed && !isExpired && (
+                          {!isUsed && !isRevoked && !isExpired && (
                             <>
                               <button
                                 onClick={() => handleCopyInviteLink(invite.token)}

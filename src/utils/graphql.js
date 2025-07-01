@@ -802,6 +802,8 @@ export const GET_STORE_INVITES_QUERY = `
       expiresAt
       isUsed
       usedAt
+      revoked
+      revokedAt
       store {
         id
         name
