@@ -282,7 +282,6 @@ const ProductView = () => {
             
             {/* Left Side - Product Images Carousel */}
             <div>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: 18, fontWeight: 600 }}>Product Images</h3>
               
               {(() => {
                 const images = product.imgUrls && product.imgUrls.length > 0 
@@ -456,7 +455,6 @@ const ProductView = () => {
 
                         {/* Right Side - Product Information */}
             <div>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: 18, fontWeight: 600 }}>Product Details</h3>
               
               <div style={{ display:'flex',flexWrap:'wrap', justifyContent:'space-between', alignItems:'flex-start', gap:24, marginBottom: 24 }}>
                 <div style={{ minWidth:220, flex: 1 }}>
