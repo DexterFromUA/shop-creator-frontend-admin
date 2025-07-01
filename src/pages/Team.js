@@ -112,7 +112,7 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
                 onSubmit={handleSubmit}
                 style={{ display: 'flex', flexDirection: 'column', gap: 18 }}
               >
-                <div>
+              <div>
                   <label
                     style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 15 }}
                   >
@@ -144,8 +144,8 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
                     <option value="MANAGER">Manager</option>
                     <option value="COURIER">Courier</option>
                   </select>
-                </div>
-                <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+              </div>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
                   <button
                     type="button"
                     onClick={handleClose}
@@ -253,7 +253,7 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
 const Team = () => {
   const { currentStore, refreshStore } = useStore();
   const navigate = useNavigate();
-
+  
   const [modal, setModal] = useState({ open: false });
   const [search, setSearch] = useState('');
   const [invites, setInvites] = useState([]);
@@ -300,7 +300,7 @@ const Team = () => {
   // Reload data when window gets focus (e.g., after accepting invite)
   useEffect(() => {
     const handleFocus = () => {
-      loadInvites();
+      // loadInvites();
       refreshStore(); // Also refresh store data to get updated team members
     };
     
@@ -373,7 +373,7 @@ const Team = () => {
 
   const isOwnerProOrUnlimited =
     currentStore?.owner?.subscriptionType === 'PRO' ||
-    currentStore?.owner?.subscriptionType === 'UNLIMITED';
+                                 currentStore?.owner?.subscriptionType === 'UNLIMITED';
 
   if (!isOwnerProOrUnlimited) {
     return (
@@ -390,10 +390,10 @@ const Team = () => {
           <div
             className="dashboard-card"
             style={{
-              background: 'var(--color-bg)',
-              borderRadius: 28,
-              boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
-              padding: 48,
+            background: 'var(--color-bg)', 
+            borderRadius: 28, 
+            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', 
+            padding: 48,
               textAlign: 'center',
             }}
           >
@@ -556,11 +556,11 @@ const Team = () => {
                 ref={(el) => (buttonsRef.current[0] = el)}
                 data-view="members"
                 onClick={() => setViewMode('members')}
-                style={{
+              style={{
                   padding: '0.5rem 1rem',
                   border: 'none',
                   background: 'transparent',
-                  color: 'var(--color-text)',
+                color: 'var(--color-text)',
                   cursor: 'pointer',
                   position: 'relative',
                   zIndex: 1,
@@ -569,15 +569,15 @@ const Team = () => {
               >
                 Members ({filteredUsers.length})
               </button>
-              <button
+            <button 
                 ref={(el) => (buttonsRef.current[1] = el)}
                 data-view="invites"
                 onClick={() => setViewMode('invites')}
-                style={{
+              style={{ 
                   padding: '0.5rem 1rem',
                   border: 'none',
                   background: 'transparent',
-                  color: 'var(--color-text)',
+                color: 'var(--color-text)', 
                   cursor: 'pointer',
                   position: 'relative',
                   zIndex: 1,
@@ -585,18 +585,18 @@ const Team = () => {
                 }}
               >
                 Invites ({filteredInvites.length})
-              </button>
+            </button>
             </div>
-            <button
+            <button 
               onClick={() => setModal({ open: true })}
-              style={{
-                background: '#111827',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 10,
-                padding: '0.7rem 1.2rem',
-                fontWeight: 600,
-                fontSize: 15,
+              style={{ 
+                background: '#111827', 
+                color: '#fff', 
+                border: 'none', 
+                borderRadius: 10, 
+                padding: '0.7rem 1.2rem', 
+                fontWeight: 600, 
+                fontSize: 15, 
                 cursor: 'pointer',
               }}
             >
@@ -677,8 +677,8 @@ const Team = () => {
                               }}
                             >
                               {role === 'manager' ? '👔' : '🚚'}
-                            </div>
-                            <div>
+                    </div>
+                    <div>
                               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
                                 {user.name || 'No name'}
                               </h3>
@@ -723,7 +723,7 @@ const Team = () => {
                   filteredInvites.map((invite, i) => {
                     const now = new Date();
                     const expiresAt = new Date(parseInt(invite.expiresAt));
-                    const isExpired = !isNaN(expiresAt.getTime()) && now > expiresAt;
+                    const isExpired = !invite.isUsed && !invite.revoked && !isNaN(expiresAt.getTime()) && now > expiresAt;
                     const isUsed = invite.isUsed;
                     const isRevoked = invite.revoked;
                     
@@ -741,7 +741,6 @@ const Team = () => {
                               : '1px solid var(--color-border)',
                           gap: 16,
                           flexWrap: 'wrap',
-                          opacity: (isUsed || isRevoked || isExpired) ? 0.7 : 1,
                         }}
                       >
                         <div
@@ -778,9 +777,9 @@ const Team = () => {
                               {!isUsed && !isRevoked && ` • Expires ${new Date(parseInt(invite.expiresAt)).toLocaleDateString()}`}
                               {isUsed && invite.usedBy && ` by ${invite.usedBy.name || invite.usedBy.email}`}
                             </p>
-                          </div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                           <span
                             style={{
                               background: isUsed 
@@ -808,7 +807,7 @@ const Team = () => {
                           </span>
                           {!isUsed && !isRevoked && !isExpired && (
                             <>
-                              <button
+                    <button 
                                 onClick={() => handleCopyInviteLink(invite.token)}
                                 style={{
                                   background: 'transparent',
@@ -822,8 +821,8 @@ const Team = () => {
                                 }}
                               >
                                 Copy
-                              </button>
-                              <button
+                    </button>
+                    <button 
                                 onClick={() => handleRevokeInvite(invite.id)}
                                 style={{
                                   background: 'transparent',
@@ -837,7 +836,7 @@ const Team = () => {
                                 }}
                               >
                                 Revoke
-                              </button>
+                    </button>
                             </>
                           )}
                         </div>
@@ -865,4 +864,4 @@ const Team = () => {
   );
 };
 
-export default Team;
+export default Team; 

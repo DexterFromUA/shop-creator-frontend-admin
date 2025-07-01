@@ -178,7 +178,7 @@ const ProductView = () => {
               </svg>
               Back
             </button>
-            <span style={{ fontWeight:800,fontSize:32,color:'var(--color-text)' }}>{product.name}</span>
+          <span style={{ fontWeight:800,fontSize:32,color:'var(--color-text)' }}>{product.name}</span>
           </div>
           
           {/* Action Buttons - Moved to top right */}
@@ -495,8 +495,8 @@ const ProductView = () => {
                   </div>
                 </div>
                 
-                <div style={{ textAlign:'right', minWidth:120 }}>
-                  <div style={{ color:'var(--color-text-secondary)', fontSize:15, marginBottom:8 }}>Price</div>
+            <div style={{ textAlign:'right', minWidth:120 }}>
+              <div style={{ color:'var(--color-text-secondary)', fontSize:15, marginBottom:8 }}>Price</div>
                   <div style={{ fontWeight:700,color:'#111827', fontSize:32 }}>{formatPrice(product.price)}</div>
                   {product.isDiscount && product.discountPercent > 0 && (
                     <div style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}>
@@ -730,9 +730,9 @@ const ProductView = () => {
               >
                 {stockUpdating ? 'Updating...' : 'Update Stock'}
               </button>
-            </div>
           </div>
         </div>
+      </div>
       )}
     </div>
     </>
