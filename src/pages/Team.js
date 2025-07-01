@@ -343,6 +343,16 @@ const Team = () => {
     }
   };
 
+  const handleCopyInviteLink = async (token) => {
+    try {
+      const link = `${window.location.origin}/invite/${token}`;
+      await navigator.clipboard.writeText(link);
+      alert('Invite link copied to clipboard!');
+    } catch (error) {
+      alert('Failed to copy link');
+    }
+  };
+
   const isOwnerProOrUnlimited =
     currentStore?.owner?.subscriptionType === 'PRO' ||
     currentStore?.owner?.subscriptionType === 'UNLIMITED';
@@ -773,21 +783,38 @@ const Team = () => {
                             {isUsed ? 'Used' : isExpired ? 'Expired' : `Pending ${invite.role.toLowerCase()}`}
                           </span>
                           {!isUsed && !isExpired && (
-                            <button
-                              onClick={() => handleRevokeInvite(invite.id)}
-                              style={{
-                                background: 'transparent',
-                                border: '1px solid #ef4444',
-                                borderRadius: 8,
-                                padding: '6px 10px',
-                                fontSize: 13,
-                                cursor: 'pointer',
-                                color: '#ef4444',
-                                fontWeight: 600,
-                              }}
-                            >
-                              Revoke
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleCopyInviteLink(invite.token)}
+                                style={{
+                                  background: 'transparent',
+                                  border: '1px solid #10b981',
+                                  borderRadius: 8,
+                                  padding: '6px 10px',
+                                  fontSize: 13,
+                                  cursor: 'pointer',
+                                  color: '#10b981',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                Copy
+                              </button>
+                              <button
+                                onClick={() => handleRevokeInvite(invite.id)}
+                                style={{
+                                  background: 'transparent',
+                                  border: '1px solid #ef4444',
+                                  borderRadius: 8,
+                                  padding: '6px 10px',
+                                  fontSize: 13,
+                                  cursor: 'pointer',
+                                  color: '#ef4444',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                Revoke
+                              </button>
+                            </>
                           )}
                         </div>
                       </div>
