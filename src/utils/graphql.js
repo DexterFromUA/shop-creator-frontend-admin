@@ -767,4 +767,154 @@ export const appService = {
       throw new Error(error.message || 'Failed to create app');
     }
   },
+};
+
+// Invite queries and mutations
+export const GET_INVITE_QUERY = `
+  query GetInvite($token: String!) {
+    getInvite(token: $token) {
+      id
+      token
+      email
+      role
+      expiresAt
+      store {
+        id
+        name
+        owner {
+          id
+          name
+          email
+        }
+      }
+    }
+  }
+`;
+
+export const GET_STORE_INVITES_QUERY = `
+  query GetStoreInvites($storeId: String!) {
+    getStoreInvites(storeId: $storeId) {
+      id
+      token
+      email
+      role
+      createdAt
+      expiresAt
+      isUsed
+      usedAt
+      store {
+        id
+        name
+      }
+      usedBy {
+        id
+        name
+        email
+      }
+    }
+  }
+`;
+
+export const CREATE_INVITE_MUTATION = `
+  mutation CreateInvite($input: CreateInviteInput!) {
+    createInvite(input: $input) {
+      id
+      token
+      role
+      createdAt
+      expiresAt
+      store {
+        id
+        name
+      }
+      usedBy {
+        id
+        name
+        email
+      }
+    }
+  }
+`;
+
+export const ACCEPT_INVITE_MUTATION = `
+  mutation AcceptInvite($token: String!) {
+    acceptInvite(token: $token) {
+      id
+      email
+      name
+      stores {
+        id
+        name
+      }
+      managingStores {
+        id
+        name
+      }
+      deliveringStores {
+        id
+        name
+      }
+    }
+  }
+`;
+
+export const REVOKE_INVITE_MUTATION = `
+  mutation RevokeInvite($id: String!) {
+    revokeInvite(id: $id) {
+      id
+      token
+      email
+      role
+      isUsed
+      usedAt
+    }
+  }
+`;
+
+// Invite service functions
+export const inviteService = {
+  async getInvite(token) {
+    try {
+      const data = await graphqlClient.request(GET_INVITE_QUERY, { token });
+      return data.getInvite;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get invite');
+    }
+  },
+
+  async getStoreInvites(storeId) {
+    try {
+      const data = await graphqlClient.request(GET_STORE_INVITES_QUERY, { storeId });
+      return data.getStoreInvites || [];
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get store invites');
+    }
+  },
+
+  async createInvite(inviteData) {
+    try {
+      const data = await graphqlClient.request(CREATE_INVITE_MUTATION, { input: inviteData });
+      return data.createInvite;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to create invite');
+    }
+  },
+
+  async acceptInvite(token) {
+    try {
+      const data = await graphqlClient.request(ACCEPT_INVITE_MUTATION, { token });
+      return data.acceptInvite;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to accept invite');
+    }
+  },
+
+  async revokeInvite(id) {
+    try {
+      const data = await graphqlClient.request(REVOKE_INVITE_MUTATION, { id });
+      return data.revokeInvite;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to revoke invite');
+    }
+  },
 }; 

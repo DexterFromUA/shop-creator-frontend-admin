@@ -26,6 +26,7 @@ const StoreSelection = lazy(() => import('./pages/StoreSelection'));
 const CreateStore = lazy(() => import('./pages/CreateStore'));
 const CreateApp = lazy(() => import('./pages/CreateApp'));
 const Subscription = lazy(() => import('./pages/Subscription'));
+const InvitePage = lazy(() => import('./pages/InvitePage'));
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, initializing } = useAuth();
@@ -59,6 +60,7 @@ function App() {
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/verify" element={<VerifyCode />} />
+                <Route path="/invite/:token" element={<InvitePage />} />
                 <Route 
                   path="/stores" 
                   element={
