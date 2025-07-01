@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import './Auth.css';
@@ -8,6 +8,8 @@ const EmailLogin = ({ setMode }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const inviteToken = searchParams.get('invite');
   const { login, loading } = useAuth();
   const { addToast } = useToast();
 
@@ -18,7 +20,13 @@ const EmailLogin = ({ setMode }) => {
     
     if (result.success) {
       addToast('Successfully logged in!', 'success');
-      navigate('/stores');
+      
+      // If there's an invite token, redirect back to the invite page
+      if (inviteToken) {
+        navigate(`/invite/${inviteToken}`);
+      } else {
+        navigate('/stores');
+      }
     } else {
       addToast(result.error || 'Invalid email or password.', 'error');
     }

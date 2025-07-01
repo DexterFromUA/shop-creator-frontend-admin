@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import EmailLogin from './EmailLogin';
 import EmailSignUp from './EmailSignUp';
 import './Auth.css';
@@ -24,7 +25,10 @@ const GoogleIcon = () => (
 );
 
 const Auth = () => {
-  const [mode, setMode] = useState('login');
+  const [searchParams] = useSearchParams();
+  const inviteToken = searchParams.get('invite');
+  const urlMode = searchParams.get('mode');
+  const [mode, setMode] = useState(urlMode || 'login');
 
   const handleGoogleLogin = () => {
     alert('Google login integration coming soon!');
@@ -41,14 +45,24 @@ const Auth = () => {
         <div className="auth-header">
           {mode === 'login' && (
             <>
-              <h1 className="auth-title">Welcome back</h1>
-              <p className="auth-description">Securely log in or create an account to access your Shop Admin dashboard.<br />Manage your products, orders, and customers all in one place.</p>
+              <h1 className="auth-title">{inviteToken ? 'Sign in to accept invite' : 'Welcome back'}</h1>
+              <p className="auth-description">
+                {inviteToken 
+                  ? 'Sign in to your account to accept the team invitation and join the store.'
+                  : 'Securely log in or create an account to access your Shop Admin dashboard.\nManage your products, orders, and customers all in one place.'
+                }
+              </p>
             </>
           )}
           {mode === 'signup' && (
             <>
-              <h1 className="auth-title">Create an account</h1>
-              <p className="auth-description">Securely log in or create an account to access your Shop Admin dashboard.<br />Manage your products, orders, and customers all in one place.</p>
+              <h1 className="auth-title">{inviteToken ? 'Create account to accept invite' : 'Create an account'}</h1>
+              <p className="auth-description">
+                {inviteToken 
+                  ? 'Create a new account to accept the team invitation and join the store.'
+                  : 'Securely log in or create an account to access your Shop Admin dashboard.\nManage your products, orders, and customers all in one place.'
+                }
+              </p>
             </>
           )}
         </div>

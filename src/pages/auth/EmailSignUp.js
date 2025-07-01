@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import './Auth.css';
@@ -11,6 +11,8 @@ const EmailSignUp = ({ setMode }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const inviteToken = searchParams.get('invite');
   const { register, loading } = useAuth();
   const { addToast } = useToast();
 
@@ -27,7 +29,13 @@ const EmailSignUp = ({ setMode }) => {
     
     if (result.success) {
       addToast('Account created successfully!', 'success');
-      navigate('/stores');
+      
+      // If there's an invite token, redirect back to the invite page
+      if (inviteToken) {
+        navigate(`/invite/${inviteToken}`);
+      } else {
+        navigate('/stores');
+      }
     } else {
       addToast(result.error || 'Failed to create account. Email may already be in use.', 'error');
     }
@@ -78,9 +86,14 @@ const EmailSignUp = ({ setMode }) => {
           className="auth-input"
           required
         />
-        <button type="submit" className="auth-button" disabled={loading}>
-          {loading ? 'Creating account...' : 'Sign Up'}
-        </button>
+        <div className="auth-actions">
+          <button type="submit" className="auth-button" disabled={loading}>
+            {loading ? 'Creating account...' : 'Sign Up'}
+          </button>
+          <button type="button" className="auth-button auth-button--secondary" onClick={() => setMode('login')}>
+            Already have an account? Login
+          </button>
+        </div>
       </form>
     </>
   );

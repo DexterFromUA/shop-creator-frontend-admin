@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { inviteService } from '../utils/graphql';
 
+
+
 const InvitePage = () => {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -59,11 +61,11 @@ const InvitePage = () => {
   };
 
   const handleSignUp = () => {
-    navigate(`/auth/signup?invite=${token}`);
+    navigate(`/auth?mode=signup&invite=${token}`);
   };
 
   const handleSignIn = () => {
-    navigate(`/auth/signin?invite=${token}`);
+    navigate(`/auth?mode=login&invite=${token}`);
   };
 
   if (loading) {
@@ -207,7 +209,7 @@ const InvitePage = () => {
           color: 'var(--color-text-secondary)', 
           marginBottom: 32 
         }}>
-          ⏰ This invitation expires on {new Date(invite.expiresAt).toLocaleDateString()}
+          ⏰ This invitation expires on {new Date(parseInt(invite.expiresAt)).toLocaleDateString()}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

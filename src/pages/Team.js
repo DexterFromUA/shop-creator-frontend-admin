@@ -5,6 +5,8 @@ import { useStore } from '../context/StoreContext';
 import { inviteService } from '../utils/graphql';
 import './Dashboard.css';
 
+
+
 const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
   const [form, setForm] = useState({ role: 'MANAGER' });
   const [loading, setLoading] = useState(false);
@@ -690,87 +692,107 @@ const Team = () => {
                   )
                 ) : // Invites Tab
                 filteredInvites.length > 0 ? (
-                  filteredInvites.map((invite, i) => (
-                    <div
-                      key={invite.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '16px 32px',
-                        borderBottom:
-                          i === filteredInvites.length - 1
-                            ? 'none'
-                            : '1px solid var(--color-border)',
-                        gap: 16,
-                        flexWrap: 'wrap',
-                      }}
-                    >
+                  filteredInvites.map((invite, i) => {
+                    const now = new Date();
+                    const expiresAt = new Date(parseInt(invite.expiresAt));
+                    const isExpired = !isNaN(expiresAt.getTime()) && now > expiresAt;
+                    const isUsed = invite.isUsed;
+                    
+                    return (
                       <div
-                        style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 220 }}
+                        key={invite.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '16px 32px',
+                          borderBottom:
+                            i === filteredInvites.length - 1
+                              ? 'none'
+                              : '1px solid var(--color-border)',
+                          gap: 16,
+                          flexWrap: 'wrap',
+                          opacity: isExpired ? 0.7 : 1,
+                        }}
                       >
                         <div
-                          style={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: 16,
-                            background: 'var(--color-bg-secondary)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 22,
-                          }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 220 }}
                         >
-                          {invite.role === 'MANAGER' ? '👔' : '🚚'}
-                        </div>
-                        <div>
-                          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
-                            {invite.email ? invite.email : `${invite.role.toLowerCase()} invite`}
-                          </h3>
-                          <p
+                          <div
                             style={{
-                              margin: 0,
-                              fontSize: 14,
-                              color: 'var(--color-text-secondary)',
+                              width: 48,
+                              height: 48,
+                              borderRadius: 16,
+                              background: 'var(--color-bg-secondary)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: 22,
                             }}
                           >
-                            Created {new Date(invite.createdAt).toLocaleDateString()} • Expires{' '}
-                            {new Date(invite.expiresAt).toLocaleDateString()}
-                          </p>
+                            {invite.role === 'MANAGER' ? '👔' : '🚚'}
+                          </div>
+                          <div>
+                            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
+                              {invite.email ? invite.email : `${invite.role.toLowerCase()} invite`}
+                            </h3>
+                            <p
+                              style={{
+                                margin: 0,
+                                fontSize: 14,
+                                color: 'var(--color-text-secondary)',
+                              }}
+                            >
+                              Created {new Date(parseInt(invite.createdAt)).toLocaleDateString()}
+                              {isUsed && invite.usedAt && ` • Used ${new Date(parseInt(invite.usedAt)).toLocaleDateString()}`}
+                              {!isUsed && ` • Expires ${new Date(parseInt(invite.expiresAt)).toLocaleDateString()}`}
+                              {isUsed && invite.usedBy && ` by ${invite.usedBy.name || invite.usedBy.email}`}
+                            </p>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                          <span
+                            style={{
+                              background: isUsed 
+                                ? 'rgba(16, 185, 129, 0.1)' 
+                                : isExpired 
+                                  ? 'rgba(107, 114, 128, 0.1)' 
+                                  : 'rgba(251, 191, 36, 0.1)',
+                              color: isUsed 
+                                ? '#10b981' 
+                                : isExpired 
+                                  ? '#6b7280' 
+                                  : '#f59e0b',
+                              padding: '4px 10px',
+                              borderRadius: 8,
+                              fontSize: 13,
+                              fontWeight: 600,
+                              textTransform: 'capitalize',
+                            }}
+                          >
+                            {isUsed ? 'Used' : isExpired ? 'Expired' : `Pending ${invite.role.toLowerCase()}`}
+                          </span>
+                          {!isUsed && !isExpired && (
+                            <button
+                              onClick={() => handleRevokeInvite(invite.id)}
+                              style={{
+                                background: 'transparent',
+                                border: '1px solid #ef4444',
+                                borderRadius: 8,
+                                padding: '6px 10px',
+                                fontSize: 13,
+                                cursor: 'pointer',
+                                color: '#ef4444',
+                                fontWeight: 600,
+                              }}
+                            >
+                              Revoke
+                            </button>
+                          )}
                         </div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                        <span
-                          style={{
-                            background: 'rgba(251, 191, 36, 0.1)',
-                            color: '#f59e0b',
-                            padding: '4px 10px',
-                            borderRadius: 8,
-                            fontSize: 13,
-                            fontWeight: 600,
-                            textTransform: 'capitalize',
-                          }}
-                        >
-                          Pending {invite.role.toLowerCase()}
-                        </span>
-                        <button
-                          onClick={() => handleRevokeInvite(invite.id)}
-                          style={{
-                            background: 'transparent',
-                            border: '1px solid #ef4444',
-                            borderRadius: 8,
-                            padding: '6px 10px',
-                            fontSize: 13,
-                            cursor: 'pointer',
-                            color: '#ef4444',
-                            fontWeight: 600,
-                          }}
-                        >
-                          Revoke
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>
                     {search ? 'No invites found' : 'No pending invites. Create one to get started!'}
