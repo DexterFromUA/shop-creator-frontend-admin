@@ -842,20 +842,6 @@ export const ACCEPT_INVITE_MUTATION = `
   mutation AcceptInvite($token: String!) {
     acceptInvite(token: $token) {
       id
-      email
-      name
-      stores {
-        id
-        name
-      }
-      managingStores {
-        id
-        name
-      }
-      deliveringStores {
-        id
-        name
-      }
     }
   }
 `;

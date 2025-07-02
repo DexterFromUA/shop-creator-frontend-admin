@@ -189,14 +189,6 @@
   color: inherit;
 }
 
-.user-dropdown-item:last-child {
-  color: #ef4444;
-}
-
-.user-dropdown-item:last-child:hover {
-  background: rgba(239, 68, 68, 0.1);
-}
-
 @keyframes dropdownFadeIn {
   from {
     opacity: 0;

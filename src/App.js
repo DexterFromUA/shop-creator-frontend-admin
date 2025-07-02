@@ -14,7 +14,7 @@ const AddProduct = lazy(() => import('./pages/AddProduct'));
 const Orders = lazy(() => import('./pages/Orders'));
 const OrderPreview = lazy(() => import('./pages/OrderPreview'));
 const AppSettings = lazy(() => import('./pages/AppSettings'));
-const VerifyCode = lazy(() => import('./pages/auth/VerifyCode'));
+// const VerifyCode = lazy(() => import('./pages/auth/VerifyCode'));
 const Notifications = lazy(() => import('./pages/Notifications'));
 const WebNotifications = lazy(() => import('./pages/WebNotifications'));
 const Settings = lazy(() => import('./pages/Settings'));
@@ -27,11 +27,11 @@ const CreateStore = lazy(() => import('./pages/CreateStore'));
 const CreateApp = lazy(() => import('./pages/CreateApp'));
 const Subscription = lazy(() => import('./pages/Subscription'));
 const InvitePage = lazy(() => import('./pages/InvitePage'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, initializing } = useAuth();
   
-  // Показываем загрузку пока инициализируется
   if (initializing) {
     return (
       <div style={{ 
@@ -59,7 +59,7 @@ function App() {
             <Suspense fallback={null}>
               <Routes>
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/verify" element={<VerifyCode />} />
+                {/* <Route path="/verify" element={<VerifyCode />} /> */}
                 <Route path="/invite/:token" element={<InvitePage />} />
                 <Route 
                   path="/stores" 
@@ -113,7 +113,11 @@ function App() {
                   <Route path="web-notifications" element={<WebNotifications />} />
                   <Route path="payouts" element={<Payouts />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="*" element={<NotFound />} />
                 </Route>
+                
+                {/* Global catch-all route for any unmatched URLs */}
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
           </ToastProvider>

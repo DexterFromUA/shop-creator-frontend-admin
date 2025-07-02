@@ -7,7 +7,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 
 const AppHeader = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user, logout, refreshUser } = useAuth();
+  const { user, logout } = useAuth();
   const { currentStore, storeId, loading } = useStore();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
@@ -27,18 +27,18 @@ const AppHeader = () => {
       return true;
     }
 
-    const allStores = [
-      ...(user.stores || []).map((store) => ({ ...store, role: 'OWNER' })),
-      ...(user.managingStores || []).map((store) => ({ ...store, role: 'MANAGER' })),
-      ...(user.deliveringStores || []).map((store) => ({ ...store, role: 'COURIER' })),
-    ];
-
-    if (subscription === 'ADVANCED' && allStores.filter(el => el.role === 'OWNER').length < 1) {
-      console.log(subscription, user)
+    if (subscription === 'ADVANCED' && (user.stores || []).length < 1) {
       return true;
     }
 
+    const allStores = [
+      ...(user.stores || []),
+      ...(user.managingStores || []),
+      ...(user.deliveringStores || []),
+    ];
+
     return allStores.length > 1;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.subscriptionType, user?.stores, user?.managingStores, user?.deliveringStores]);
 
   const [notifications, setNotifications] = useState([
@@ -76,23 +76,26 @@ const AppHeader = () => {
     },
   ]);
 
-  // Проверяем подписку владельца стора для ограничения доступа
-  // Проверяем только если данные загружены, но не блокируем если loading
-  const isOwnerProOrUnlimited = 
+  const isOwnerProOrUnlimited =
     currentStore?.owner &&
     (currentStore.owner.subscriptionType === 'PRO' ||
       currentStore.owner.subscriptionType === 'UNLIMITED');
 
-  const menuItems = storeId && !loading
-    ? [
-        { to: `/store/${storeId}/dashboard`, label: 'Dashboard', icon: '📊' },
-        { to: `/store/${storeId}/orders`, label: 'Orders', icon: '🛒' },
-        { to: `/store/${storeId}/products`, label: 'Products', icon: '📦' },
-        ...(isOwnerProOrUnlimited
-          ? [{ to: `/store/${storeId}/notifications`, label: 'Notifications', icon: '🔔' }]
-          : []),
-      ]
-    : [];
+  const isUserHasAccess = [...(currentStore?.managers || []), currentStore?.owner || {}].some(
+    (el) => el.id === user.id
+  );
+
+  const menuItems =
+    storeId && !loading
+      ? [
+          { to: `/store/${storeId}/dashboard`, label: 'Dashboard', icon: '📊' },
+          { to: `/store/${storeId}/orders`, label: 'Orders', icon: '🛒' },
+          { to: `/store/${storeId}/products`, label: 'Products', icon: '📦' },
+          ...(isOwnerProOrUnlimited && isUserHasAccess
+            ? [{ to: `/store/${storeId}/notifications`, label: 'Notifications', icon: '🔔' }]
+            : []),
+        ]
+      : [];
 
   const menuRefs = useRef([]);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
@@ -352,7 +355,7 @@ const AppHeader = () => {
           </button>
           {adminDropdownOpen && (
             <div className="user-dropdown">
-              {isOwnerProOrUnlimited && (
+              {isOwnerProOrUnlimited && isUserHasAccess && (
                 <div
                   className="user-dropdown-item"
                   onClick={() => {
@@ -397,7 +400,7 @@ const AppHeader = () => {
                   setAdminDropdownOpen(false);
                 }}
               >
-                Settings
+                Store Settings
               </div>
             </div>
           )}
@@ -421,29 +424,11 @@ const AppHeader = () => {
               <div
                 className="user-dropdown-item"
                 onClick={() => {
-                  navigate('/stores');
-                  setUserDropdownOpen(false);
-                }}
-              >
-                Profile
-              </div>
-              <div
-                className="user-dropdown-item"
-                onClick={() => {
                   navigate('/subscription');
                   setUserDropdownOpen(false);
                 }}
               >
                 Subscription
-              </div>
-              <div
-                className="user-dropdown-item"
-                onClick={() => {
-                  refreshUser();
-                  setUserDropdownOpen(false);
-                }}
-              >
-                Refresh Data
               </div>
               <div
                 className="user-dropdown-item"

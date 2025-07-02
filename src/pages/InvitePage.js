@@ -3,13 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { inviteService } from '../utils/graphql';
 
-
-
 const InvitePage = () => {
   const { token } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [invite, setInvite] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,7 +16,7 @@ const InvitePage = () => {
   useEffect(() => {
     const loadInvite = async () => {
       if (!token) return;
-      
+
       try {
         setLoading(true);
         const inviteData = await inviteService.getInvite(token);
@@ -33,7 +31,6 @@ const InvitePage = () => {
     loadInvite();
   }, [token]);
 
-  // Auto-accept if user is already logged in
   useEffect(() => {
     const autoAccept = async () => {
       if (user && invite && !accepting) {
@@ -42,17 +39,17 @@ const InvitePage = () => {
     };
 
     autoAccept();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, invite]);
 
   const handleAcceptInvite = async () => {
     if (!user) return;
-    
+
     try {
       setAccepting(true);
       await inviteService.acceptInvite(token);
-      
-      // Redirect to team page
-      navigate(`/store/${invite.store.id}/team`);
+
+      navigate(`/store/${invite.store.id}`);
     } catch (error) {
       alert('Failed to accept invite: ' + error.message);
     } finally {
@@ -70,13 +67,15 @@ const InvitePage = () => {
 
   if (loading) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        background: 'var(--color-bg-secondary)'
-      }}>
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--color-bg-secondary)',
+        }}
+      >
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 18, color: 'var(--color-text)' }}>Loading invite...</div>
         </div>
@@ -86,24 +85,35 @@ const InvitePage = () => {
 
   if (error || !invite) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        background: 'var(--color-bg-secondary)',
-        padding: '48px 16px'
-      }}>
-        <div style={{ 
-          background: 'var(--color-bg)', 
-          borderRadius: 28, 
-          padding: 48, 
-          boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
-          textAlign: 'center',
-          maxWidth: 480
-        }}>
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--color-bg-secondary)',
+          padding: '48px 16px',
+        }}
+      >
+        <div
+          style={{
+            background: 'var(--color-bg)',
+            borderRadius: 28,
+            padding: 48,
+            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
+            textAlign: 'center',
+            maxWidth: 480,
+          }}
+        >
           <div style={{ fontSize: 64, marginBottom: 24 }}>❌</div>
-          <h1 style={{ margin: '0 0 16px 0', fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
+          <h1
+            style={{
+              margin: '0 0 16px 0',
+              fontSize: 28,
+              fontWeight: 700,
+              color: 'var(--color-text)',
+            }}
+          >
             Invalid Invite
           </h1>
           <p style={{ margin: '0 0 32px 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
@@ -119,7 +129,7 @@ const InvitePage = () => {
               color: '#fff',
               cursor: 'pointer',
               fontSize: 14,
-              fontWeight: 600
+              fontWeight: 600,
             }}
           >
             Go to Sign In
@@ -131,24 +141,35 @@ const InvitePage = () => {
 
   if (user) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        background: 'var(--color-bg-secondary)',
-        padding: '48px 16px'
-      }}>
-        <div style={{ 
-          background: 'var(--color-bg)', 
-          borderRadius: 28, 
-          padding: 48, 
-          boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
-          textAlign: 'center',
-          maxWidth: 480
-        }}>
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--color-bg-secondary)',
+          padding: '48px 16px',
+        }}
+      >
+        <div
+          style={{
+            background: 'var(--color-bg)',
+            borderRadius: 28,
+            padding: 48,
+            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
+            textAlign: 'center',
+            maxWidth: 480,
+          }}
+        >
           <div style={{ fontSize: 64, marginBottom: 24 }}>⏳</div>
-          <h1 style={{ margin: '0 0 16px 0', fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
+          <h1
+            style={{
+              margin: '0 0 16px 0',
+              fontSize: 28,
+              fontWeight: 700,
+              color: 'var(--color-text)',
+            }}
+          >
             {accepting ? 'Accepting Invite...' : 'Processing Invite'}
           </h1>
           <p style={{ margin: '0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
@@ -160,41 +181,61 @@ const InvitePage = () => {
   }
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center',
-      background: 'var(--color-bg-secondary)',
-      padding: '48px 16px'
-    }}>
-      <div style={{ 
-        background: 'var(--color-bg)', 
-        borderRadius: 28, 
-        padding: 48, 
-        boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
-        textAlign: 'center',
-        maxWidth: 480
-      }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--color-bg-secondary)',
+        padding: '48px 16px',
+      }}
+    >
+      <div
+        style={{
+          background: 'var(--color-bg)',
+          borderRadius: 28,
+          padding: 48,
+          boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
+          textAlign: 'center',
+          maxWidth: 480,
+        }}
+      >
         <div style={{ fontSize: 64, marginBottom: 24 }}>🎉</div>
-        <h1 style={{ margin: '0 0 16px 0', fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
+        <h1
+          style={{
+            margin: '0 0 16px 0',
+            fontSize: 28,
+            fontWeight: 700,
+            color: 'var(--color-text)',
+          }}
+        >
           You&apos;re invited!
         </h1>
         <p style={{ margin: '0 0 8px 0', fontSize: 18, color: 'var(--color-text)' }}>
           <strong>{invite.store.owner.name || invite.store.owner.email}</strong> invited you to join
         </p>
-        <p style={{ margin: '0 0 16px 0', fontSize: 20, fontWeight: 600, color: 'var(--color-accent)' }}>
+        <p
+          style={{
+            margin: '0 0 16px 0',
+            fontSize: 20,
+            fontWeight: 600,
+            color: 'var(--color-accent)',
+          }}
+        >
           &quot;{invite.store.name}&quot; as {invite.role.toLowerCase()}
         </p>
-        
+
         {invite.email && (
-          <div style={{ 
-            background: 'var(--color-bg-secondary)', 
-            borderRadius: 12, 
-            padding: 16, 
-            marginBottom: 32,
-            border: '1px solid var(--color-border)'
-          }}>
+          <div
+            style={{
+              background: 'var(--color-bg-secondary)',
+              borderRadius: 12,
+              padding: 16,
+              marginBottom: 32,
+              border: '1px solid var(--color-border)',
+            }}
+          >
             <div style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
               Invited email:
             </div>
@@ -204,11 +245,13 @@ const InvitePage = () => {
           </div>
         )}
 
-        <div style={{ 
-          fontSize: 14, 
-          color: 'var(--color-text-secondary)', 
-          marginBottom: 32 
-        }}>
+        <div
+          style={{
+            fontSize: 14,
+            color: 'var(--color-text-secondary)',
+            marginBottom: 32,
+          }}
+        >
           ⏰ This invitation expires on {new Date(parseInt(invite.expiresAt)).toLocaleDateString()}
         </div>
 
@@ -223,12 +266,12 @@ const InvitePage = () => {
               color: '#fff',
               cursor: 'pointer',
               fontSize: 16,
-              fontWeight: 600
+              fontWeight: 600,
             }}
           >
             Create Account & Accept
           </button>
-          
+
           <button
             onClick={handleSignIn}
             style={{
@@ -239,7 +282,7 @@ const InvitePage = () => {
               color: 'var(--color-text)',
               cursor: 'pointer',
               fontSize: 16,
-              fontWeight: 600
+              fontWeight: 600,
             }}
           >
             Sign In & Accept
@@ -250,4 +293,4 @@ const InvitePage = () => {
   );
 };
 
-export default InvitePage; 
+export default InvitePage;
