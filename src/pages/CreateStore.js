@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { storeService } from '../utils/graphql';
+import PageContainer from '../components/common/PageContainer';
 import './Dashboard.css';
 
 const CreateStore = () => {
@@ -126,37 +127,13 @@ const CreateStore = () => {
   }, [isAuthenticated, currentUser, navigate]);
 
   return (
-    <div
-      style={{
-        // width: '100%',
-        // minHeight: '100vh',
-        // background: 'var(--color-bg-secondary)',
-        // padding: '48px 16px',
-        // boxSizing: 'border-box',
-        animation: 'fadeIn 0.5s ease-out',
-      }}
+    <PageContainer
+      withPadding
+      isStretch
+      minHeight="auto"
+      title="Create New Store"
+      description="Set up your new store and start selling your products to customers."
     >
-      {/* Page Header */}
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
-          Create New Store
-        </h1>
-        <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-          Set up your new store and start selling your products to customers.
-        </p>
-      </div>
-
-      {/* Store Information Form Card */}
-      <div
-        className="dashboard-card"
-        style={{
-          background: 'var(--color-bg)',
-          borderRadius: 28,
-          boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
-          padding: 32,
-          boxSizing: 'border-box',
-        }}
-      >
         <form onSubmit={handleSubmit}>
           {/* Basic Information */}
           <div style={{ marginBottom: 32 }}>
@@ -512,8 +489,7 @@ const CreateStore = () => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 
