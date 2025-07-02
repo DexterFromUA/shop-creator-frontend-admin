@@ -81,55 +81,48 @@ const PageContainer = ({
   };
 
   return (
-    <div style={{ 
-      background: 'var(--color-bg-secondary)', 
-      minHeight: '100vh', 
-      padding: '48px 16px'
-    }}>
-      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto' }}>
-        
-        {/* Page Header */}
-        {(title || description || RightContent) && (
-          <div style={{ 
-            marginBottom: 32,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start'
-          }}>
-            <div>
-              {title && (
-                <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
-                  {title}
-                </h1>
-              )}
-              {description && (
-                <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-                  {description}
-                </p>
-              )}
-            </div>
-            {RightContent && (
-              <div>
-                {RightContent}
-              </div>
+    <>
+      {/* Page Header */}
+      {(title || description || RightContent) && (
+        <div style={{ 
+          marginBottom: 32,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start'
+        }}>
+          <div>
+            {title && (
+              <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
+                {title}
+              </h1>
+            )}
+            {description && (
+              <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
+                {description}
+              </p>
             )}
           </div>
-        )}
-
-        {/* Main Content Card */}
-        <div style={getCardStyles()}>
-          {!isStretch && !isCenteredContent ? (
-            <div style={getContentStyles()}>
-              {children}
-            </div>
-          ) : (
-            <div style={getContentStyles()}>
-              {children}
+          {RightContent && (
+            <div>
+              {RightContent}
             </div>
           )}
         </div>
+      )}
+
+      {/* Main Content Card */}
+      <div style={getCardStyles()}>
+        {!isStretch && !isCenteredContent ? (
+          <div style={getContentStyles()}>
+            {children}
+          </div>
+        ) : (
+          <div style={getContentStyles()}>
+            {children}
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 };
 

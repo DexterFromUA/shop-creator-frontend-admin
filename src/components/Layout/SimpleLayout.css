@@ -1,0 +1,28 @@
+.simple-layout {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.simple-content {
+  flex: 1;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--color-bg-secondary);
+  padding: 48px 16px;
+  box-sizing: border-box;
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .simple-content {
+    padding: 24px 12px;
+  }
+} 

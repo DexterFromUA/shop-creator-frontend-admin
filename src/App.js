@@ -8,6 +8,7 @@ import Layout from './components/Layout/Layout';
 import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 import Auth from './pages/auth/Auth';
+import SimpleLayout from './components/Layout/SimpleLayout';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Products = lazy(() => import('./pages/Products'));
 const AddProduct = lazy(() => import('./pages/AddProduct'));
@@ -31,21 +32,23 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, initializing } = useAuth();
-  
+
   if (initializing) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        background: 'var(--color-bg-secondary)'
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          background: 'var(--color-bg-secondary)',
+        }}
+      >
         <div style={{ fontSize: 18, color: 'var(--color-text)' }}>Loading...</div>
       </div>
     );
   }
-  
+
   return isAuthenticated ? children : <Navigate to="/auth" />;
 };
 
@@ -61,30 +64,36 @@ function App() {
                 <Route path="/auth" element={<Auth />} />
                 {/* <Route path="/verify" element={<VerifyCode />} /> */}
                 <Route path="/invite/:token" element={<InvitePage />} />
-                <Route 
-                  path="/stores" 
+                <Route
+                  path="/stores"
                   element={
                     <ProtectedRoute>
-                      <StoreSelection />
+                      <SimpleLayout>
+                        <StoreSelection />
+                      </SimpleLayout>
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/stores/create" 
+                <Route
+                  path="/stores/create"
                   element={
                     <ProtectedRoute>
-                      <CreateStore />
+                      <SimpleLayout>
+                        <CreateStore />
+                      </SimpleLayout>
                     </ProtectedRoute>
-                  } 
+                  }
                 />
 
-                <Route 
-                  path="/subscription" 
+                <Route
+                  path="/subscription"
                   element={
                     <ProtectedRoute>
-                      <Subscription />
+                      <SimpleLayout>
+                        <Subscription />
+                      </SimpleLayout>
                     </ProtectedRoute>
-                  } 
+                  }
                 />
                 <Route path="/" element={<Navigate to="/stores" replace />} />
                 <Route
@@ -115,7 +124,7 @@ function App() {
                   <Route path="settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>
-                
+
                 {/* Global catch-all route for any unmatched URLs */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

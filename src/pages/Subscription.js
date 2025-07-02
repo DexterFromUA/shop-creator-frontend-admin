@@ -378,15 +378,8 @@ const Subscription = () => {
     <motion.div 
       initial="initial"
       animate="animate"
-      variants={containerVariants}
-      style={{ 
-        width: '100%',
-        minHeight: '100vh',
-        background: 'var(--color-bg-secondary)',
-        padding: '48px 16px',
-        boxSizing: 'border-box'
-      }}>
-      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto' }}>
+      variants={containerVariants}>
+      <div>
         {/* Page Header */}
         <div style={{ marginBottom: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
