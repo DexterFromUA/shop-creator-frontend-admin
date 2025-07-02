@@ -36,9 +36,6 @@ const PageContainer = ({
 
     if (isStretch) {
       cardStyles.minHeight = minHeight;
-      if (withPadding) {
-        cardStyles.padding = 32;
-      }
     } else {
       cardStyles.height = minHeight;
       cardStyles.overflowY = 'auto';
@@ -53,6 +50,10 @@ const PageContainer = ({
 
     if (withBottomSpace) {
       cardStyles.marginBottom = 32;
+    }
+
+    if (withPadding) {
+      cardStyles.padding = 32;
     }
 
     return cardStyles;
