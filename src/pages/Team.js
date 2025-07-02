@@ -3,9 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { inviteService } from '../utils/graphql';
+import PageContainer from '../components/common/PageContainer';
 import './Dashboard.css';
-
-
 
 const ConfirmDeleteModal = ({ open, onClose, onConfirm, userName }) => {
   return (
@@ -44,11 +43,26 @@ const ConfirmDeleteModal = ({ open, onClose, onConfirm, userName }) => {
             }}
           >
             <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
-            <h2 style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 700, color: 'var(--color-text)' }}>
+            <h2
+              style={{
+                margin: '0 0 16px 0',
+                fontSize: 22,
+                fontWeight: 700,
+                color: 'var(--color-text)',
+              }}
+            >
               Remove Team Member
             </h2>
-            <p style={{ margin: '0 0 24px 0', fontSize: 16, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-              Are you sure you want to remove <strong>{userName}</strong> from the team? This action cannot be undone.
+            <p
+              style={{
+                margin: '0 0 24px 0',
+                fontSize: 16,
+                color: 'var(--color-text-secondary)',
+                lineHeight: 1.5,
+              }}
+            >
+              Are you sure you want to remove <strong>{userName}</strong> from the team? This action
+              cannot be undone.
             </p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
               <button
@@ -194,7 +208,7 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
                 onSubmit={handleSubmit}
                 style={{ display: 'flex', flexDirection: 'column', gap: 18 }}
               >
-              <div>
+                <div>
                   <label
                     style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 15 }}
                   >
@@ -226,8 +240,8 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
                     <option value="MANAGER">Manager</option>
                     <option value="COURIER">Courier</option>
                   </select>
-              </div>
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+                </div>
+                <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
                   <button
                     type="button"
                     onClick={handleClose}
@@ -335,7 +349,7 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
 const Team = () => {
   const { currentStore, refreshStore } = useStore();
   const navigate = useNavigate();
-  
+
   const [modal, setModal] = useState({ open: false });
   const [deleteModal, setDeleteModal] = useState({ open: false, user: null });
   const [search, setSearch] = useState('');
@@ -386,7 +400,7 @@ const Team = () => {
       // loadInvites();
       refreshStore(); // Also refresh store data to get updated team members
     };
-    
+
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, [loadInvites, refreshStore]);
@@ -407,7 +421,7 @@ const Team = () => {
     // Calculate indicator when viewMode changes
     const timer = setTimeout(calculateIndicator, 10);
     window.addEventListener('resize', calculateIndicator);
-    
+
     return () => {
       clearTimeout(timer);
       window.removeEventListener('resize', calculateIndicator);
@@ -422,8 +436,6 @@ const Team = () => {
     }
   }, [loading, viewMode]);
 
-
-
   const handleInviteCreated = (newInvite) => {
     setInvites((prev) => [newInvite, ...prev]);
   };
@@ -432,9 +444,9 @@ const Team = () => {
     try {
       const revokedInvite = await inviteService.revokeInvite(inviteId);
       // Update the invite in the list instead of removing it
-      setInvites((prev) => 
-        prev.map((invite) => 
-          invite.id === inviteId 
+      setInvites((prev) =>
+        prev.map((invite) =>
+          invite.id === inviteId
             ? { ...invite, revoked: true, revokedAt: revokedInvite.revokedAt }
             : invite
         )
@@ -455,15 +467,15 @@ const Team = () => {
   };
 
   const handleRemoveTeamMember = (userId, userName) => {
-    setDeleteModal({ 
-      open: true, 
-      user: { id: userId, name: userName } 
+    setDeleteModal({
+      open: true,
+      user: { id: userId, name: userName },
     });
   };
 
   const confirmRemoveTeamMember = async () => {
     if (!deleteModal.user) return;
-    
+
     try {
       await inviteService.removeTeamMember(currentStore.id, deleteModal.user.id);
       refreshStore(); // Refresh store data to update team list
@@ -475,123 +487,94 @@ const Team = () => {
 
   const isOwnerProOrUnlimited =
     currentStore?.owner?.subscriptionType === 'PRO' ||
-                                 currentStore?.owner?.subscriptionType === 'UNLIMITED';
+    currentStore?.owner?.subscriptionType === 'UNLIMITED';
 
   if (!isOwnerProOrUnlimited) {
     return (
-      <div
-        className="dashboard"
-        style={{
-          background: 'var(--color-bg-secondary)',
-          minHeight: '100vh',
-          padding: '48px 16px',
-          boxSizing: 'border-box',
-        }}
+      <PageContainer
+        title="Premium Feature"
+        description="Team management is available for stores with PRO subscriptions"
+        isCenteredContent
+        withPadding
+        minHeight="60vh"
       >
-        <div style={{ maxWidth: 800, width: '100%', margin: '0 auto' }}>
-          <div
-            className="dashboard-card"
+        <div style={{ fontSize: 64, marginBottom: 24 }}>🔒</div>
+        <p
+          style={{
+            margin: '0 0 32px 0',
+            fontSize: 16,
+            color: 'var(--color-text-secondary)',
+            lineHeight: 1.6,
+          }}
+        >
+          The store owner needs to upgrade their subscription to access this feature.
+        </p>
+        <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
+          <button
+            onClick={() => navigate(`/store/${currentStore?.id}/dashboard`)}
             style={{
-            background: 'var(--color-bg)', 
-            borderRadius: 28, 
-            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', 
-            padding: 48,
-              textAlign: 'center',
+              padding: '12px 24px',
+              borderRadius: 12,
+              border: '2px solid var(--color-border)',
+              background: 'var(--color-bg-secondary)',
+              color: 'var(--color-text)',
+              cursor: 'pointer',
+              fontSize: 14,
+              fontWeight: 600,
             }}
           >
-            <div style={{ fontSize: 64, marginBottom: 24 }}>🔒</div>
-            <h1
-              style={{
-                margin: '0 0 16px 0',
-                fontSize: 28,
-                fontWeight: 700,
-                color: 'var(--color-text)',
-              }}
-            >
-              Premium Feature
-            </h1>
-            <p
-              style={{
-                margin: '0 0 32px 0',
-                fontSize: 16,
-                color: 'var(--color-text-secondary)',
-                lineHeight: 1.6,
-              }}
-            >
-              Team management is available for stores with PRO subscriptions. The store owner needs
-              to upgrade their subscription to access this feature.
-            </p>
-            <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
-              <button
-                onClick={() => navigate(`/store/${currentStore?.id}/dashboard`)}
-                style={{
-                  padding: '12px 24px',
-                  borderRadius: 12,
-                  border: '2px solid var(--color-border)',
-                  background: 'var(--color-bg-secondary)',
-                  color: 'var(--color-text)',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  fontWeight: 600,
-                }}
-              >
-                Back to Dashboard
-              </button>
-              <button
-                onClick={() => navigate('/stores')}
-                style={{
-                  padding: '12px 24px',
-                  borderRadius: 12,
-                  border: 'none',
-                  background: '#111827',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  fontWeight: 600,
-                }}
-              >
-                Manage Stores
-              </button>
-            </div>
-          </div>
+            Back to Dashboard
+          </button>
+          <button
+            onClick={() => navigate('/stores')}
+            style={{
+              padding: '12px 24px',
+              borderRadius: 12,
+              border: 'none',
+              background: '#111827',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: 14,
+              fontWeight: 600,
+            }}
+          >
+            Manage Stores
+          </button>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div
-      className="dashboard"
-      style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}
-    >
-      <div
-        style={{
-          maxWidth: 1200,
-          width: '100%',
-          margin: '0 auto',
-          padding: '48px 16px',
-          boxSizing: 'border-box',
-        }}
+    <>
+      {/* Search and Filter Toolbar */}
+      <PageContainer
+        withPadding
+        withBottomSpace
+        title="Team"
+        isStretch
+        minHeight='auto'
+        description="Manage your team—admins, managers & couriers"
+        RightContent={
+          <button
+            onClick={() => setModal({ open: true })}
+            style={{
+              background: '#111827',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 10,
+              padding: '0.7rem 1.2rem',
+              fontWeight: 600,
+              fontSize: 15,
+              cursor: 'pointer',
+            }}
+          >
+            + Invite Team Member
+          </button>
+        }
       >
-        {/* Page Header */}
-        <div style={{ marginBottom: 32 }}>
-          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
-            Team
-          </h1>
-          <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-            Manage your team—admins, managers & couriers
-          </p>
-        </div>
-
-        {/* Search and Filter Toolbar */}
         <div
-          className="dashboard-card"
           style={{
-            background: 'var(--color-bg)',
-            borderRadius: 28,
-            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
-            padding: '24px 32px',
-            marginBottom: 32,
             display: 'flex',
             gap: 24,
             alignItems: 'center',
@@ -658,11 +641,11 @@ const Team = () => {
                 ref={(el) => (buttonsRef.current[0] = el)}
                 data-view="members"
                 onClick={() => setViewMode('members')}
-              style={{
+                style={{
                   padding: '0.5rem 1rem',
                   border: 'none',
                   background: 'transparent',
-                color: 'var(--color-text)',
+                  color: 'var(--color-text)',
                   cursor: 'pointer',
                   position: 'relative',
                   zIndex: 1,
@@ -671,15 +654,15 @@ const Team = () => {
               >
                 Members ({filteredUsers.length})
               </button>
-            <button 
+              <button
                 ref={(el) => (buttonsRef.current[1] = el)}
                 data-view="invites"
                 onClick={() => setViewMode('invites')}
-              style={{ 
+                style={{
                   padding: '0.5rem 1rem',
                   border: 'none',
                   background: 'transparent',
-                color: 'var(--color-text)', 
+                  color: 'var(--color-text)',
                   cursor: 'pointer',
                   position: 'relative',
                   zIndex: 1,
@@ -687,39 +670,15 @@ const Team = () => {
                 }}
               >
                 Invites ({filteredInvites.length})
-            </button>
+              </button>
             </div>
-            <button 
-              onClick={() => setModal({ open: true })}
-              style={{ 
-                background: '#111827', 
-                color: '#fff', 
-                border: 'none', 
-                borderRadius: 10, 
-                padding: '0.7rem 1.2rem', 
-                fontWeight: 600, 
-                fontSize: 15, 
-                cursor: 'pointer',
-              }}
-            >
-              + Invite Team Member
-            </button>
           </div>
         </div>
+      </PageContainer>
 
-        {/* Team Members and Invites */}
-        <div
-          className="dashboard-card"
-          style={{
-            background: 'var(--color-bg)',
-            borderRadius: 28,
-            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
-            padding: 0,
-            width: '100%',
-            height: '60vh',
-            overflowY: 'auto',
-          }}
-        >
+      {/* Team Members and Invites */}
+      <PageContainer minHeight="60vh">
+        <div style={{ padding: 0, height: '60vh', overflowY: 'auto' }}>
           {loading ? (
             <div style={{ color: 'var(--color-text)', padding: '32px 0', textAlign: 'center' }}>
               Loading team...
@@ -779,8 +738,8 @@ const Team = () => {
                               }}
                             >
                               {role === 'manager' ? '👔' : '🚚'}
-                    </div>
-                    <div>
+                            </div>
+                            <div>
                               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
                                 {user.name || 'No name'}
                               </h3>
@@ -810,7 +769,9 @@ const Team = () => {
                               {role}
                             </span>
                             <button
-                              onClick={() => handleRemoveTeamMember(user.id, user.name || user.email)}
+                              onClick={() =>
+                                handleRemoveTeamMember(user.id, user.name || user.email)
+                              }
                               style={{
                                 background: 'transparent',
                                 border: '1px solid #ef4444',
@@ -840,10 +801,14 @@ const Team = () => {
                   filteredInvites.map((invite, i) => {
                     const now = new Date();
                     const expiresAt = new Date(parseInt(invite.expiresAt));
-                    const isExpired = !invite.isUsed && !invite.revoked && !isNaN(expiresAt.getTime()) && now > expiresAt;
+                    const isExpired =
+                      !invite.isUsed &&
+                      !invite.revoked &&
+                      !isNaN(expiresAt.getTime()) &&
+                      now > expiresAt;
                     const isUsed = invite.isUsed;
                     const isRevoked = invite.revoked;
-                    
+
                     return (
                       <div
                         key={invite.id}
@@ -861,7 +826,12 @@ const Team = () => {
                         }}
                       >
                         <div
-                          style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 220 }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 16,
+                            minWidth: 220,
+                          }}
                         >
                           <div
                             style={{
@@ -889,29 +859,37 @@ const Team = () => {
                               }}
                             >
                               Created {new Date(parseInt(invite.createdAt)).toLocaleDateString()}
-                              {isUsed && invite.usedAt && ` • Used ${new Date(parseInt(invite.usedAt)).toLocaleDateString()}`}
-                              {isRevoked && invite.revokedAt && ` • Revoked ${new Date(parseInt(invite.revokedAt)).toLocaleDateString()}`}
-                              {!isUsed && !isRevoked && ` • Expires ${new Date(parseInt(invite.expiresAt)).toLocaleDateString()}`}
-                              {isUsed && invite.usedBy && ` by ${invite.usedBy.name || invite.usedBy.email}`}
+                              {isUsed &&
+                                invite.usedAt &&
+                                ` • Used ${new Date(parseInt(invite.usedAt)).toLocaleDateString()}`}
+                              {isRevoked &&
+                                invite.revokedAt &&
+                                ` • Revoked ${new Date(parseInt(invite.revokedAt)).toLocaleDateString()}`}
+                              {!isUsed &&
+                                !isRevoked &&
+                                ` • Expires ${new Date(parseInt(invite.expiresAt)).toLocaleDateString()}`}
+                              {isUsed &&
+                                invite.usedBy &&
+                                ` by ${invite.usedBy.name || invite.usedBy.email}`}
                             </p>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                           <span
                             style={{
-                              background: isUsed 
-                                ? 'rgba(16, 185, 129, 0.1)' 
+                              background: isUsed
+                                ? 'rgba(16, 185, 129, 0.1)'
                                 : isRevoked
                                   ? 'rgba(239, 68, 68, 0.1)'
-                                  : isExpired 
-                                    ? 'rgba(107, 114, 128, 0.1)' 
+                                  : isExpired
+                                    ? 'rgba(107, 114, 128, 0.1)'
                                     : 'rgba(251, 191, 36, 0.1)',
-                              color: isUsed 
-                                ? '#10b981' 
+                              color: isUsed
+                                ? '#10b981'
                                 : isRevoked
                                   ? '#ef4444'
-                                  : isExpired 
-                                    ? '#6b7280' 
+                                  : isExpired
+                                    ? '#6b7280'
                                     : '#f59e0b',
                               padding: '4px 10px',
                               borderRadius: 8,
@@ -920,11 +898,17 @@ const Team = () => {
                               textTransform: 'capitalize',
                             }}
                           >
-                            {isUsed ? 'Used' : isRevoked ? 'Revoked' : isExpired ? 'Expired' : `Pending ${invite.role.toLowerCase()}`}
+                            {isUsed
+                              ? 'Used'
+                              : isRevoked
+                                ? 'Revoked'
+                                : isExpired
+                                  ? 'Expired'
+                                  : `Pending ${invite.role.toLowerCase()}`}
                           </span>
                           {!isUsed && !isRevoked && !isExpired && (
                             <>
-                    <button 
+                              <button
                                 onClick={() => handleCopyInviteLink(invite.token)}
                                 style={{
                                   background: 'transparent',
@@ -938,8 +922,8 @@ const Team = () => {
                                 }}
                               >
                                 Copy
-                    </button>
-                    <button 
+                              </button>
+                              <button
                                 onClick={() => handleRevokeInvite(invite.id)}
                                 style={{
                                   background: 'transparent',
@@ -953,7 +937,7 @@ const Team = () => {
                                 }}
                               >
                                 Revoke
-                    </button>
+                              </button>
                             </>
                           )}
                         </div>
@@ -969,23 +953,23 @@ const Team = () => {
             </AnimatePresence>
           )}
         </div>
+      </PageContainer>
 
-        <CreateInviteModal
-          open={modal.open}
-          onClose={() => setModal({ open: false })}
-          onInviteCreated={handleInviteCreated}
-          storeId={currentStore?.id}
-        />
+      <CreateInviteModal
+        open={modal.open}
+        onClose={() => setModal({ open: false })}
+        onInviteCreated={handleInviteCreated}
+        storeId={currentStore?.id}
+      />
 
-        <ConfirmDeleteModal
-          open={deleteModal.open}
-          onClose={() => setDeleteModal({ open: false, user: null })}
-          onConfirm={confirmRemoveTeamMember}
-          userName={deleteModal.user?.name || 'Unknown User'}
-        />
-      </div>
-    </div>
+      <ConfirmDeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, user: null })}
+        onConfirm={confirmRemoveTeamMember}
+        userName={deleteModal.user?.name || 'Unknown User'}
+      />
+    </>
   );
 };
 
-export default Team; 
+export default Team;
