@@ -4,9 +4,8 @@ import { useStore } from '../context/StoreContext';
 import PageContainer from '../components/common/PageContainer';
 import './Dashboard.css';
 
-const NotificationForm = ({ onSubmit }) => {
+const NotificationForm = ({ onSubmit, notificationType }) => {
   const [form, setForm] = useState({
-    type: 'email',
     title: '',
     message: '',
     recipients: 'all',
@@ -16,9 +15,8 @@ const NotificationForm = ({ onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(form);
+    onSubmit({ ...form, type: notificationType });
     setForm({
-      type: form.type,
       title: '',
       message: '',
       recipients: 'all',
@@ -31,42 +29,13 @@ const NotificationForm = ({ onSubmit }) => {
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div>
         <label style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 15 }}>
-          Notification Type
-        </label>
-        <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <input
-              type="radio"
-              name="notificationType"
-              value="email"
-              checked={form.type === 'email'}
-              onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-              style={{ width: 18, height: 18 }}
-            />
-            <span style={{ fontSize: 15 }}>Email</span>
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <input
-              type="radio"
-              name="notificationType"
-              value="push"
-              checked={form.type === 'push'}
-              onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-              style={{ width: 18, height: 18 }}
-            />
-            <span style={{ fontSize: 15 }}>Push</span>
-          </label>
-        </div>
-      </div>
-      <div>
-        <label style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 15 }}>
           Title
         </label>
         <input
           required
           value={form.title}
           onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-          placeholder={`Enter ${form.type} title...`}
+          placeholder={`Enter ${notificationType} title...`}
           style={{
             boxSizing: 'border-box',
             width: '100%',
@@ -87,7 +56,7 @@ const NotificationForm = ({ onSubmit }) => {
           required
           value={form.message}
           onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
-          placeholder={`Enter ${form.type} message...`}
+          placeholder={`Enter ${notificationType} message...`}
           rows={4}
           style={{
             boxSizing: 'border-box',
@@ -173,9 +142,9 @@ const NotificationForm = ({ onSubmit }) => {
           cursor: 'pointer',
           marginTop: 8,
         }}
-      >
-        Send {form.type === 'email' ? 'Email' : 'Push'} Notification
-      </button>
+              >
+          Send {notificationType === 'email' ? 'Email' : 'Push'} Notification
+        </button>
     </form>
   );
 };
@@ -285,6 +254,9 @@ const NotificationHistory = ({ notifications }) => {
 const Notifications = () => {
   const { currentStore } = useStore();
   const navigate = useNavigate();
+  
+  // Состояние для типа уведомления
+  const [notificationType, setNotificationType] = useState('email');
 
   const [allHistory, setAllHistory] = useState([
     {
@@ -402,22 +374,84 @@ const Notifications = () => {
     );
   }
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {/* Send Notification Form */}
-      <PageContainer
-        isStretch
-        minHeight="auto"
-        title="Notifications"
-        description="Create and manage email and push notifications for your users"
-        withBottomSpace
-        withPadding
-      >
-        <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, color: 'var(--color-text)' }}>
-          Create notification
-        </h2>
-        <NotificationForm onSubmit={handleNotificationSubmit} />
-      </PageContainer>
+      return (
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {/* Send Notification Form */}
+        <PageContainer
+          isStretch
+          minHeight="auto"
+          title="Notifications"
+          description="Create and manage email and push notifications for your users"
+          withBottomSpace
+          withPadding
+          RightContent={
+            <div
+              style={{
+                position: 'relative',
+                display: 'flex',
+                background: 'var(--color-bg-secondary)',
+                padding: 4,
+                borderRadius: 8,
+                border: '1px solid var(--color-border)',
+                width: 120,
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 4,
+                  bottom: 4,
+                  width: 'calc(50% - 4px)',
+                  left: notificationType === 'email' ? 4 : 'calc(50%)',
+                  background: 'var(--color-bg)',
+                  borderRadius: 6,
+                  transition: 'left 0.3s ease',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                }}
+              />
+              <button
+                onClick={() => setNotificationType('email')}
+                style={{
+                  padding: '0.5rem 0',
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'var(--color-text)',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  zIndex: 1,
+                  transition: 'color 0.3s',
+                  width: '50%',
+                  fontSize: 14,
+                  textAlign: 'center'
+                }}
+              >
+                Email
+              </button>
+              <button
+                onClick={() => setNotificationType('push')}
+                style={{
+                  padding: '0.5rem 0',
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'var(--color-text)',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  zIndex: 1,
+                  transition: 'color 0.3s',
+                  width: '50%',
+                  fontSize: 14,
+                }}
+              >
+                Push
+              </button>
+            </div>
+          }
+        >
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, color: 'var(--color-text)' }}>
+            Create notification
+          </h2>
+          <NotificationForm onSubmit={handleNotificationSubmit} notificationType={notificationType} />
+        </PageContainer>
 
       {/* Notification History */}
       <PageContainer withPadding minHeight="80vh">
