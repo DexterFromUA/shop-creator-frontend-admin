@@ -119,6 +119,24 @@ const Products = () => {
         description="Manage your product catalog, inventory, and pricing"
         withPadding
         withBottomSpace
+        RightContent={
+          <button
+            onClick={() => navigate(`/store/${storeId}/products/add`)}
+            style={{
+              background: '#111827',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 10,
+              padding: '0.7rem 1.2rem',
+              fontWeight: 600,
+              fontSize: 15,
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)',
+            }}
+          >
+            + Add Product
+          </button>
+        }
       >
         <div
           style={{
@@ -161,79 +179,61 @@ const Products = () => {
               </span>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <div
+            ref={containerRef}
+            style={{
+              position: 'relative',
+              display: 'flex',
+              background: 'var(--color-bg-secondary)',
+              padding: 4,
+              borderRadius: 8,
+            }}
+          >
             <div
-              ref={containerRef}
               style={{
-                position: 'relative',
-                display: 'flex',
-                background: 'var(--color-bg-secondary)',
-                padding: 4,
-                borderRadius: 8,
+                position: 'absolute',
+                top: 4,
+                bottom: 4,
+                ...indicatorStyle,
+                background: 'var(--color-bg)',
+                borderRadius: 6,
+                transition: 'left 0.3s ease, width 0.3s ease',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
               }}
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 4,
-                  bottom: 4,
-                  ...indicatorStyle,
-                  background: 'var(--color-bg)',
-                  borderRadius: 6,
-                  transition: 'left 0.3s ease, width 0.3s ease',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                }}
-              />
-              <button
-                ref={(el) => (buttonsRef.current[0] = el)}
-                data-view="grid"
-                onClick={() => setViewMode('grid')}
-                style={{
-                  padding: '0.5rem 1rem',
-                  border: 'none',
-                  background: 'transparent',
-                  color: 'var(--color-text)',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  zIndex: 1,
-                  transition: 'color 0.3s',
-                }}
-              >
-                Grid
-              </button>
-              <button
-                ref={(el) => (buttonsRef.current[1] = el)}
-                data-view="list"
-                onClick={() => setViewMode('list')}
-                style={{
-                  padding: '0.5rem 1rem',
-                  border: 'none',
-                  background: 'transparent',
-                  color: 'var(--color-text)',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  zIndex: 1,
-                  transition: 'color 0.3s',
-                }}
-              >
-                List
-              </button>
-            </div>
+            />
             <button
-              onClick={() => navigate(`/store/${storeId}/products/add`)}
+              ref={(el) => (buttonsRef.current[0] = el)}
+              data-view="grid"
+              onClick={() => setViewMode('grid')}
               style={{
-                background: '#111827',
-                color: '#fff',
+                padding: '0.5rem 1rem',
                 border: 'none',
-                borderRadius: 10,
-                padding: '0.7rem 1.2rem',
-                fontWeight: 600,
-                fontSize: 15,
+                background: 'transparent',
+                color: 'var(--color-text)',
                 cursor: 'pointer',
-                boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)',
+                position: 'relative',
+                zIndex: 1,
+                transition: 'color 0.3s',
               }}
             >
-              + Add Product
+              Grid
+            </button>
+            <button
+              ref={(el) => (buttonsRef.current[1] = el)}
+              data-view="list"
+              onClick={() => setViewMode('list')}
+              style={{
+                padding: '0.5rem 1rem',
+                border: 'none',
+                background: 'transparent',
+                color: 'var(--color-text)',
+                cursor: 'pointer',
+                position: 'relative',
+                zIndex: 1,
+                transition: 'color 0.3s',
+              }}
+            >
+              List
             </button>
           </div>
         </div>
