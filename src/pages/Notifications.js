@@ -392,7 +392,7 @@ const Notifications = () => {
                 background: 'var(--color-bg-secondary)',
                 padding: 4,
                 borderRadius: 8,
-                border: '1px solid var(--color-border)',
+                border: '2px solid black',
                 width: 120,
               }}
             >
