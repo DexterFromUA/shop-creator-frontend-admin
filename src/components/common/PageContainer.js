@@ -11,7 +11,6 @@ const PageContainer = ({
   withPadding = false,
   isCenteredContent = false,
   RightContent = null,
-  withHeader = false,
   minHeight = '80vh',
   withBottomSpace = false,
   children
@@ -25,14 +24,6 @@ const PageContainer = ({
     }
   }, []);
 
-  const getCardHeight = () => {
-    if (isStretch) {
-      return minHeight;
-    }
-    let baseHeight = withHeader ? '70vh' : '80vh';
-    return baseHeight;
-  };
-
   const getCardStyles = () => {
     const cardStyles = {
       background: 'var(--color-bg)',
@@ -44,12 +35,12 @@ const PageContainer = ({
     };
 
     if (isStretch) {
-      cardStyles.minHeight = getCardHeight();
+      cardStyles.minHeight = minHeight;
       if (withPadding) {
         cardStyles.padding = 32;
       }
     } else {
-      cardStyles.height = getCardHeight();
+      cardStyles.height = minHeight;
       cardStyles.overflowY = 'auto';
       
       if (isCenteredContent) {
