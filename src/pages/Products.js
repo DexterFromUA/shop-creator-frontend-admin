@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { productService } from '../utils/graphql';
+import PageContainer from '../components/common/PageContainer';
 import './Dashboard.css';
 
 // Keep this export for ProductView.js compatibility 
@@ -109,27 +110,32 @@ const Products = () => {
   };
 
   return (
-    <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>
-      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 16px', boxSizing: 'border-box' }}>
-        {/* Page Header */}
-        <div style={{ marginBottom: 32 }}>
-          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
-            Products
-          </h1>
-          <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-            Manage your product catalog, inventory, and pricing
-          </p>
-        </div>
-
-        {/* Controls Card */}
-        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: '24px 32px', marginBottom: 32, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+    <>
+      {/* Search and Controls Card */}
+      <PageContainer
+        isStretch
+        minHeight="auto"
+        title="Products"
+        description="Manage your product catalog, inventory, and pricing"
+        withPadding
+        withBottomSpace
+      >
+        <div
+          style={{
+            display: 'flex',
+            gap: 24,
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+          }}
+        >
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
             <div style={{ position: 'relative', minWidth: 140, maxWidth: 220, flexShrink: 1 }}>
               <input
                 type="text"
                 placeholder="Search products..."
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={(e) => setSearch(e.target.value)}
                 style={{
                   padding: '0.7rem 1rem 0.7rem 2.5rem',
                   border: '1px solid var(--color-border)',
@@ -140,13 +146,31 @@ const Products = () => {
                   width: '100%',
                 }}
               />
-              <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-secondary)', fontSize: '1.1rem', pointerEvents: 'none' }}>🔍</span>
+              <span
+                style={{
+                  position: 'absolute',
+                  left: '1rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--color-text-secondary)',
+                  fontSize: '1.1rem',
+                  pointerEvents: 'none',
+                }}
+              >
+                🔍
+              </span>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
             <div
               ref={containerRef}
-              style={{ position: 'relative', display: 'flex', background: 'var(--color-bg-secondary)', padding: 4, borderRadius: 8 }}
+              style={{
+                position: 'relative',
+                display: 'flex',
+                background: 'var(--color-bg-secondary)',
+                padding: 4,
+                borderRadius: 8,
+              }}
             >
               <div
                 style={{
@@ -157,34 +181,65 @@ const Products = () => {
                   background: 'var(--color-bg)',
                   borderRadius: 6,
                   transition: 'left 0.3s ease, width 0.3s ease',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
                 }}
               />
               <button
-                ref={el => buttonsRef.current[0] = el}
+                ref={(el) => (buttonsRef.current[0] = el)}
                 data-view="grid"
                 onClick={() => setViewMode('grid')}
-                style={{ padding: '0.5rem 1rem', border: 'none', background: 'transparent', color: 'var(--color-text)', cursor: 'pointer', position: 'relative', zIndex: 1, transition: 'color 0.3s' }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'var(--color-text)',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  zIndex: 1,
+                  transition: 'color 0.3s',
+                }}
               >
                 Grid
               </button>
               <button
-                ref={el => buttonsRef.current[1] = el}
+                ref={(el) => (buttonsRef.current[1] = el)}
                 data-view="list"
                 onClick={() => setViewMode('list')}
-                style={{ padding: '0.5rem 1rem', border: 'none', background: 'transparent', color: 'var(--color-text)', cursor: 'pointer', position: 'relative', zIndex: 1, transition: 'color 0.3s' }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'var(--color-text)',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  zIndex: 1,
+                  transition: 'color 0.3s',
+                }}
               >
                 List
               </button>
             </div>
-            <button onClick={() => navigate(`/store/${storeId}/products/add`)} style={{ background: '#111827', color: '#fff', border: 'none', borderRadius: 10, padding: '0.7rem 1.2rem', fontWeight: 600, fontSize: 15, cursor: 'pointer', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)' }}>
+            <button
+              onClick={() => navigate(`/store/${storeId}/products/add`)}
+              style={{
+                background: '#111827',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 10,
+                padding: '0.7rem 1.2rem',
+                fontWeight: 600,
+                fontSize: 15,
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)',
+              }}
+            >
               + Add Product
             </button>
           </div>
         </div>
+      </PageContainer>
 
-        {/* Content Card */}
-        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, width: '100%', height: '60vh', overflowY: 'auto' }}>
+      <PageContainer minHeight="60vh">
           {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 64 }}>
               <div style={{ color: 'var(--color-text-secondary)', fontSize: 16 }}>Loading products...</div>
@@ -212,12 +267,21 @@ const Products = () => {
                 exit="exit"
                 style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 24, padding: 32 }}
               >
-                {filtered.map(product => (
+                {filtered.map((product) => (
                   <motion.div
                     key={product.id}
                     variants={gridItemVariants}
                     onClick={() => navigate(`/store/${storeId}/products/${product.id}`)}
-                    style={{ cursor: 'pointer', background: 'var(--color-bg-secondary)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column', gap: 16, border: '1px solid var(--color-border)' }}
+                    style={{
+                      cursor: 'pointer',
+                      background: 'var(--color-bg-secondary)',
+                      borderRadius: 18,
+                      padding: 24,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 16,
+                      border: '1px solid var(--color-border)',
+                    }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
@@ -266,10 +330,8 @@ const Products = () => {
             )}
           </AnimatePresence>
           )}
-        </div>
-      </div>
-      
-    </div>
+      </PageContainer>
+    </>
   );
 };
 
