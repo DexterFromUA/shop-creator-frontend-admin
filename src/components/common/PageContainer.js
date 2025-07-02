@@ -13,6 +13,7 @@ const PageContainer = ({
   RightContent = null,
   withHeader = false,
   minHeight = '80vh',
+  withBottomSpace = false,
   children
 }) => {
   React.useEffect(() => {
@@ -75,6 +76,10 @@ const PageContainer = ({
         cardStyles.alignItems = 'center';
         cardStyles.overflowY = 'visible';
       }
+    }
+
+    if (withBottomSpace) {
+      cardStyles.marginBottom = 32;
     }
 
     return cardStyles;
