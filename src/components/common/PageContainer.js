@@ -11,6 +11,7 @@ const PageContainer = ({
   withPadding = false,
   isCenteredContent = false,
   RightContent = null,
+  leftComponent = null,
   minHeight = '80vh',
   withBottomSpace = false,
   children
@@ -62,21 +63,31 @@ const PageContainer = ({
   return (
     <>
       {/* Page Header */}
-      {(title || description || RightContent) && (
+      {(title || description || leftComponent || RightContent) && (
         <div style={{ 
           marginBottom: 32,
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'flex-start'
+          alignItems: 'flex-start',
+          gap: 16
         }}>
           <div>
-            {title && (
-              <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
-                {title}
-              </h1>
+            {(leftComponent || title) && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: description ? 8 : 0 }}>
+                {leftComponent && (
+                  <div>
+                    {leftComponent}
+                  </div>
+                )}
+                {title && (
+                  <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
+                    {title}
+                  </h1>
+                )}
+              </div>
             )}
             {description && (
-              <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
+              <p style={{ margin: '0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
                 {description}
               </p>
             )}

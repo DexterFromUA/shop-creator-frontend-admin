@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { productService } from '../utils/graphql';
+import PageContainer from '../components/common/PageContainer';
 import './Dashboard.css';
 
 const AddProduct = () => {
@@ -318,53 +319,30 @@ const AddProduct = () => {
   // Show loading state while fetching product data for edit
   if (initialLoading) {
     return (
-      <div style={{ 
-        width: '100%',
-        minHeight: '100vh',
-        background: 'var(--color-bg-secondary)',
-        padding: '48px 16px',
-        boxSizing: 'border-box',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
+      <PageContainer 
+        isCenteredContent 
+        title="Loading" 
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
         <div style={{ textAlign: 'center' }}>
           <div style={{ color: 'var(--color-text)', fontSize: 18 }}>Loading product data...</div>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div style={{ 
-      width: '100%',
-      minHeight: '100vh',
-      background: 'var(--color-bg-secondary)',
-      padding: '48px 16px',
-      boxSizing: 'border-box'
-    }}>
-      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto' }}>
-        {/* Page Header */}
-        <div style={{ marginBottom: 32 }}>
-          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
-            {isEditMode ? 'Edit Product' : 'Add New Product'}
-          </h1>
-          <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-            {isEditMode 
-              ? 'Update your product information, images, descriptions, and inventory.'
-              : 'Create a new product for your store with images, descriptions, and inventory management.'
-            }
-          </p>
-        </div>
-
-        {/* Product Creation Form Card */}
-        <div className="dashboard-card" style={{ 
-          background: 'var(--color-bg)', 
-          borderRadius: 28, 
-          boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', 
-          padding: 32,
-          boxSizing: 'border-box'
-        }}>
+    <PageContainer
+      withPadding
+      isStretch
+      minHeight="auto"
+      title={isEditMode ? 'Edit Product' : 'Add New Product'}
+      description={
+        isEditMode 
+          ? 'Update your product information, images, descriptions, and inventory.'
+          : 'Create a new product for your store with images, descriptions, and inventory management.'
+      }
+    >
           <form onSubmit={handleSubmit}>
             {/* Product Images */}
             <div style={{ marginBottom: 32 }}>
@@ -836,9 +814,7 @@ const AddProduct = () => {
               </button>
             </div>
           </form>
-        </div>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 
