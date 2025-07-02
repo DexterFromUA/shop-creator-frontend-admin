@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { storeService } from '../utils/graphql';
+import PageContainer from '../components/common/PageContainer';
 import './Dashboard.css';
 
 const StoreSelection = () => {
@@ -39,7 +40,7 @@ const StoreSelection = () => {
 
     if (ownedStores.length >= storeLimit) {
       addToast(
-        `You can only own ${storeLimit} store${storeLimit > 1 ? 's' : ''} with your ${user?.subscriptionType} plan. Upgrade to create more stores.`,
+        `You can only own ${storeLimit} store${storeLimit > 1 ? 's' : ''}. Upgrade to create more stores.`,
         'info'
       );
       navigate('/subscription');
@@ -104,19 +105,14 @@ const StoreSelection = () => {
   }, [user]);
 
   const handleStoreSelect = (store) => {
-    // Если стор неактивен - блокируем доступ
     if (!store.isActive) {
       addToast('This store is currently inactive and unavailable', 'error');
       return;
     }
-
-    // Если у пользователя план BASIC и он владелец стора - блокируем доступ
     if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {
       addToast('Upgrade to a paid plan to access your owned stores', 'info');
       return;
     }
-
-    // Навигация на страницу конкретного магазина
     navigate(`/store/${store.id}/dashboard`);
   };
 
@@ -178,373 +174,334 @@ const StoreSelection = () => {
   }
 
   return (
-    <div
-      className="dashboard"
-      style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}
-    >
-      <div
-        style={{
-          maxWidth: 1200,
-          width: '100%',
-          margin: '0 auto',
-          padding: '48px 16px',
-          boxSizing: 'border-box',
-        }}
-      >
-        {/* Page Header */}
-        <div
-          style={{
-            marginBottom: 32,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-          }}
-        >
-          <div>
-            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
-              {stores.length > 0 ? 'Select Your Store' : 'Your Stores'}
-            </h1>
-            <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-              {stores.length > 0
-                ? `You have ${stores.length} store${stores.length > 1 ? 's' : ''}. Choose one to manage.`
-                : 'Get started by creating your first store.'}
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <button
-              onClick={() => navigate('/subscription')}
-              style={{
-                padding: '8px 16px',
-                borderRadius: 8,
-                border: '2px solid var(--color-border)',
-                background: 'var(--color-bg)',
-                color: 'var(--color-text)',
-                cursor: 'pointer',
-                fontSize: 14,
-                fontWeight: 600,
-              }}
-            >
-              Subscription
-            </button>
-            <button
-              onClick={logout}
-              style={{
-                padding: '8px 16px',
-                borderRadius: 8,
-                border: 'none',
-                background: '#111827',
-                color: '#fff',
-                cursor: 'pointer',
-                fontSize: 14,
-                fontWeight: 600,
-              }}
-            >
-              Logout
-            </button>
-          </div>
+    <PageContainer
+      title={stores.length > 0 ? 'Select Your Store' : 'Your Stores'}
+      description={stores.length > 0
+        ? `You have ${stores.length} store${stores.length > 1 ? 's' : ''}. Choose one to manage.`
+        : 'Get started by creating your first store.'}
+      RightContent={
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button
+            onClick={() => navigate('/subscription')}
+            style={{
+              padding: '8px 16px',
+              borderRadius: 8,
+              border: '2px solid var(--color-border)',
+              background: 'var(--color-bg)',
+              color: 'var(--color-text)',
+              cursor: 'pointer',
+              fontSize: 14,
+              fontWeight: 600,
+            }}
+          >
+            Subscription
+          </button>
+          <button
+            onClick={logout}
+            style={{
+              padding: '8px 16px',
+              borderRadius: 8,
+              border: 'none',
+              background: '#111827',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: 14,
+              fontWeight: 600,
+            }}
+          >
+            Logout
+          </button>
         </div>
+      }
+      isStretch={false}
+      withHeader={false}
+    >
+      {/* Контент карточки (Stores List и Create Store) */}
+      <div style={{ padding: 32 }}>
+        {stores.length > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 24,
+              marginBottom: 24,
+            }}
+          >
+            {stores.map((store) => {
+              const isBlocked = user?.subscriptionType === 'BASIC' && store.role === 'OWNER';
+              const isInactive = !store.isActive;
+              const isDisabled = isBlocked || isInactive;
 
-        {/* Content Card */}
-        <div
-          className="dashboard-card"
-          style={{
-            background: 'var(--color-bg)',
-            borderRadius: 28,
-            boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
-            padding: 0,
-            boxSizing: 'border-box',
-            height: '80vh',
-            overflowY: 'auto',
-          }}
-        >
-          <div style={{ padding: 32 }}>
-            {/* Stores List */}
-            {stores.length > 0 && (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 24,
-                  marginBottom: 24,
-                }}
-              >
-                {stores.map((store) => {
-                  const isBlocked = user?.subscriptionType === 'BASIC' && store.role === 'OWNER';
-                  const isInactive = !store.isActive;
-                  const isDisabled = isBlocked || isInactive;
-
-                  return (
+              return (
+                <div
+                  key={store.id}
+                  onClick={() => !isDisabled && handleStoreSelect(store)}
+                  style={{
+                    background: isDisabled
+                      ? 'var(--color-bg-tertiary)'
+                      : 'var(--color-bg-secondary)',
+                    border: isDisabled
+                      ? '2px dashed #d1d5db'
+                      : '2px dashed var(--color-border)',
+                    borderRadius: 18,
+                    padding: 24,
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 24,
+                    opacity: isDisabled ? 0.6 : 1,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isDisabled) {
+                      e.currentTarget.style.borderColor = '#111827';
+                      e.currentTarget.style.background = 'var(--color-bg)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isDisabled) {
+                      e.currentTarget.style.borderColor = 'var(--color-border)';
+                      e.currentTarget.style.background = 'var(--color-bg-secondary)';
+                    }
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
                     <div
-                      key={store.id}
-                      onClick={() => !isDisabled && handleStoreSelect(store)}
                       style={{
-                        background: isDisabled
-                          ? 'var(--color-bg-tertiary)'
-                          : 'var(--color-bg-secondary)',
-                        border: isDisabled
-                          ? '2px dashed #d1d5db'
-                          : '2px dashed var(--color-border)',
-                        borderRadius: 18,
-                        padding: 24,
-                        cursor: isDisabled ? 'not-allowed' : 'pointer',
-                        transition: 'all 0.2s ease',
-                        textAlign: 'left',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 24,
-                        opacity: isDisabled ? 0.6 : 1,
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isDisabled) {
-                          e.currentTarget.style.borderColor = '#111827';
-                          e.currentTarget.style.background = 'var(--color-bg)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isDisabled) {
-                          e.currentTarget.style.borderColor = 'var(--color-border)';
-                          e.currentTarget.style.background = 'var(--color-bg-secondary)';
-                        }
+                        gap: 12,
+                        marginBottom: 8,
                       }}
                     >
-                      <div style={{ flex: 1 }}>
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 12,
-                            marginBottom: 8,
-                          }}
-                        >
-                          <h3
-                            style={{
-                              margin: 0,
-                              fontSize: 18,
-                              fontWeight: 700,
-                              color: 'var(--color-text)',
-                            }}
-                          >
-                            {store.name}
-                          </h3>
-                          <div
-                            style={{
-                              padding: '4px 12px',
-                              borderRadius: 12,
-                              background: getRoleColor(store.role) + '20',
-                              color: getRoleColor(store.role),
-                              fontSize: 12,
-                              fontWeight: 600,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.5px',
-                            }}
-                          >
-                            {getRoleLabel(store.role)}
-                          </div>
-                          {isInactive && (
-                            <div
-                              style={{
-                                padding: '4px 12px',
-                                borderRadius: 12,
-                                background: '#ef444420',
-                                color: '#ef4444',
-                                fontSize: 12,
-                                fontWeight: 600,
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.5px',
-                              }}
-                            >
-                              INACTIVE
-                            </div>
-                          )}
-                        </div>
-                        <p
-                          style={{
-                            margin: 0,
-                            color: 'var(--color-text-secondary)',
-                            fontSize: 14,
-                          }}
-                        >
-                          {store.description}
-                        </p>
-                      </div>
-
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: 24,
-                          alignItems: 'center',
-                        }}
-                      >
-                        <div
-                          style={{
-                            textAlign: 'center',
-                            minWidth: 100,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontSize: 12,
-                              color: 'var(--color-text-secondary)',
-                              marginBottom: 4,
-                              lineHeight: 1.2,
-                            }}
-                          >
-                            Created
-                          </div>
-                          <div
-                            style={{
-                              fontSize: 14,
-                              fontWeight: 600,
-                              color: 'var(--color-text)',
-                              lineHeight: 1.1,
-                            }}
-                          >
-                            {store.createdAt
-                              ? new Date(parseInt(store.createdAt)).toLocaleDateString('en-US', {
-                                  year: 'numeric',
-                                  month: 'short',
-                                  day: 'numeric',
-                                })
-                              : 'Unknown'}
-                          </div>
-                        </div>
-                        {store.contactCity && (
-                          <div
-                            style={{
-                              textAlign: 'center',
-                              minWidth: 80,
-                              display: 'flex',
-                              flexDirection: 'column',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <div
-                              style={{
-                                fontSize: 12,
-                                color: 'var(--color-text-secondary)',
-                                marginBottom: 4,
-                                lineHeight: 1.2,
-                              }}
-                            >
-                              Location
-                            </div>
-                            <div
-                              style={{
-                                fontSize: 14,
-                                fontWeight: 600,
-                                color: 'var(--color-text)',
-                                lineHeight: 1.1,
-                              }}
-                            >
-                              {store.contactCity}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div
-                        style={{
-                          padding: '12px 20px',
-                          borderRadius: 12,
-                          background: isDisabled ? '#9ca3af' : '#111827',
-                          color: '#fff',
-                          fontWeight: 600,
-                          fontSize: 14,
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {isInactive
-                          ? 'Store Inactive'
-                          : isBlocked
-                            ? 'Upgrade to Access'
-                            : 'Manage →'}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Create New Store Button */}
-            <div>
-              <div
-                onClick={handleCreateStoreClick}
-                style={{
-                  background: 'var(--color-bg-secondary)',
-                  border: '2px dashed var(--color-border)',
-                  borderRadius: 18,
-                  padding: 32,
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#111827';
-                  e.currentTarget.style.background = 'var(--color-bg)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-border)';
-                  e.currentTarget.style.background = 'var(--color-bg-secondary)';
-                }}
-              >
-                {(() => {
-                  const ownedStores = stores.filter((store) => store.role === 'OWNER');
-                  const storeLimit = getStoreLimit(user?.subscriptionType);
-                  const isBasic = user?.subscriptionType === 'BASIC';
-                  const isLimitReached =
-                    ownedStores.length >= storeLimit && storeLimit !== Infinity;
-
-                  return (
-                    <>
-                      <div
-                        style={{
-                          fontSize: 32,
-                          marginBottom: 12,
-                          color: 'var(--color-text-secondary)',
-                        }}
-                      >
-                        {isBasic ? '⭐' : isLimitReached ? '🔒' : '+'}
-                      </div>
                       <h3
                         style={{
                           margin: 0,
-                          fontSize: 16,
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: 'var(--color-text)',
+                        }}
+                      >
+                        {store.name}
+                      </h3>
+                      <div
+                        style={{
+                          padding: '4px 12px',
+                          borderRadius: 12,
+                          background: getRoleColor(store.role) + '20',
+                          color: getRoleColor(store.role),
+                          fontSize: 12,
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                        }}
+                      >
+                        {getRoleLabel(store.role)}
+                      </div>
+                      {isInactive && (
+                        <div
+                          style={{
+                            padding: '4px 12px',
+                            borderRadius: 12,
+                            background: '#ef444420',
+                            color: '#ef4444',
+                            fontSize: 12,
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                          }}
+                        >
+                          INACTIVE
+                        </div>
+                      )}
+                    </div>
+                    <p
+                      style={{
+                        margin: 0,
+                        color: 'var(--color-text-secondary)',
+                        fontSize: 14,
+                      }}
+                    >
+                      {store.description}
+                    </p>
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 24,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div
+                      style={{
+                        textAlign: 'center',
+                        minWidth: 100,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: 'var(--color-text-secondary)',
+                          marginBottom: 4,
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        Created
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 14,
                           fontWeight: 600,
                           color: 'var(--color-text)',
-                          marginBottom: 4,
+                          lineHeight: 1.1,
                         }}
                       >
-                        {isBasic
-                          ? 'Upgrade to Create Store'
-                          : isLimitReached
-                            ? 'Upgrade for More Stores'
-                            : 'Create New Store'}
-                      </h3>
-                      <p
+                        {store.createdAt
+                          ? new Date(parseInt(store.createdAt)).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            })
+                          : 'Unknown'}
+                      </div>
+                    </div>
+                    {store.contactCity && (
+                      <div
                         style={{
-                          margin: 0,
-                          color: 'var(--color-text-secondary)',
-                          fontSize: 14,
+                          textAlign: 'center',
+                          minWidth: 80,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
                         }}
                       >
-                        {isBasic
-                          ? 'Upgrade to a paid plan to start creating your own stores'
-                          : isLimitReached
-                            ? `You've reached your limit of ${storeLimit} store${storeLimit > 1 ? 's' : ''}. Upgrade to create more.`
-                            : `You can create ${storeLimit === Infinity ? 'unlimited' : storeLimit - ownedStores.length} more store${storeLimit === Infinity || storeLimit - ownedStores.length > 1 ? 's' : ''} with your ${user?.subscriptionType} plan.`}
-                      </p>
-                    </>
-                  );
-                })()}
-              </div>
-            </div>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: 'var(--color-text-secondary)',
+                            marginBottom: 4,
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          Location
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 600,
+                            color: 'var(--color-text)',
+                            lineHeight: 1.1,
+                          }}
+                        >
+                          {store.contactCity}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div
+                    style={{
+                      padding: '12px 20px',
+                      borderRadius: 12,
+                      background: isDisabled ? '#9ca3af' : '#111827',
+                      color: '#fff',
+                      fontWeight: 600,
+                      fontSize: 14,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {isInactive
+                      ? 'Store Inactive'
+                      : isBlocked
+                        ? 'Upgrade to Access'
+                        : 'Manage →'}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Create New Store Button */}
+        <div>
+          <div
+            onClick={handleCreateStoreClick}
+            style={{
+              background: 'var(--color-bg-secondary)',
+              border: '2px dashed var(--color-border)',
+              borderRadius: 18,
+              padding: 32,
+              textAlign: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#111827';
+              e.currentTarget.style.background = 'var(--color-bg)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--color-border)';
+              e.currentTarget.style.background = 'var(--color-bg-secondary)';
+            }}
+          >
+            {(() => {
+              const ownedStores = stores.filter((store) => store.role === 'OWNER');
+              const storeLimit = getStoreLimit(user?.subscriptionType);
+              const isBasic = user?.subscriptionType === 'BASIC';
+              const isLimitReached =
+                ownedStores.length >= storeLimit && storeLimit !== Infinity;
+
+              return (
+                <>
+                  <div
+                    style={{
+                      fontSize: 32,
+                      marginBottom: 12,
+                      color: 'var(--color-text-secondary)',
+                    }}
+                  >
+                    {isBasic ? '⭐' : isLimitReached ? '🔒' : '+'}
+                  </div>
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontSize: 16,
+                      fontWeight: 600,
+                      color: 'var(--color-text)',
+                      marginBottom: 4,
+                    }}
+                  >
+                    {isBasic
+                      ? 'Upgrade to Create Store'
+                      : isLimitReached
+                        ? 'Upgrade for More Stores'
+                        : 'Create New Store'}
+                  </h3>
+                  <p
+                    style={{
+                      margin: 0,
+                      color: 'var(--color-text-secondary)',
+                      fontSize: 14,
+                    }}
+                  >
+                    {isBasic
+                      ? 'Upgrade to a paid plan to start creating your own stores'
+                      : isLimitReached
+                        ? `You've reached your limit of ${storeLimit} store${storeLimit > 1 ? 's' : ''}. Upgrade to create more.`
+                        : `You can create ${storeLimit === Infinity ? 'unlimited' : storeLimit - ownedStores.length} more store${storeLimit === Infinity || storeLimit - ownedStores.length > 1 ? 's' : ''} with your ${user?.subscriptionType} plan.`}
+                  </p>
+                </>
+              );
+            })()}
           </div>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 };
 

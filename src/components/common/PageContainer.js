@@ -1,26 +1,36 @@
 import React from 'react';
 
+const fadeInStyle = {
+  animation: 'pageFadeIn 0.5s cubic-bezier(0.4,0,0.2,1)'
+};
+
 const PageContainer = ({ 
   title,
   description,
   isStretch = false,
-  withPadding = true,
+  withPadding = false,
   isCenteredContent = false,
-  HeaderCard = null,
   RightContent = null,
   withHeader = false,
   minHeight = '80vh',
   children
 }) => {
+  React.useEffect(() => {
+    // Добавляем keyframes только один раз
+    if (!document.getElementById('page-fadein-keyframes')) {
+      const style = document.createElement('style');
+      style.id = 'page-fadein-keyframes';
+      style.innerHTML = `@keyframes pageFadeIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }`;
+      document.head.appendChild(style);
+    }
+  }, []);
+
   // Определяем высоту карточки
   const getCardHeight = () => {
     if (isStretch) {
       return minHeight;
     }
     let baseHeight = withHeader ? '70vh' : '80vh';
-    if (HeaderCard) {
-      baseHeight = withHeader ? '50vh' : '60vh';
-    }
     return baseHeight;
   };
 
@@ -47,7 +57,8 @@ const PageContainer = ({
       background: 'var(--color-bg)',
       borderRadius: 28,
       boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      ...fadeInStyle
     };
 
     if (isStretch) {
@@ -105,22 +116,13 @@ const PageContainer = ({
           </div>
         )}
 
-        {/* Header Card (если есть) */}
-        {HeaderCard && (
-          <div style={{ marginBottom: 24 }}>
-            {HeaderCard}
-          </div>
-        )}
-
         {/* Main Content Card */}
         <div style={getCardStyles()}>
           {!isStretch && !isCenteredContent ? (
-            // Для фиксированной карточки с паддингом внутри
             <div style={getContentStyles()}>
               {children}
             </div>
           ) : (
-            // Для растягивающейся карточки или центрированного контента
             <div style={getContentStyles()}>
               {children}
             </div>
