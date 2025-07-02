@@ -420,6 +420,7 @@ const Subscription = () => {
         {/* Current Subscription Card */}
         <motion.div variants={cardVariants}>
           <PageContainer
+            withPadding
             isStretch
             minHeight="auto"
             withBottomSpace
@@ -443,28 +444,27 @@ const Subscription = () => {
               </button>
             }
           >
-            <div style={{ padding: 32 }}>
-              <h3
-                style={{
-                  margin: '0 0 16px 0',
-                  fontSize: 18,
-                  fontWeight: 600,
-                  color: 'var(--color-text)',
-                }}
-              >
-                Current Subscription
-              </h3>
-              <div
-                style={{
-                  padding: 24,
-                  border: '2px solid #22c55e',
-                  borderRadius: 16,
-                  background: 'rgba(34, 197, 94, 0.05)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
+            <h3
+              style={{
+                margin: '0 0 16px 0',
+                fontSize: 18,
+                fontWeight: 600,
+                color: 'var(--color-text)',
+              }}
+            >
+              Current Subscription
+            </h3>
+            <div
+              style={{
+                padding: 24,
+                border: '2px solid #22c55e',
+                borderRadius: 16,
+                background: 'rgba(34, 197, 94, 0.05)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
               <div>
                 <h4
                   style={{
@@ -494,25 +494,23 @@ const Subscription = () => {
                 {user?.subscriptionType !== 'BASIC' && (
                   <span style={{ fontSize: 14, fontWeight: 400 }}>/month</span>
                 )}
-                              </div>
               </div>
             </div>
-            </PageContainer>
-          </motion.div>
+          </PageContainer>
+        </motion.div>
 
         {/* Plans Selection */}
-        <PageContainer isStretch minHeight="auto" withBottomSpace>
-          <div style={{ padding: 32 }}>
-            <h3
-              style={{
-                margin: '0 0 24px 0',
-                fontSize: 18,
-                fontWeight: 600,
-                color: 'var(--color-text)',
-              }}
-            >
-              Choose Your Plan
-            </h3>
+        <PageContainer withPadding isStretch minHeight="auto" withBottomSpace>
+          <h3
+            style={{
+              margin: '0 0 24px 0',
+              fontSize: 18,
+              fontWeight: 600,
+              color: 'var(--color-text)',
+            }}
+          >
+            Choose Your Plan
+          </h3>
 
           <div
             style={{
@@ -636,20 +634,18 @@ const Subscription = () => {
               {loading ? 'Updating...' : 'Update Subscription'}
             </button>
           </div>
-          </div>
         </PageContainer>
 
         {/* Payment Methods */}
-        <PageContainer isStretch minHeight="auto" withBottomSpace>
-          <div style={{ padding: 32 }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 24,
-              }}
-            >
+        <PageContainer withPadding isStretch minHeight="auto" withBottomSpace>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 24,
+            }}
+          >
             <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: 'var(--color-text)' }}>
               Payment Methods
             </h3>
@@ -717,7 +713,6 @@ const Subscription = () => {
               ))}
             </div>
           )}
-          </div>
         </PageContainer>
 
         {/* Invoices */}

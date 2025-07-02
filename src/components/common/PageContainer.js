@@ -17,7 +17,6 @@ const PageContainer = ({
   children
 }) => {
   React.useEffect(() => {
-    // Добавляем keyframes только один раз
     if (!document.getElementById('page-fadein-keyframes')) {
       const style = document.createElement('style');
       style.id = 'page-fadein-keyframes';
@@ -26,7 +25,6 @@ const PageContainer = ({
     }
   }, []);
 
-  // Определяем высоту карточки
   const getCardHeight = () => {
     if (isStretch) {
       return minHeight;
@@ -35,37 +33,20 @@ const PageContainer = ({
     return baseHeight;
   };
 
-  // Стили для контента внутри карточки
-  const getContentStyles = () => {
-    const baseStyles = {
-      width: '100%'
-    };
-
-    if (withPadding) {
-      baseStyles.padding = 15;
-    }
-
-    if (isCenteredContent && !isStretch) {
-      baseStyles.textAlign = 'center';
-    }
-
-    return baseStyles;
-  };
-
-  // Стили для карточки
   const getCardStyles = () => {
     const cardStyles = {
       background: 'var(--color-bg)',
       borderRadius: 28,
       boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
       boxSizing: 'border-box',
+      width: '100%',
       ...fadeInStyle
     };
 
     if (isStretch) {
       cardStyles.minHeight = getCardHeight();
       if (withPadding) {
-        cardStyles.padding = 15;
+        cardStyles.padding = 32;
       }
     } else {
       cardStyles.height = getCardHeight();
@@ -75,6 +56,7 @@ const PageContainer = ({
         cardStyles.display = 'flex';
         cardStyles.alignItems = 'center';
         cardStyles.overflowY = 'visible';
+        cardStyles.textAlign = 'center';
       }
     }
 
@@ -117,15 +99,7 @@ const PageContainer = ({
 
       {/* Main Content Card */}
       <div style={getCardStyles()}>
-        {!isStretch && !isCenteredContent ? (
-          <div style={getContentStyles()}>
-            {children}
-          </div>
-        ) : (
-          <div style={getContentStyles()}>
-            {children}
-          </div>
-        )}
+        {children}
       </div>
     </>
   );
