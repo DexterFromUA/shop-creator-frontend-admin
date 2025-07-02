@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PageContainer from '../components/common/PageContainer';
 import './WebNotifications.css';
 
 const WebNotifications = () => {
@@ -10,7 +11,7 @@ const WebNotifications = () => {
       time: '2 minutes ago',
       read: false,
       type: 'order',
-      priority: 'high'
+      priority: 'high',
     },
     {
       id: 2,
@@ -19,7 +20,7 @@ const WebNotifications = () => {
       time: '15 minutes ago',
       read: false,
       type: 'payment',
-      priority: 'medium'
+      priority: 'medium',
     },
     {
       id: 3,
@@ -28,7 +29,7 @@ const WebNotifications = () => {
       time: '1 hour ago',
       read: true,
       type: 'stock',
-      priority: 'high'
+      priority: 'high',
     },
     {
       id: 4,
@@ -37,7 +38,7 @@ const WebNotifications = () => {
       time: '2 hours ago',
       read: true,
       type: 'system',
-      priority: 'low'
+      priority: 'low',
     },
     {
       id: 5,
@@ -46,7 +47,7 @@ const WebNotifications = () => {
       time: '3 hours ago',
       read: false,
       type: 'support',
-      priority: 'medium'
+      priority: 'medium',
     },
     {
       id: 6,
@@ -55,7 +56,7 @@ const WebNotifications = () => {
       time: '4 hours ago',
       read: true,
       type: 'inventory',
-      priority: 'low'
+      priority: 'low',
     },
     {
       id: 7,
@@ -64,7 +65,7 @@ const WebNotifications = () => {
       time: '5 hours ago',
       read: false,
       type: 'payment',
-      priority: 'high'
+      priority: 'high',
     },
     {
       id: 8,
@@ -73,8 +74,8 @@ const WebNotifications = () => {
       time: '6 hours ago',
       read: true,
       type: 'user',
-      priority: 'low'
-    }
+      priority: 'low',
+    },
   ]);
 
   const [filter, setFilter] = useState('all');
@@ -83,63 +84,85 @@ const WebNotifications = () => {
 
   const getNotificationIcon = (type) => {
     switch (type) {
-      case 'order': return '🛒';
-      case 'payment': return '💳';
-      case 'stock': return '⚠️';
-      case 'system': return '⚙️';
-      case 'support': return '🎧';
-      case 'inventory': return '📦';
-      case 'user': return '👤';
-      default: return '🔔';
+      case 'order':
+        return '🛒';
+      case 'payment':
+        return '💳';
+      case 'stock':
+        return '⚠️';
+      case 'system':
+        return '⚙️';
+      case 'support':
+        return '🎧';
+      case 'inventory':
+        return '📦';
+      case 'user':
+        return '👤';
+      default:
+        return '🔔';
     }
   };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'high': return '#ef4444';
-      case 'medium': return '#f59e0b';
-      case 'low': return '#10b981';
-      default: return '#6b7280';
+      case 'high':
+        return '#ef4444';
+      case 'medium':
+        return '#f59e0b';
+      case 'low':
+        return '#10b981';
+      default:
+        return '#6b7280';
     }
   };
 
   const getPriorityLabel = (priority) => {
     switch (priority) {
-      case 'high': return 'High';
-      case 'medium': return 'Medium';
-      case 'low': return 'Low';
-      default: return 'Unknown';
+      case 'high':
+        return 'High';
+      case 'medium':
+        return 'Medium';
+      case 'low':
+        return 'Low';
+      default:
+        return 'Unknown';
     }
   };
 
-  const filteredNotifications = notifications.filter(notification => {
-    const matchesFilter = filter === 'all' || 
+  const filteredNotifications = notifications.filter((notification) => {
+    const matchesFilter =
+      filter === 'all' ||
       (filter === 'unread' && !notification.read) ||
       (filter === 'read' && notification.read) ||
       notification.type === filter;
-    
-    const matchesSearch = notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         notification.message.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
+    const matchesSearch =
+      notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      notification.message.toLowerCase().includes(searchTerm.toLowerCase());
+
     return matchesFilter && matchesSearch;
   });
 
   const markAsRead = (id) => {
-    setNotifications(prev => prev.map(notification => 
-      notification.id === id ? { ...notification, read: true } : notification
-    ));
+    setNotifications((prev) =>
+      prev.map((notification) =>
+        notification.id === id ? { ...notification, read: true } : notification
+      )
+    );
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(notification => ({ ...notification, read: true })));
+    setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })));
   };
 
   const deleteNotification = (id) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
+    setNotifications((prev) => prev.filter((notification) => notification.id !== id));
   };
 
   const deleteSelected = () => {
-    setNotifications(prev => prev.filter(notification => !selectedNotifications.includes(notification.id)));
+    setNotifications((prev) =>
+      prev.filter((notification) => !selectedNotifications.includes(notification.id))
+    );
     setSelectedNotifications([]);
   };
 
@@ -147,38 +170,38 @@ const WebNotifications = () => {
     if (selectedNotifications.length === filteredNotifications.length) {
       setSelectedNotifications([]);
     } else {
-      setSelectedNotifications(filteredNotifications.map(n => n.id));
+      setSelectedNotifications(filteredNotifications.map((n) => n.id));
     }
   };
 
   const toggleSelectNotification = (id) => {
-    setSelectedNotifications(prev => 
-      prev.includes(id) 
-        ? prev.filter(n => n !== id)
-        : [...prev, id]
+    setSelectedNotifications((prev) =>
+      prev.includes(id) ? prev.filter((n) => n !== id) : [...prev, id]
     );
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="dashboard" style={{ background: 'var(--color-bg-secondary)', minHeight: '100vh', padding: 0 }}>
-      <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '48px 0' }}>
-        {/* Page Header */}
-        <div style={{ marginBottom: 32 }}>
-          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
-            Web Notifications
-          </h1>
-          <p style={{ margin: '8px 0 0 0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-            Manage and view all web application notifications
-          </p>
-          <div style={{ marginTop: 8, fontSize: 14, color: 'var(--color-text-secondary)', fontWeight: 500 }}>
-            {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
-          </div>
-        </div>
-
-        {/* Search and Filter Card */}
-        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: '24px 32px', marginBottom: 32, display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+    <>
+      {/* Search and Filter Card */}
+      <PageContainer
+        withPadding
+        withBottomSpace
+        isStretch
+        minHeight='auto'
+        title="Web Notifications"
+        description={`Manage and view all web application notifications · ${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`}
+      >
+        <div
+          style={{
+            display: 'flex',
+            gap: 24,
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+          }}
+        >
           <div style={{ position: 'relative', minWidth: 140, maxWidth: 220, flex: 1 }}>
             <input
               type="text"
@@ -194,24 +217,28 @@ const WebNotifications = () => {
                 color: 'var(--color-text)',
                 width: '100%',
                 minWidth: 0,
-                maxWidth: 220
+                maxWidth: 220,
               }}
             />
-            <span style={{
-              position: 'absolute',
-              left: '1rem',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--color-text-secondary)',
-              fontSize: '1.1rem',
-              pointerEvents: 'none'
-            }}>🔍</span>
+            <span
+              style={{
+                position: 'absolute',
+                left: '1rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'var(--color-text-secondary)',
+                fontSize: '1.1rem',
+                pointerEvents: 'none',
+              }}
+            >
+              🔍
+            </span>
           </div>
           <div style={{ flex: 1 }} />
-          <select 
-            value={filter} 
+          <select
+            value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            style={{ 
+            style={{
               padding: '0.7rem 2.5rem 0.7rem 1rem',
               borderRadius: 10,
               border: '1px solid var(--color-border)',
@@ -223,7 +250,7 @@ const WebNotifications = () => {
               backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'right 1rem center',
-              backgroundSize: '18px'
+              backgroundSize: '18px',
             }}
           >
             <option value="all">All Notifications</option>
@@ -238,20 +265,45 @@ const WebNotifications = () => {
             <option value="user">Users</option>
           </select>
         </div>
+      </PageContainer>
 
-        {/* Notifications Content Card */}
-        <div className="dashboard-card" style={{ background: 'var(--color-bg)', borderRadius: 28, boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)', padding: 0, width: '100%', maxHeight: '60vh', overflowY: 'auto' }}>
+      {/* Notifications Content Card */}
+      <PageContainer minHeight='60vh'>
+        <div style={{ padding: 0, maxHeight: '60vh', overflowY: 'auto' }}>
           {filteredNotifications.length === 0 ? (
-            <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>No notifications found</div>
+            <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>
+              No notifications found
+            </div>
           ) : (
             <>
               {/* Header with actions */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 32px', borderBottom: '1px solid var(--color-bg-secondary)' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '20px 32px',
+                  borderBottom: '1px solid var(--color-bg-secondary)',
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 500, color: 'var(--color-text)', cursor: 'pointer' }}>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: 'var(--color-text)',
+                      cursor: 'pointer',
+                    }}
+                  >
                     <input
                       type="checkbox"
-                      checked={selectedNotifications.length === filteredNotifications.length && filteredNotifications.length > 0}
+                      checked={
+                        selectedNotifications.length === filteredNotifications.length &&
+                        filteredNotifications.length > 0
+                      }
                       onChange={toggleSelectAll}
                       style={{ width: 16, height: 16, cursor: 'pointer' }}
                     />
@@ -259,7 +311,7 @@ const WebNotifications = () => {
                   </label>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button 
+                  <button
                     onClick={markAllAsRead}
                     disabled={unreadCount === 0}
                     style={{
@@ -271,13 +323,13 @@ const WebNotifications = () => {
                       fontSize: 14,
                       fontWeight: 500,
                       cursor: unreadCount === 0 ? 'not-allowed' : 'pointer',
-                      opacity: unreadCount === 0 ? 0.5 : 1
+                      opacity: unreadCount === 0 ? 0.5 : 1,
                     }}
                   >
                     Mark All as Read
                   </button>
                   {selectedNotifications.length > 0 && (
-                    <button 
+                    <button
                       onClick={deleteSelected}
                       style={{
                         padding: '8px 16px',
@@ -287,7 +339,7 @@ const WebNotifications = () => {
                         color: '#dc2626',
                         fontSize: 14,
                         fontWeight: 500,
-                        cursor: 'pointer'
+                        cursor: 'pointer',
                       }}
                     >
                       Delete Selected ({selectedNotifications.length})
@@ -300,17 +352,23 @@ const WebNotifications = () => {
               {filteredNotifications.map((notification, i) => (
                 <React.Fragment key={notification.id}>
                   <div
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'flex-start', 
-                      gap: 16, 
-                      padding: '20px 32px', 
-                      cursor: 'pointer', 
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 16,
+                      padding: '20px 32px',
+                      cursor: 'pointer',
                       transition: 'background 0.15s',
-                      background: !notification.read ? 'rgba(139, 92, 246, 0.05)' : 'transparent'
+                      background: !notification.read ? 'rgba(139, 92, 246, 0.05)' : 'transparent',
                     }}
-                    onMouseOver={e => e.currentTarget.style.background = 'var(--color-bg-secondary)'}
-                    onMouseOut={e => e.currentTarget.style.background = !notification.read ? 'rgba(139, 92, 246, 0.05)' : 'transparent'}
+                    onMouseOver={(e) =>
+                      (e.currentTarget.style.background = 'var(--color-bg-secondary)')
+                    }
+                    onMouseOut={(e) =>
+                      (e.currentTarget.style.background = !notification.read
+                        ? 'rgba(139, 92, 246, 0.05)'
+                        : 'transparent')
+                    }
                   >
                     <div style={{ marginTop: 4 }}>
                       <input
@@ -320,44 +378,75 @@ const WebNotifications = () => {
                         style={{ width: 16, height: 16, cursor: 'pointer' }}
                       />
                     </div>
-                    
+
                     <div style={{ fontSize: 24, marginTop: 2 }}>
                       {getNotificationIcon(notification.type)}
                     </div>
-                    
+
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8, gap: 12 }}>
-                        <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'var(--color-text)', lineHeight: 1.3 }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          marginBottom: 8,
+                          gap: 12,
+                        }}
+                      >
+                        <h3
+                          style={{
+                            margin: 0,
+                            fontSize: 16,
+                            fontWeight: 600,
+                            color: 'var(--color-text)',
+                            lineHeight: 1.3,
+                          }}
+                        >
                           {notification.title}
                         </h3>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                          <span 
-                            style={{ 
-                              padding: '4px 8px', 
-                              borderRadius: 4, 
-                              color: 'white', 
-                              fontSize: 11, 
-                              fontWeight: 600, 
-                              textTransform: 'uppercase', 
+                        <div
+                          style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}
+                        >
+                          <span
+                            style={{
+                              padding: '4px 8px',
+                              borderRadius: 4,
+                              color: 'white',
+                              fontSize: 11,
+                              fontWeight: 600,
+                              textTransform: 'uppercase',
                               letterSpacing: 0.5,
-                              backgroundColor: getPriorityColor(notification.priority)
+                              backgroundColor: getPriorityColor(notification.priority),
                             }}
                           >
                             {getPriorityLabel(notification.priority)}
                           </span>
-                          <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>
+                          <span
+                            style={{
+                              fontSize: 12,
+                              color: 'var(--color-text-secondary)',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
                             {notification.time}
                           </span>
                         </div>
                       </div>
-                      <p style={{ margin: 0, fontSize: 14, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: 14,
+                          color: 'var(--color-text-secondary)',
+                          lineHeight: 1.5,
+                        }}
+                      >
                         {notification.message}
                       </p>
                     </div>
-                    
+
                     <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                       {!notification.read && (
-                        <button 
+                        <button
                           onClick={() => markAsRead(notification.id)}
                           title="Mark as read"
                           style={{
@@ -372,15 +461,19 @@ const WebNotifications = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontSize: 14,
-                            transition: 'all 0.2s'
+                            transition: 'all 0.2s',
                           }}
-                          onMouseOver={e => e.currentTarget.style.background = 'var(--color-border)'}
-                          onMouseOut={e => e.currentTarget.style.background = 'var(--color-bg-secondary)'}
+                          onMouseOver={(e) =>
+                            (e.currentTarget.style.background = 'var(--color-border)')
+                          }
+                          onMouseOut={(e) =>
+                            (e.currentTarget.style.background = 'var(--color-bg-secondary)')
+                          }
                         >
                           ✓
                         </button>
                       )}
-                      <button 
+                      <button
                         onClick={() => deleteNotification(notification.id)}
                         title="Delete notification"
                         style={{
@@ -395,24 +488,37 @@ const WebNotifications = () => {
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontSize: 14,
-                          transition: 'all 0.2s'
+                          transition: 'all 0.2s',
                         }}
-                        onMouseOver={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; }}
-                        onMouseOut={e => { e.currentTarget.style.background = 'var(--color-bg-secondary)'; e.currentTarget.style.color = 'var(--color-text)'; }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = '#fee2e2';
+                          e.currentTarget.style.color = '#dc2626';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = 'var(--color-bg-secondary)';
+                          e.currentTarget.style.color = 'var(--color-text)';
+                        }}
                       >
                         🗑️
                       </button>
                     </div>
                   </div>
-                  {i !== filteredNotifications.length - 1 && <div style={{ borderBottom: '1px solid var(--color-bg-secondary)', margin: '0 32px' }} />}
+                  {i !== filteredNotifications.length - 1 && (
+                    <div
+                      style={{
+                        borderBottom: '1px solid var(--color-bg-secondary)',
+                        margin: '0 32px',
+                      }}
+                    />
+                  )}
                 </React.Fragment>
               ))}
             </>
           )}
         </div>
-      </div>
-    </div>
+      </PageContainer>
+    </>
   );
 };
 
-export default WebNotifications; 
+export default WebNotifications;
