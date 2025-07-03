@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import PageContainer from '../components/common/PageContainer';
+import Button from '../components/common/Button';
 import './Dashboard.css';
 
 const NotificationForm = ({ onSubmit, notificationType }) => {
@@ -129,22 +130,13 @@ const NotificationForm = ({ onSubmit, notificationType }) => {
           />
         </div>
       )}
-      <button
+      <Button
+        filled
         type="submit"
-        style={{
-          padding: '0.8rem 1.4rem',
-          borderRadius: 10,
-          background: '#111827',
-          color: '#fff',
-          border: 'none',
-          fontWeight: 600,
-          fontSize: 15,
-          cursor: 'pointer',
-          marginTop: 8,
-        }}
-              >
-          Send {notificationType === 'email' ? 'Email' : 'Push'} Notification
-        </button>
+        style={{ padding: '0.8rem 1.4rem', fontSize: 15, marginTop: 8 }}
+      >
+        Send {notificationType === 'email' ? 'Email' : 'Push'} Notification
+      </Button>
     </form>
   );
 };
@@ -339,36 +331,12 @@ const Notifications = () => {
           needs to upgrade their subscription to access this feature.
         </p>
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
-          <button
-            onClick={() => navigate(`/store/${currentStore?.id}/dashboard`)}
-            style={{
-              padding: '12px 24px',
-              borderRadius: 12,
-              border: '2px solid var(--color-border)',
-              background: 'var(--color-bg-secondary)',
-              color: 'var(--color-text)',
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 600,
-            }}
-          >
+          <Button onClick={() => navigate(`/store/${currentStore?.id}/dashboard`)}>
             Back to Dashboard
-          </button>
-          <button
-            onClick={() => navigate('/stores')}
-            style={{
-              padding: '12px 24px',
-              borderRadius: 12,
-              border: 'none',
-              background: '#111827',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 600,
-            }}
-          >
+          </Button>
+          <Button filled onClick={() => navigate('/stores')}>
             Manage Stores
-          </button>
+          </Button>
         </div>
       </PageContainer>
     );
