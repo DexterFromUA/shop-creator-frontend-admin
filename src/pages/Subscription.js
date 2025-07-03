@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { storeService } from '../utils/graphql';
 import PageContainer from '../components/common/PageContainer';
+import Button from '../components/common/Button';
 import './Dashboard.css';
 
 const Subscription = () => {
@@ -427,21 +428,9 @@ const Subscription = () => {
             title="Subscription Management"
             description="Manage your subscription plan and billing information."
             RightContent={
-              <button
-                onClick={storeButtonConfig.action}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: 8,
-                  border: '2px solid var(--color-border)',
-                  background: 'var(--color-bg)',
-                  color: 'var(--color-text)',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  fontWeight: 600,
-                }}
-              >
+              <Button onClick={storeButtonConfig.action}>
                 {storeButtonConfig.text}
-              </button>
+              </Button>
             }
           >
             <h3
@@ -610,29 +599,14 @@ const Subscription = () => {
                 ⚠️ Add a payment card first to upgrade to a paid plan
               </div>
             )}
-            <button
+            <Button
+              filled
               onClick={handlePlanChange}
               disabled={loading || (selectedPlan !== 'BASIC' && cards.length === 0)}
-              style={{
-                padding: '12px 32px',
-                borderRadius: 12,
-                border: 'none',
-                background:
-                  loading || (selectedPlan !== 'BASIC' && cards.length === 0)
-                    ? '#9ca3af'
-                    : '#111827',
-                color: '#fff',
-                cursor:
-                  loading || (selectedPlan !== 'BASIC' && cards.length === 0)
-                    ? 'not-allowed'
-                    : 'pointer',
-                fontSize: 16,
-                fontWeight: 600,
-                opacity: loading || (selectedPlan !== 'BASIC' && cards.length === 0) ? 0.6 : 1,
-              }}
+              style={{ padding: '12px 32px', fontSize: 16, fontWeight: 600 }}
             >
               {loading ? 'Updating...' : 'Update Subscription'}
-            </button>
+            </Button>
           </div>
         </PageContainer>
 
