@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { inviteService } from '../utils/graphql';
 import PageContainer from '../components/common/PageContainer';
+import Button from '../components/common/Button';
 import './Dashboard.css';
 
 const ConfirmDeleteModal = ({ open, onClose, onConfirm, userName }) => {
@@ -65,36 +66,8 @@ const ConfirmDeleteModal = ({ open, onClose, onConfirm, userName }) => {
               cannot be undone.
             </p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-              <button
-                onClick={onClose}
-                style={{
-                  padding: '12px 24px',
-                  borderRadius: 12,
-                  background: 'var(--color-bg-secondary)',
-                  color: 'var(--color-text)',
-                  border: '1px solid var(--color-border)',
-                  fontWeight: 600,
-                  fontSize: 15,
-                  cursor: 'pointer',
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={onConfirm}
-                style={{
-                  padding: '12px 24px',
-                  borderRadius: 12,
-                  background: '#ef4444',
-                  color: '#fff',
-                  border: 'none',
-                  fontWeight: 600,
-                  fontSize: 15,
-                  cursor: 'pointer',
-                }}
-              >
-                Remove
-              </button>
+              <Button onClick={onClose}>Cancel</Button>
+              <Button filled color="#ef4444" onClick={onConfirm}>Remove</Button>
             </div>
           </motion.div>
         </motion.div>
@@ -242,41 +215,10 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
                   </select>
                 </div>
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    disabled={loading}
-                    style={{
-                      padding: '0.8rem 1.4rem',
-                      borderRadius: 10,
-                      background: 'var(--color-bg-secondary)',
-                      color: 'var(--color-text)',
-                      border: 'none',
-                      fontWeight: 600,
-                      fontSize: 15,
-                      cursor: loading ? 'not-allowed' : 'pointer',
-                      opacity: loading ? 0.5 : 1,
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    style={{
-                      padding: '0.8rem 1.4rem',
-                      borderRadius: 10,
-                      background: '#111827',
-                      color: '#fff',
-                      border: 'none',
-                      fontWeight: 600,
-                      fontSize: 15,
-                      cursor: loading ? 'not-allowed' : 'pointer',
-                      opacity: loading ? 0.5 : 1,
-                    }}
-                  >
+                  <Button type="button" onClick={handleClose} disabled={loading}>Cancel</Button>
+                  <Button filled type="submit" disabled={loading}>
                     {loading ? 'Creating...' : 'Create Invite'}
-                  </button>
+                  </Button>
                 </div>
               </form>
             ) : (
@@ -302,40 +244,11 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
                         fontSize: 15,
                       }}
                     />
-                    <button
-                      onClick={copyToClipboard}
-                      style={{
-                        padding: '0.8rem 1.2rem',
-                        borderRadius: 10,
-                        background: '#111827',
-                        color: '#fff',
-                        border: 'none',
-                        fontWeight: 600,
-                        fontSize: 15,
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      Copy Link
-                    </button>
+                    <Button filled onClick={copyToClipboard}>Copy Link</Button>
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-                  <button
-                    onClick={handleClose}
-                    style={{
-                      padding: '0.8rem 1.4rem',
-                      borderRadius: 10,
-                      background: '#111827',
-                      color: '#fff',
-                      border: 'none',
-                      fontWeight: 600,
-                      fontSize: 15,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Close
-                  </button>
+                  <Button filled onClick={handleClose}>Close</Button>
                 </div>
               </div>
             )}
@@ -510,36 +423,12 @@ const Team = () => {
           The store owner needs to upgrade their subscription to access this feature.
         </p>
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
-          <button
-            onClick={() => navigate(`/store/${currentStore?.id}/dashboard`)}
-            style={{
-              padding: '12px 24px',
-              borderRadius: 12,
-              border: '2px solid var(--color-border)',
-              background: 'var(--color-bg-secondary)',
-              color: 'var(--color-text)',
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 600,
-            }}
-          >
+          <Button onClick={() => navigate(`/store/${currentStore?.id}/dashboard`)}>
             Back to Dashboard
-          </button>
-          <button
-            onClick={() => navigate('/stores')}
-            style={{
-              padding: '12px 24px',
-              borderRadius: 12,
-              border: 'none',
-              background: '#111827',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 600,
-            }}
-          >
+          </Button>
+          <Button filled onClick={() => navigate('/stores')}>
             Manage Stores
-          </button>
+          </Button>
         </div>
       </PageContainer>
     );
@@ -556,21 +445,9 @@ const Team = () => {
         minHeight='auto'
         description="Manage your team—admins, managers & couriers"
         RightContent={
-          <button
-            onClick={() => setModal({ open: true })}
-            style={{
-              background: '#111827',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 10,
-              padding: '0.7rem 1.2rem',
-              fontWeight: 600,
-              fontSize: 15,
-              cursor: 'pointer',
-            }}
-          >
+          <Button filled onClick={() => setModal({ open: true })}>
             + Invite Team Member
-          </button>
+          </Button>
         }
       >
         <div
@@ -768,23 +645,11 @@ const Team = () => {
                             >
                               {role}
                             </span>
-                            <button
-                              onClick={() =>
+                            <Button color="#ef4444" onClick={() =>
                                 handleRemoveTeamMember(user.id, user.name || user.email)
-                              }
-                              style={{
-                                background: 'transparent',
-                                border: '1px solid #ef4444',
-                                borderRadius: 8,
-                                padding: '6px 10px',
-                                fontSize: 13,
-                                cursor: 'pointer',
-                                color: '#ef4444',
-                                fontWeight: 600,
-                              }}
-                            >
+                              } style={{ padding:'6px 10px', fontSize:13 }}>
                               Remove
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       );
@@ -908,36 +773,12 @@ const Team = () => {
                           </span>
                           {!isUsed && !isRevoked && !isExpired && (
                             <>
-                              <button
-                                onClick={() => handleCopyInviteLink(invite.token)}
-                                style={{
-                                  background: 'transparent',
-                                  border: '1px solid #10b981',
-                                  borderRadius: 8,
-                                  padding: '6px 10px',
-                                  fontSize: 13,
-                                  cursor: 'pointer',
-                                  color: '#10b981',
-                                  fontWeight: 600,
-                                }}
-                              >
+                              <Button color="#10b981" onClick={() => handleCopyInviteLink(invite.token)} style={{ padding:'6px 10px', fontSize:13 }}>
                                 Copy
-                              </button>
-                              <button
-                                onClick={() => handleRevokeInvite(invite.id)}
-                                style={{
-                                  background: 'transparent',
-                                  border: '1px solid #ef4444',
-                                  borderRadius: 8,
-                                  padding: '6px 10px',
-                                  fontSize: 13,
-                                  cursor: 'pointer',
-                                  color: '#ef4444',
-                                  fontWeight: 600,
-                                }}
-                              >
+                              </Button>
+                              <Button color="#ef4444" onClick={() => handleRevokeInvite(invite.id)} style={{ padding:'6px 10px', fontSize:13 }}>
                                 Revoke
-                              </button>
+                              </Button>
                             </>
                           )}
                         </div>
