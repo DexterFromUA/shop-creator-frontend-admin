@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { productService } from '../utils/graphql';
 import PageContainer from '../components/common/PageContainer';
+import Button from '../components/common/Button';
 import './Dashboard.css';
 
 const AddProduct = () => {
@@ -773,45 +774,13 @@ const AddProduct = () => {
               paddingTop: 24,
               borderTop: '1px solid var(--color-border)'
             }}>
-              <button
-                type="button"
-                onClick={handleCancel}
-                disabled={loading}
-                style={{
-                  padding: '12px 24px',
-                  borderRadius: 12,
-                  border: '2px solid var(--color-border)',
-                  background: 'var(--color-bg-secondary)',
-                  color: 'var(--color-text)',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  transition: 'all 0.2s',
-                  opacity: loading ? 0.6 : 1
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  padding: '12px 24px',
-                  borderRadius: 12,
-                  border: 'none',
-                  background: loading ? '#6b7280' : '#111827',
-                  color: '#fff',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  transition: 'all 0.2s'
-                }}
-              >
+              <Button type="button" onClick={handleCancel} disabled={loading} style={{ padding:'12px 24px', fontSize:14, fontWeight:600, opacity:loading?0.6:1 }}>Cancel</Button>
+              <Button filled type="submit" disabled={loading} style={{ padding:'12px 24px', fontSize:14, fontWeight:600 }}>
                 {loading 
                   ? (isEditMode ? 'Updating Product...' : 'Creating Product...') 
                   : (isEditMode ? 'Update Product' : 'Create Product')
                 }
-              </button>
+              </Button>
             </div>
           </form>
     </PageContainer>

@@ -678,46 +678,10 @@ const ProductView = () => {
               </div>
 
               <div style={{ display: 'flex', gap: 12 }}>
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  disabled={deleting}
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    borderRadius: 8,
-                    border: '2px solid var(--color-border)',
-                    background: 'var(--color-bg-secondary)',
-                    color: 'var(--color-text)',
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: deleting ? 'not-allowed' : 'pointer',
-                    opacity: deleting ? 0.5 : 1,
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDeleteProduct}
-                  disabled={deleting}
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    borderRadius: 8,
-                    border: 'none',
-                    background: '#ef4444',
-                    color: '#fff',
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: deleting ? 'not-allowed' : 'pointer',
-                    opacity: deleting ? 0.5 : 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6,
-                  }}
-                >
+                <Button style={{ flex:1 }} onClick={() => setShowDeleteModal(false)} disabled={deleting}>Cancel</Button>
+                <Button filled color="#ef4444" style={{ flex:1 }} onClick={handleDeleteProduct} disabled={deleting}>
                   {deleting ? 'Deleting...' : 'Delete'}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -821,46 +785,10 @@ const ProductView = () => {
               </div>
 
               <div style={{ display: 'flex', gap: 12 }}>
-                <button
-                  onClick={() => setShowUpdateStockModal(false)}
-                  disabled={stockUpdating}
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    borderRadius: 8,
-                    border: '2px solid var(--color-border)',
-                    background: 'var(--color-bg-secondary)',
-                    color: 'var(--color-text)',
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: stockUpdating ? 'not-allowed' : 'pointer',
-                    opacity: stockUpdating ? 0.5 : 1,
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleUpdateStock}
-                  disabled={stockUpdating}
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    borderRadius: 8,
-                    border: 'none',
-                    background: '#059669',
-                    color: '#fff',
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: stockUpdating ? 'not-allowed' : 'pointer',
-                    opacity: stockUpdating ? 0.5 : 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6,
-                  }}
-                >
+                <Button style={{ flex:1 }} onClick={() => setShowUpdateStockModal(false)} disabled={stockUpdating}>Cancel</Button>
+                <Button filled color="#059669" style={{ flex:1 }} onClick={handleUpdateStock} disabled={stockUpdating}>
                   {stockUpdating ? 'Updating...' : 'Update Stock'}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
