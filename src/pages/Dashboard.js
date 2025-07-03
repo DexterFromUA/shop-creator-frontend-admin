@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
+import Button from '../components/common/Button';
 import './Dashboard.css';
 
 const chartData = [32000, 37000, 29000, 41000, 42890, 39000];
@@ -161,31 +162,9 @@ const Dashboard = () => {
                 Turn your store into a mobile app with custom branding and features
               </p>
             </div>
-            <button
-              onClick={handleCreateApp}
-              style={{
-                padding: '14px 28px',
-                borderRadius: 16,
-                border: 'none',
-                background: '#111827',
-                color: '#fff',
-                cursor: 'pointer',
-                fontSize: 16,
-                fontWeight: 600,
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = '#374151';
-                e.target.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = '#111827';
-                e.target.style.transform = 'translateY(0)';
-              }}
-            >
+            <Button onClick={handleCreateApp} filled>
               Create App
-            </button>
+            </Button>
           </div>
         )}
 
