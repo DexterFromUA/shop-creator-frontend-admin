@@ -4,6 +4,7 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { storeService } from '../utils/graphql';
 import PageContainer from '../components/common/PageContainer';
+import Button from '../components/common/Button';
 import './Dashboard.css';
 
 const CreateStore = () => {
@@ -436,42 +437,20 @@ const CreateStore = () => {
               borderTop: '1px solid var(--color-border)',
             }}
           >
-            <button
+            <Button
+              filled={false}
               type="button"
               onClick={handleCancel}
               disabled={loading}
-              style={{
-                padding: '12px 24px',
-                borderRadius: 12,
-                border: '2px solid var(--color-border)',
-                background: 'var(--color-bg-secondary)',
-                color: 'var(--color-text)',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: 14,
-                fontWeight: 600,
-                transition: 'all 0.2s',
-                opacity: loading ? 0.6 : 1,
-              }}
+              style={{ padding: '12px 24px', fontSize: 14, fontWeight: 600, opacity: loading ? 0.6 : 1 }}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              filled
               type="submit"
               disabled={loading}
-              style={{
-                padding: '12px 24px',
-                borderRadius: 12,
-                border: 'none',
-                background: loading ? '#6b7280' : '#111827',
-                color: '#fff',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: 14,
-                fontWeight: 600,
-                transition: 'all 0.2s',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
+              style={{ padding: '12px 24px', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}
             >
               {loading && (
                 <div
@@ -486,7 +465,7 @@ const CreateStore = () => {
                 />
               )}
               {loading ? 'Creating Store...' : 'Create Store'}
-            </button>
+            </Button>
           </div>
         </form>
     </PageContainer>

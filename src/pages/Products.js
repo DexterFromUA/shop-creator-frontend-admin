@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { productService } from '../utils/graphql';
 import PageContainer from '../components/common/PageContainer';
+import Button from '../components/common/Button';
 import './Dashboard.css';
 
 // Keep this export for ProductView.js compatibility 
@@ -120,22 +121,9 @@ const Products = () => {
         withPadding
         withBottomSpace
         RightContent={
-          <button
-            onClick={() => navigate(`/store/${storeId}/products/add`)}
-            style={{
-              background: '#111827',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 10,
-              padding: '0.7rem 1.2rem',
-              fontWeight: 600,
-              fontSize: 15,
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)',
-            }}
-          >
+          <Button onClick={() => navigate(`/store/${storeId}/products/add`)} filled>
             + Add Product
-          </button>
+          </Button>
         }
       >
         <div
@@ -249,12 +237,9 @@ const Products = () => {
               <div style={{ fontSize: 24, marginBottom: 8 }}>📦</div>
               <div style={{ color: 'var(--color-text)', fontSize: 18, fontWeight: 600, marginBottom: 8 }}>No products yet</div>
               <div style={{ color: 'var(--color-text-secondary)', fontSize: 14, marginBottom: 24 }}>Create your first product to get started</div>
-              <button 
-                onClick={() => navigate(`/store/${storeId}/products/add`)} 
-                style={{ background: '#111827', color: '#fff', border: 'none', borderRadius: 10, padding: '0.7rem 1.2rem', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}
-              >
+              <Button filled onClick={() => navigate(`/store/${storeId}/products/add`)}>
                 + Add Product
-              </button>
+              </Button>
             </div>
           ) : (
           <AnimatePresence mode="wait">
