@@ -28,6 +28,7 @@ const Button = ({
     borderRadius: 10,
     cursor: disabled ? 'not-allowed' : 'pointer',
     opacity: disabled ? 0.6 : 1,
+    height: 40,
     border: 'none',
     userSelect: 'none',
     textDecoration: 'none',
@@ -44,7 +45,7 @@ const Button = ({
     secondary: {
       background: '#fff',
       color: color,
-      border: '2px solid #111827',
+      border: `2px solid ${color}`,
       padding: '0.7rem 1.2rem',
     },
   };

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageContainer from '../components/common/PageContainer';
+import Button from '../components/common/Button';
 import './Dashboard.css';
 
 const orders = [
@@ -34,33 +35,9 @@ const OrderPreview = () => {
     <PageContainer
       title={`Order #${order.id}`}
       leftComponent={
-        <button
+        <Button
           onClick={() => navigate(-1)}
-          style={{
-            padding: '0.8rem 1.2rem',
-            borderRadius: 10,
-            background: 'transparent',
-            color: 'var(--color-text)',
-            border: '2px solid var(--color-border)',
-            fontWeight: 600,
-            cursor: 'pointer',
-            fontSize: 14,
-            height: 40,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.background = 'var(--color-text)';
-            e.target.style.color = 'var(--color-bg)';
-            e.target.style.borderColor = 'var(--color-text)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = 'transparent';
-            e.target.style.color = 'var(--color-text)';
-            e.target.style.borderColor = 'var(--color-border)';
-          }}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0.8rem 1.2rem' }}
         >
           <svg
             width="16"
@@ -78,7 +55,7 @@ const OrderPreview = () => {
             />
           </svg>
           Back
-        </button>
+        </Button>
       }
       isStretch
       minHeight="auto"

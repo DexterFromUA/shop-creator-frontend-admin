@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productService } from '../utils/graphql';
 import PageContainer from '../components/common/PageContainer';
+import Button from '../components/common/Button';
 import './Dashboard.css';
 
 const ProductView = () => {
@@ -171,33 +172,9 @@ const ProductView = () => {
         <>
           <PageContainer
             leftComponent={
-              <button
+              <Button
                 onClick={() => navigate(-1)}
-                style={{
-                  padding: '0.8rem 1.2rem',
-                  borderRadius: 10,
-                  background: 'transparent',
-                  color: 'var(--color-text)',
-                  border: '2px solid var(--color-border)',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  height: 40,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = 'var(--color-text)';
-                  e.target.style.color = 'var(--color-bg)';
-                  e.target.style.borderColor = 'var(--color-text)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'transparent';
-                  e.target.style.color = 'var(--color-text)';
-                  e.target.style.borderColor = 'var(--color-border)';
-                }}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0.8rem 1.2rem' }}
               >
                 <svg
                   width="16"
@@ -215,58 +192,21 @@ const ProductView = () => {
                   />
                 </svg>
                 Back
-              </button>
+              </Button>
             }
             title={product.name}
             RightContent={
               <div style={{ display: 'flex', gap: 12 }}>
-                <button
+                <Button
+                  color="#059669"
                   onClick={openUpdateStockModal}
-                  style={{
-                    padding: '0.8rem 1.2rem',
-                    borderRadius: 10,
-                    background: 'transparent',
-                    color: '#059669',
-                    border: '2px solid #059669',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    fontSize: 14,
-                    height: 40,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = '#059669';
-                    e.target.style.color = '#fff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = 'transparent';
-                    e.target.style.color = '#059669';
-                  }}
                 >
                   Update Stock
-                </button>
-                <button
+                </Button>
+
+                <Button
                   onClick={() => navigate(`/store/${product.store.id}/products/${product.id}/edit`)}
-                  className="icon-button"
-                  style={{
-                    padding: '0.5rem',
-                    borderRadius: 10,
-                    background: 'transparent',
-                    color: 'var(--color-text)',
-                    border: '2px solid #111827',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    fontSize: 14,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 40,
-                    height: 40,
-                    transition: 'all 0.2s',
-                  }}
+                  style={{ width: 40, padding: '0.5rem' }}
                 >
                   <svg
                     width="28"
@@ -290,26 +230,13 @@ const ProductView = () => {
                       strokeLinejoin="round"
                     />
                   </svg>
-                </button>
-                <button
+                </Button>
+
+                <Button
+                  filled
+                  color="#ef4444"
                   onClick={() => setShowDeleteModal(true)}
-                  className="delete-button"
-                  style={{
-                    padding: '0.5rem',
-                    borderRadius: 10,
-                    background: 'transparent',
-                    color: '#ef4444',
-                    border: '2px solid #ef4444',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    fontSize: 14,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 40,
-                    height: 40,
-                    transition: 'all 0.2s',
-                  }}
+                  style={{ width: 40, padding: '0.5rem' }}
                 >
                   <svg
                     width="28"
@@ -318,36 +245,12 @@ const ProductView = () => {
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <path
-                      d="M3 6H5H21"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M10 11V17"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M14 11V17"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
+                    <path d="M3 6H5H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M10 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M14 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                </button>
+                </Button>
               </div>
             }
             withPadding
