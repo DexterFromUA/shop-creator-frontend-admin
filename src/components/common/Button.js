@@ -56,9 +56,9 @@ const Button = ({
   const [active, setActive] = React.useState(false);
 
   let extraStyle = {};
-  if (filled) {
-    extraStyle.transform = active ? 'scale(0.96)' : hovered ? 'scale(1.04)' : 'scale(1)';
-  } else {
+  extraStyle.transform = active ? 'scale(0.96)' : hovered ? 'scale(1.04)' : 'scale(1)';
+
+  if (!filled) {
     extraStyle.background = hovered ? color : '#fff';
     extraStyle.color = hovered ? '#fff' : color;
   }

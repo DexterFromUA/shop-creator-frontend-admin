@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { storeService } from '../utils/graphql';
 import PageContainer from '../components/common/PageContainer';
+import Button from '../components/common/Button';
 import './Dashboard.css';
 
 const StoreSelection = () => {
@@ -181,36 +182,12 @@ const StoreSelection = () => {
         : 'Get started by creating your first store.'}
       RightContent={
         <div style={{ display: 'flex', gap: 12 }}>
-          <button
-            onClick={() => navigate('/subscription')}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 8,
-              border: '2px solid var(--color-border)',
-              background: 'var(--color-bg)',
-              color: 'var(--color-text)',
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 600,
-            }}
-          >
+          <Button onClick={() => navigate('/subscription')}>
             Subscription
-          </button>
-          <button
-            onClick={logout}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 8,
-              border: 'none',
-              background: '#111827',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 600,
-            }}
-          >
+          </Button>
+          <Button filled onClick={logout}>
             Logout
-          </button>
+          </Button>
         </div>
       }
       isStretch={false}
