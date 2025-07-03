@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PageContainer from '../components/common/PageContainer';
+import Button from '../components/common/Button';
 import './Dashboard.css'; // reuse existing dashboard styles
 
 // Example existing payout account (null means none added yet)
@@ -87,33 +88,8 @@ const AddBankModal = ({ open, onClose, onSave, existing }) => {
             />
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                padding: '0.8rem 1.4rem',
-                borderRadius: 10,
-                background: 'var(--color-bg-secondary)',
-                border: 'none',
-                color: 'var(--color-text)',
-                fontWeight: 600,
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              style={{
-                padding: '0.8rem 1.4rem',
-                borderRadius: 10,
-                background: '#111827',
-                color: '#fff',
-                border: 'none',
-                fontWeight: 600,
-              }}
-            >
-              {existing ? 'Update' : 'Save'}
-            </button>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button filled type="submit">{existing ? 'Update' : 'Save'}</Button>
           </div>
         </form>
       </div>
@@ -240,21 +216,9 @@ const Payouts = () => {
             <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: 'var(--color-text)' }}>
               Payout Bank Account
             </h2>
-            <button
-              onClick={() => setBankModalOpen(true)}
-              style={{
-                padding: '0.6rem 1.2rem',
-                borderRadius: 10,
-                background: '#111827',
-                color: '#fff',
-                border: 'none',
-                fontWeight: 600,
-                fontSize: 15,
-                cursor: 'pointer',
-              }}
-            >
+            <Button filled onClick={() => setBankModalOpen(true)}>
               {bankAccount ? 'Change' : '+ Add'} Account
-            </button>
+            </Button>
           </div>
           {bankAccount ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
