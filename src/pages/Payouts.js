@@ -1,31 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
+import { useStore } from '../context/StoreContext';
+import { useToast } from '../context/ToastContext';
+import { payoutService } from '../utils/graphql';
 import './Dashboard.css'; // reuse existing dashboard styles
 
-// Example existing payout account (null means none added yet)
-const initialBankAccount = {
-  bankAccountNumber: '29000000000000000000000000123',
-  bankAccountHolder: 'John\'s Store LLC',
-  bankName: 'PrivatBank',
-  bankIban: 'UA213223130000026007233566001',
-  bankSwiftCode: 'PBANUA2X',
-};
-
-const AddBankModal = ({ open, onClose, onSave, existing }) => {
-  const [form, setForm] = useState(existing || {
-    bankAccountNumber: '',
-    bankAccountHolder: '',
-    bankName: '',
-    bankIban: '',
-    bankSwiftCode: '',
+const AddBankModal = ({ open, onClose, onSave, existing, saving }) => {
+  const [form, setForm] = useState(() => {
+    if (existing) {
+      // Only extract the bank account fields we need for the input
+      return {
+        bankAccountNumber: existing.bankAccountNumber || '',
+        bankAccountHolder: existing.bankAccountHolder || '',
+        bankName: existing.bankName || '',
+        bankIban: existing.bankIban || '',
+        bankSwiftCode: existing.bankSwiftCode || '',
+      };
+    }
+    return {
+      bankAccountNumber: '',
+      bankAccountHolder: '',
+      bankName: '',
+      bankIban: '',
+      bankSwiftCode: '',
+    };
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.bankAccountNumber.trim() || !form.bankAccountHolder.trim() || !form.bankName.trim()) return;
     onSave(form);
-    onClose();
   };
 
   if (!open) return null;
@@ -164,8 +169,10 @@ const AddBankModal = ({ open, onClose, onSave, existing }) => {
             />
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
-            <Button onClick={onClose}>Cancel</Button>
-            <Button filled type="submit">{existing ? 'Update' : 'Save'}</Button>
+            <Button onClick={onClose} disabled={saving}>Cancel</Button>
+            <Button filled type="submit" disabled={saving}>
+              {saving ? 'Saving...' : (existing ? 'Update' : 'Save')}
+            </Button>
           </div>
         </form>
       </div>
@@ -174,8 +181,13 @@ const AddBankModal = ({ open, onClose, onSave, existing }) => {
 };
 
 const Payouts = () => {
-  const [bankAccount, setBankAccount] = useState(initialBankAccount);
+  const { storeId } = useStore();
+  const { addToast } = useToast();
+  const [bankAccount, setBankAccount] = useState(null);
   const [bankModalOpen, setBankModalOpen] = useState(false);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const statusStyles = {
     PENDING: { bg: 'rgba(250, 204, 21, 0.15)', color: '#f59e0b' },
@@ -195,104 +207,44 @@ const Payouts = () => {
     ADJUSTMENT: { bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' },
   };
 
-  const [transactions] = useState([
-    {
-      id: 'txn_1',
-      type: 'SALE',
-      status: 'COMPLETED',
-      amount: 129.99,
-      currency: 'UAH',
-      description: 'Order #ORD-101 - Nike Air Max',
-      referenceOrderId: 'ORD-101',
-      processingFee: 3.90,
-      netAmount: 126.09,
-      paymentMethod: 'stripe',
-      createdAt: '2024-03-21T10:12:00Z',
-      processedAt: '2024-03-21T10:15:00Z',
-    },
-    {
-      id: 'txn_2',
-      type: 'PAYOUT',
-      status: 'COMPLETED',
-      amount: -500.00,
-      currency: 'UAH',
-      description: 'Weekly payout to bank account',
-      processingFee: 15.00,
-      netAmount: -515.00,
-      paymentMethod: 'bank_transfer',
-      createdAt: '2024-03-21T18:00:00Z',
-      processedAt: '2024-03-22T09:30:00Z',
-    },
-    {
-      id: 'txn_3',
-      type: 'REFUND',
-      status: 'COMPLETED',
-      amount: -49.99,
-      currency: 'UAH',
-      description: 'Refund for Order #ORD-98',
-      referenceOrderId: 'ORD-98',
-      processingFee: 1.50,
-      netAmount: -51.49,
-      paymentMethod: 'stripe',
-      createdAt: '2024-03-22T14:08:00Z',
-      processedAt: '2024-03-22T14:10:00Z',
-    },
-    {
-      id: 'txn_4',
-      type: 'SALE',
-      status: 'COMPLETED',
-      amount: 89.99,
-      currency: 'UAH',
-      description: 'Order #ORD-102 - Adidas Sneakers',
-      referenceOrderId: 'ORD-102',
-      processingFee: 2.70,
-      netAmount: 87.29,
-      paymentMethod: 'stripe',
-      createdAt: '2024-03-23T09:42:00Z',
-      processedAt: '2024-03-23T09:45:00Z',
-    },
-    {
-      id: 'txn_5',
-      type: 'FEE',
-      status: 'COMPLETED',
-      amount: -25.00,
-      currency: 'UAH',
-      description: 'Monthly platform fee',
-      processingFee: 0,
-      netAmount: -25.00,
-      paymentMethod: 'platform',
-      createdAt: '2024-03-24T00:00:00Z',
-      processedAt: '2024-03-24T00:01:00Z',
-    },
-    {
-      id: 'txn_6',
-      type: 'SALE',
-      status: 'PROCESSING',
-      amount: 159.99,
-      currency: 'UAH',
-      description: 'Order #ORD-103 - Premium Package',
-      referenceOrderId: 'ORD-103',
-      processingFee: 4.80,
-      netAmount: 155.19,
-      paymentMethod: 'stripe',
-      createdAt: '2024-03-24T16:27:00Z',
-      processedAt: null,
-    },
-    {
-      id: 'txn_7',
-      type: 'CHARGEBACK',
-      status: 'DISPUTED',
-      amount: -79.99,
-      currency: 'UAH',
-      description: 'Chargeback for Order #ORD-95',
-      referenceOrderId: 'ORD-95',
-      processingFee: 15.00,
-      netAmount: -94.99,
-      paymentMethod: 'stripe',
-      createdAt: '2024-03-25T11:20:00Z',
-      processedAt: null,
-    },
-  ]);
+  // Load data from API
+  useEffect(() => {
+    const loadData = async () => {
+      if (!storeId) return;
+      
+      setLoading(true);
+      try {
+        // Load bank account and transactions in parallel
+        const [bankAccountData, transactionsData] = await Promise.all([
+          payoutService.getStoreBankAccount(storeId),
+          payoutService.getStoreTransactions(storeId)
+        ]);
+        
+        setBankAccount(bankAccountData);
+        setTransactions(transactionsData);
+      } catch (error) {
+        addToast(error.message, 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [storeId, addToast]);
+
+  const handleSaveBankAccount = async (accountData) => {
+    setSaving(true);
+    try {
+      const updatedStore = await payoutService.updateBankAccount(storeId, accountData);
+      setBankAccount(updatedStore);
+      addToast('Bank account updated successfully', 'success');
+      setBankModalOpen(false);
+    } catch (error) {
+      addToast(error.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const formatAmount = (amount, currency = 'UAH') => {
     const symbol = currency === 'UAH' ? '₴' : '$';
@@ -309,6 +261,21 @@ const Payouts = () => {
       minute: '2-digit',
     });
   };
+
+  if (loading) {
+    return (
+      <PageContainer
+        title="Payouts & Transactions"
+        description="Loading..."
+        withPadding
+        withBottomSpace
+        isStretch
+        minHeight="auto"
+      >
+        <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>
+      </PageContainer>
+    );
+  }
 
   return (
     <>
@@ -329,15 +296,20 @@ const Payouts = () => {
               {bankAccount ? 'Change' : '+ Add'} Account
             </Button>
           </div>
-          {bankAccount ? (
+          {bankAccount && (bankAccount.bankAccountNumber || bankAccount.bankAccountHolder || bankAccount.bankName) ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <span style={{ fontWeight: 600, fontSize: 16 }}>{bankAccount.bankAccountHolder}</span>
+                <span style={{ fontWeight: 600, fontSize: 16 }}>
+                  {bankAccount.bankAccountHolder || 'No account holder'}
+                </span>
                 <span style={{ fontWeight: 500, fontSize: 15, color: 'var(--color-text-secondary)' }}>
-                  {bankAccount.bankName}
+                  {bankAccount.bankName || 'No bank name'}
                 </span>
                 <span style={{ fontSize: 14, color: 'var(--color-text-secondary)', fontFamily: 'monospace' }}>
-                  ••••••••••••••••••••••••{bankAccount.bankAccountNumber.slice(-4)}
+                  {bankAccount.bankAccountNumber ? 
+                    `••••••••••••••••••••••••${bankAccount.bankAccountNumber.slice(-4)}` : 
+                    'No account number'
+                  }
                 </span>
                 {bankAccount.bankIban && (
                   <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
@@ -450,11 +422,9 @@ const Payouts = () => {
         <AddBankModal
           open={bankModalOpen}
           existing={bankAccount}
+          saving={saving}
           onClose={() => setBankModalOpen(false)}
-          onSave={(acc) => {
-            setBankAccount(acc);
-            setBankModalOpen(false);
-          }}
+          onSave={handleSaveBankAccount}
         />
       )}
     </>

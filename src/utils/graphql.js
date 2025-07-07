@@ -458,6 +458,80 @@ export const REMOVE_PAYMENT_CARD_MUTATION = `
   }
 `;
 
+// Payout Queries
+export const GET_STORE_BANK_ACCOUNT_QUERY = `
+  query GetStoreBankAccount($storeId: String!) {
+    getStoreBankAccount(storeId: $storeId) {
+      id
+      name
+      bankAccountNumber
+      bankAccountHolder
+      bankName
+      bankIban
+      bankSwiftCode
+    }
+  }
+`;
+
+export const GET_STORE_TRANSACTIONS_QUERY = `
+  query GetStoreTransactions($storeId: String!) {
+    getStoreTransactions(storeId: $storeId) {
+      id
+      amount
+      type
+      status
+      description
+      externalId
+      paymentMethod
+      currency
+      processingFee
+      netAmount
+      referenceOrderId
+      metadata
+      createdAt
+      updatedAt
+      processedAt
+    }
+  }
+`;
+
+// Payout Mutations
+export const UPDATE_BANK_ACCOUNT_MUTATION = `
+  mutation UpdateBankAccount($storeId: String!, $input: UpdateBankAccountInput!) {
+    updateBankAccount(storeId: $storeId, input: $input) {
+      id
+      name
+      bankAccountNumber
+      bankAccountHolder
+      bankName
+      bankIban
+      bankSwiftCode
+    }
+  }
+`;
+
+export const CREATE_TRANSACTION_MUTATION = `
+  mutation CreateTransaction($input: CreateTransactionInput!) {
+    createTransaction(input: $input) {
+      id
+      amount
+      type
+      status
+      description
+      externalId
+      paymentMethod
+      currency
+      processingFee
+      netAmount
+      referenceOrderId
+      metadata
+      createdAt
+      updatedAt
+      processedAt
+    }
+  }
+`;
+
 // Auth service functions
 export const authService = {
   async login(email, password) {
@@ -922,6 +996,50 @@ export const inviteService = {
       return data.removeTeamMember;
     } catch (error) {
       throw new Error(error.message || 'Failed to remove team member');
+    }
+  },
+};
+
+// Payout service functions
+export const payoutService = {
+  async getStoreBankAccount(storeId) {
+    try {
+      const data = await graphqlClient.request(GET_STORE_BANK_ACCOUNT_QUERY, { storeId });
+      return data.getStoreBankAccount;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get bank account');
+    }
+  },
+
+  async getStoreTransactions(storeId) {
+    try {
+      const data = await graphqlClient.request(GET_STORE_TRANSACTIONS_QUERY, { storeId });
+      return data.getStoreTransactions || [];
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get transactions');
+    }
+  },
+
+  async updateBankAccount(storeId, bankAccountData) {
+    try {
+      const data = await graphqlClient.request(UPDATE_BANK_ACCOUNT_MUTATION, { 
+        storeId, 
+        input: bankAccountData 
+      });
+      return data.updateBankAccount;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update bank account');
+    }
+  },
+
+  async createTransaction(transactionData) {
+    try {
+      const data = await graphqlClient.request(CREATE_TRANSACTION_MUTATION, { 
+        input: transactionData 
+      });
+      return data.createTransaction;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to create transaction');
     }
   },
 }; 
