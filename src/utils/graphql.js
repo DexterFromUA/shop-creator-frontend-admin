@@ -621,6 +621,15 @@ export const storeService = {
       throw new Error(error.message || 'Failed to get store');
     }
   },
+
+  async updateStore(id, storeData) {
+    try {
+      const data = await graphqlClient.request(UPDATE_STORE_MUTATION, { id, input: storeData });
+      return data.updateStore;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update store');
+    }
+  },
 };
 
 // Product queries and mutations
@@ -1042,4 +1051,20 @@ export const payoutService = {
       throw new Error(error.message || 'Failed to create transaction');
     }
   },
-}; 
+};
+
+export const UPDATE_STORE_MUTATION = `
+  mutation UpdateStore($id: ID!, $input: UpdateStoreInput!) {
+    updateStore(id: $id, input: $input) {
+      id
+      name
+      description
+      contactEmail
+      contactPhone
+      contactAddress
+      contactCity
+      createdAt
+      updatedAt
+    }
+  }
+`; 

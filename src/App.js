@@ -9,6 +9,7 @@ import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 import Auth from './pages/auth/Auth';
 import SimpleLayout from './components/Layout/SimpleLayout';
+const EditStore = lazy(() => import('./pages/EditStore'))
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Products = lazy(() => import('./pages/Products'));
 const AddProduct = lazy(() => import('./pages/AddProduct'));
@@ -18,7 +19,7 @@ const AppSettings = lazy(() => import('./pages/AppSettings'));
 // const VerifyCode = lazy(() => import('./pages/auth/VerifyCode'));
 const Notifications = lazy(() => import('./pages/Notifications'));
 const WebNotifications = lazy(() => import('./pages/WebNotifications'));
-const Settings = lazy(() => import('./pages/Settings'));
+// const Settings = lazy(() => import('./pages/Settings'));
 const Team = lazy(() => import('./pages/Team'));
 const Users = lazy(() => import('./pages/Users'));
 const Payouts = lazy(() => import('./pages/Payouts'));
@@ -121,7 +122,7 @@ function App() {
                   <Route path="notifications" element={<Notifications />} />
                   <Route path="web-notifications" element={<WebNotifications />} />
                   <Route path="payouts" element={<Payouts />} />
-                  <Route path="settings" element={<Settings />} />
+                  <Route path="settings" element={<EditStore />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>
 
