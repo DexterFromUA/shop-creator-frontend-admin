@@ -9,7 +9,7 @@ const Layout = () => {
 
   const scrollablePages = [
     'app-settings',
-    // 'dashboard',
+    'dashboard',
     'notifications',
     'payouts',
     'create-app',

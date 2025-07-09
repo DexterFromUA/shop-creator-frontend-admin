@@ -5,10 +5,6 @@ import { useToast } from './ToastContext';
 
 const StoreContext = createContext(null);
 
-const fetchStoreById = async (storeId) => {
-  return await storeService.getStore(storeId);
-};
-
 export const StoreProvider = ({ children }) => {
   const { storeId } = useParams();
   const navigate = useNavigate();
@@ -24,7 +20,7 @@ export const StoreProvider = ({ children }) => {
     setError(null);
     
     try {
-      const store = await fetchStoreById(storeId);
+      const store = await storeService.getStore(storeId)
       
       if (!store.isActive) {
         addToast('This store is currently inactive and unavailable', 'error');
@@ -36,6 +32,7 @@ export const StoreProvider = ({ children }) => {
     } catch (err) {
       setError(err.message);
       setCurrentStore(null);
+      navigate('/stores');
     } finally {
       setLoading(false);
     }
@@ -58,7 +55,7 @@ export const StoreProvider = ({ children }) => {
       storeId,
       refreshStore
     }}>
-      {children}
+      {currentStore && children}
     </StoreContext.Provider>
   );
 };
