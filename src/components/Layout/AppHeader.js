@@ -82,9 +82,7 @@ const AppHeader = () => {
           { to: `/store/${storeId}/dashboard`, label: 'Dashboard', icon: '📊' },
           { to: `/store/${storeId}/orders`, label: 'Orders', icon: '🛒' },
           roleCheck > 1 && { to: `/store/${storeId}/products`, label: 'Products', icon: '📦' },
-          ...(subscriptionCheck > 2 && roleCheck > 1
-            ? [{ to: `/store/${storeId}/notifications`, label: 'Notifications', icon: '🔔' }]
-            : []),
+          roleCheck > 1 && { to: `/store/${storeId}/payouts`, label: 'Payouts', icon: '🔔' },
         ]
       : [];
 
@@ -323,79 +321,83 @@ const AppHeader = () => {
         </div>
 
         {/* Admin Menu */}
-        {roleCheck > 1 && <div className="user-menu-wrapper" ref={adminDropdownRef}>
-          <button
-            className="header-icon-btn"
-            onClick={() => setAdminDropdownOpen((v) => !v)}
-            aria-label="Admin menu"
-            title="Admin menu"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+        {roleCheck > 1 && (
+          <div className="user-menu-wrapper" ref={adminDropdownRef}>
+            <button
+              className="header-icon-btn"
+              onClick={() => setAdminDropdownOpen((v) => !v)}
+              aria-label="Admin menu"
+              title="Admin menu"
             >
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-          </button>
-          {adminDropdownOpen && (
-            <div className="user-dropdown">
-              {subscriptionCheck > 2 && roleCheck > 1 && (
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+            </button>
+            {adminDropdownOpen && (
+              <div className="user-dropdown">
+                {subscriptionCheck > 2 && (
+                  <div
+                    className="user-dropdown-item"
+                    onClick={() => {
+                      navigate(storeId ? `/store/${storeId}/notifications` : '/notifications');
+                      setAdminDropdownOpen(false);
+                    }}
+                  >
+                    Notifications
+                  </div>
+                )}
                 <div
                   className="user-dropdown-item"
                   onClick={() => {
-                    navigate(storeId ? `/store/${storeId}/team` : '/team');
+                    navigate(storeId ? `/store/${storeId}/users` : '/users');
                     setAdminDropdownOpen(false);
                   }}
                 >
-                  Team
+                  Users
                 </div>
-              )}
-              <div
-                className="user-dropdown-item"
-                onClick={() => {
-                  navigate(storeId ? `/store/${storeId}/users` : '/users');
-                  setAdminDropdownOpen(false);
-                }}
-              >
-                Users
+                {subscriptionCheck > 2 && (
+                  <div
+                    className="user-dropdown-item"
+                    onClick={() => {
+                      navigate(storeId ? `/store/${storeId}/team` : '/team');
+                      setAdminDropdownOpen(false);
+                    }}
+                  >
+                    Team
+                  </div>
+                )}
+                {subscriptionCheck > 2 && <div
+                  className="user-dropdown-item"
+                  onClick={() => {
+                    navigate(storeId ? `/store/${storeId}/app-settings` : '/app-settings');
+                    setAdminDropdownOpen(false);
+                  }}
+                >
+                  App Settings
+                </div>}
+                <div
+                  className="user-dropdown-item"
+                  onClick={() => {
+                    navigate(storeId ? `/store/${storeId}/settings` : '/settings');
+                    setAdminDropdownOpen(false);
+                  }}
+                >
+                  Store Settings
+                </div>
               </div>
-              <div
-                className="user-dropdown-item"
-                onClick={() => {
-                  navigate(storeId ? `/store/${storeId}/payouts` : '/payouts');
-                  setAdminDropdownOpen(false);
-                }}
-              >
-                Payouts
-              </div>
-              <div
-                className="user-dropdown-item"
-                onClick={() => {
-                  navigate(storeId ? `/store/${storeId}/app-settings` : '/app-settings');
-                  setAdminDropdownOpen(false);
-                }}
-              >
-                App Settings
-              </div>
-              <div
-                className="user-dropdown-item"
-                onClick={() => {
-                  navigate(storeId ? `/store/${storeId}/settings` : '/settings');
-                  setAdminDropdownOpen(false);
-                }}
-              >
-                Store Settings
-              </div>
-            </div>
-          )}
-        </div>}
+            )}
+          </div>
+        )}
 
         {/* User Menu */}
         <div className="user-menu-wrapper" ref={userDropdownRef}>

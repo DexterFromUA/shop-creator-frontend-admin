@@ -53,10 +53,14 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/auth" />;
 };
 
-const RoleProtectedRoute = ({ minLvl = 0, maxLvl = 10 }) => {
-  const { roleCheck } = useStore();
+const RoleProtectedRoute = ({ minLvl = 0, maxLvl = 10, subMin = 0 }) => {
+  const { roleCheck, subscriptionCheck } = useStore();
 
-  return roleCheck >= minLvl && roleCheck <= maxLvl ? <Outlet /> : <Navigate to="/stores" />;
+  return roleCheck >= minLvl && roleCheck <= maxLvl && subscriptionCheck >= subMin ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/stores" />
+  );
 };
 
 function App() {
@@ -122,6 +126,11 @@ function App() {
                   <Route path="*" element={<RoleProtectedRoute minLvl={10} />}>
                     <Route path="payouts" element={<Payouts />} />
                     <Route path="create-app" element={<CreateApp />} />
+
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+
+                  <Route path="*" element={<RoleProtectedRoute minLvl={10} subMin={3} />}>
                     <Route path="app-settings" element={<AppSettings />} />
 
                     <Route path="*" element={<NotFound />} />
@@ -132,10 +141,15 @@ function App() {
                     <Route path="products/add" element={<AddProduct />} />
                     <Route path="products/:id/edit" element={<AddProduct />} />
                     <Route path="products/:id" element={<ProductView />} />
-                    <Route path="team" element={<Team />} />
                     <Route path="users" element={<Users />} />
-                    <Route path="notifications" element={<Notifications />} />
                     <Route path="settings" element={<EditStore />} />
+
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+
+                  <Route path="*" element={<RoleProtectedRoute minLvl={2} subMin={3} />}>
+                    <Route path="team" element={<Team />} />
+                    <Route path="notifications" element={<Notifications />} />
 
                     <Route path="*" element={<NotFound />} />
                   </Route>
