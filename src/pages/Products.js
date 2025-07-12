@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { productService } from '../utils/graphql';
+import { useToast } from '../context/ToastContext';
 import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
 import './Dashboard.css';
@@ -24,6 +25,7 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const { addToast } = useToast();
   const [viewMode, setViewMode] = useState(() => {
     return localStorage.getItem('productsViewMode') || 'grid';
   });
@@ -49,7 +51,7 @@ const Products = () => {
           setProducts(data);
         } catch (error) {
         console.error('Error loading products:', error);
-        alert('Failed to load products');
+        addToast('Failed to load products', 'error');
         setProducts([]); // Clear products on error
       } finally {
         setLoading(false);

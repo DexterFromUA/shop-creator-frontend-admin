@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { productService } from '../utils/graphql';
+import { useToast } from '../context/ToastContext';
 import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
 import './Dashboard.css';
@@ -8,6 +9,7 @@ import './Dashboard.css';
 const AddProduct = () => {
   const navigate = useNavigate();
   const { storeId, id: productId } = useParams();
+  const { addToast } = useToast();
   const isEditMode = !!productId;
   
   const [newProduct, setNewProduct] = useState({
@@ -138,20 +140,20 @@ const AddProduct = () => {
     
     // Check image count (maximum 5)
     if (newProduct.images.length + files.length > 5) {
-      alert('Maximum 5 images allowed');
+      addToast('Maximum 5 images allowed', 'error');
       return;
     }
     
     files.forEach(file => {
       // Check file type
       if (!file.type.startsWith('image/')) {
-        alert('Please select only image files');
+        addToast('Please select only image files', 'error');
         return;
       }
       
       // Check file size (maximum 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
+        addToast('File size must be less than 5MB', 'error');
         return;
       }
       
@@ -208,31 +210,31 @@ const AddProduct = () => {
     
     // Validation
     if (!newProduct.name.trim()) {
-      alert('Please enter product name');
+      addToast('Please enter product name', 'error');
       return;
     }
     
     if (!newProduct.description.trim()) {
-      alert('Please enter product description');
+      addToast('Please enter product description', 'error');
       return;
     }
     
     if (!newProduct.price.trim()) {
-      alert('Please enter product price');
+      addToast('Please enter product price', 'error');
       return;
     }
     
     // Check that at least one size is selected
     const selectedSizes = Object.entries(newProduct.sizes).filter(([_, sizeData]) => sizeData.selected);
     if (selectedSizes.length === 0) {
-      alert('Please select at least one size');
+      addToast('Please select at least one size', 'error');
       return;
     }
     
     // Check that all selected sizes have quantity specified
     const invalidSizes = selectedSizes.filter(([_, sizeData]) => sizeData.quantity <= 0);
     if (invalidSizes.length > 0) {
-      alert('Please specify quantity for all selected sizes');
+      addToast('Please specify quantity for all selected sizes', 'error');
       return;
     }
     
@@ -307,7 +309,7 @@ const AddProduct = () => {
       
     } catch (error) {
       console.error(`Error ${isEditMode ? 'updating' : 'creating'} product:`, error);
-      alert(`Failed to ${isEditMode ? 'update' : 'create'} product. Please try again.`);
+      addToast(`Failed to ${isEditMode ? 'update' : 'create'} product. Please try again.`, 'error');
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productService } from '../utils/graphql';
+import { useToast } from '../context/ToastContext';
 import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
 import './Dashboard.css';
@@ -8,6 +9,7 @@ import './Dashboard.css';
 const ProductView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -48,7 +50,7 @@ const ProductView = () => {
       navigate(-1); // Go back to products list
     } catch (error) {
       console.error('Error deleting product:', error);
-      alert('Failed to delete product. Please try again.');
+      addToast('Failed to delete product. Please try again.', 'error');
     } finally {
       setDeleting(false);
       setShowDeleteModal(false);
@@ -73,7 +75,7 @@ const ProductView = () => {
       setUpdatedSizes({});
     } catch (error) {
       console.error('Error updating stock:', error);
-      alert('Failed to update stock. Please try again.');
+      addToast('Failed to update stock. Please try again.', 'error');
     } finally {
       setStockUpdating(false);
     }

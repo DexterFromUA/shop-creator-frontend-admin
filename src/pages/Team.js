@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { inviteService } from '../utils/graphql';
+import { useToast } from '../context/ToastContext';
 import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
 import './Dashboard.css';
@@ -80,6 +81,7 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
   const [form, setForm] = useState({ role: 'MANAGER' });
   const [loading, setLoading] = useState(false);
   const [inviteLink, setInviteLink] = useState(null);
+  const { addToast } = useToast();
 
   const handleClose = () => {
     setForm({ role: 'MANAGER' });
@@ -102,7 +104,7 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
       setInviteLink(link);
       onInviteCreated && onInviteCreated(invite);
     } catch (error) {
-      alert('Failed to create invite: ' + error.message);
+      addToast('Failed to create invite: ' + error.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -111,9 +113,9 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(inviteLink);
-      alert('Invite link copied to clipboard!');
+      addToast('Invite link copied to clipboard!', 'success');
     } catch (error) {
-      alert('Failed to copy link');
+      addToast('Failed to copy link', 'error');
     }
   };
 
@@ -262,6 +264,7 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
 const Team = () => {
   const { currentStore, refreshStore } = useStore();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const [modal, setModal] = useState({ open: false });
   const [deleteModal, setDeleteModal] = useState({ open: false, user: null });
@@ -365,7 +368,7 @@ const Team = () => {
         )
       );
     } catch (error) {
-      alert('Failed to revoke invite: ' + error.message);
+      addToast('Failed to revoke invite: ' + error.message, 'error');
     }
   };
 
@@ -373,9 +376,9 @@ const Team = () => {
     try {
       const link = `${window.location.origin}/invite/${token}`;
       await navigator.clipboard.writeText(link);
-      alert('Invite link copied to clipboard!');
+      addToast('Invite link copied to clipboard!', 'success');
     } catch (error) {
-      alert('Failed to copy link');
+      addToast('Failed to copy link', 'error');
     }
   };
 
@@ -394,7 +397,7 @@ const Team = () => {
       refreshStore(); // Refresh store data to update team list
       setDeleteModal({ open: false, user: null });
     } catch (error) {
-      alert('Failed to remove team member: ' + error.message);
+      addToast('Failed to remove team member: ' + error.message, 'error');
     }
   };
 

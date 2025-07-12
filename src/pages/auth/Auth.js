@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
 import EmailLogin from './EmailLogin';
 import EmailSignUp from './EmailSignUp';
 import './Auth.css';
@@ -28,14 +29,15 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const inviteToken = searchParams.get('invite');
   const urlMode = searchParams.get('mode');
+  const { addToast } = useToast();
   const [mode, setMode] = useState(urlMode || 'login');
 
   const handleGoogleLogin = () => {
-    alert('Google login integration coming soon!');
+    addToast('Google login integration coming soon!', 'info');
   };
 
   const handleAppleLogin = () => {
-    alert('Apple login is not set up yet.');
+    addToast('Apple login is not set up yet.', 'info');
   };
 
   return (

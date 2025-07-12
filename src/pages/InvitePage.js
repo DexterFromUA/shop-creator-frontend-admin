@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { inviteService } from '../utils/graphql';
 
 const InvitePage = () => {
   const { token } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { addToast } = useToast();
 
   const [invite, setInvite] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -51,7 +53,7 @@ const InvitePage = () => {
 
       navigate(`/store/${invite.store.id}`);
     } catch (error) {
-      alert('Failed to accept invite: ' + error.message);
+      addToast('Failed to accept invite: ' + error.message, 'error');
     } finally {
       setAccepting(false);
     }
