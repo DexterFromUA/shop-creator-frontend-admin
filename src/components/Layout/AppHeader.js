@@ -81,8 +81,12 @@ const AppHeader = () => {
       ? [
           { to: `/store/${storeId}/dashboard`, label: 'Dashboard', icon: '📊' },
           { to: `/store/${storeId}/orders`, label: 'Orders', icon: '🛒' },
-          roleCheck > 1 && { to: `/store/${storeId}/products`, label: 'Products', icon: '📦' },
-          roleCheck > 1 && { to: `/store/${storeId}/payouts`, label: 'Payouts', icon: '🔔' },
+          ...(roleCheck > 1
+            ? [
+                { to: `/store/${storeId}/products`, label: 'Products', icon: '📦' },
+                { to: `/store/${storeId}/payouts`, label: 'Payouts', icon: '🔔' },
+              ]
+            : []),
         ]
       : [];
 
@@ -376,15 +380,17 @@ const AppHeader = () => {
                     Team
                   </div>
                 )}
-                {subscriptionCheck > 2 && <div
-                  className="user-dropdown-item"
-                  onClick={() => {
-                    navigate(storeId ? `/store/${storeId}/app-settings` : '/app-settings');
-                    setAdminDropdownOpen(false);
-                  }}
-                >
-                  App Settings
-                </div>}
+                {subscriptionCheck > 2 && (
+                  <div
+                    className="user-dropdown-item"
+                    onClick={() => {
+                      navigate(storeId ? `/store/${storeId}/app-settings` : '/app-settings');
+                      setAdminDropdownOpen(false);
+                    }}
+                  >
+                    App Settings
+                  </div>
+                )}
                 <div
                   className="user-dropdown-item"
                   onClick={() => {
