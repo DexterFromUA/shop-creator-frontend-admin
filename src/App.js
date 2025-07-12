@@ -53,10 +53,10 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/auth" />;
 };
 
-const RoleProtectedRoute = ({ minLvl = 0, maxLvl = 10, subMin = 0 }) => {
+const StoreProtectedRoute = ({ roleMin = 0, roleMax = 10, subLvl = 0 }) => {
   const { roleCheck, subscriptionCheck } = useStore();
 
-  return roleCheck >= minLvl && roleCheck <= maxLvl && subscriptionCheck >= subMin ? (
+  return roleCheck >= roleMin && roleCheck <= roleMax && subscriptionCheck >= subLvl ? (
     <Outlet />
   ) : (
     <Navigate to="/stores" />
@@ -95,7 +95,6 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-
                 <Route
                   path="/subscription"
                   element={
@@ -123,20 +122,20 @@ function App() {
                   <Route path="orders/:id" element={<OrderPreview />} />
                   <Route path="web-notifications" element={<WebNotifications />} />
 
-                  <Route path="*" element={<RoleProtectedRoute minLvl={10} />}>
+                  <Route path="*" element={<StoreProtectedRoute roleMin={10} />}>
                     <Route path="payouts" element={<Payouts />} />
                     <Route path="create-app" element={<CreateApp />} />
 
                     <Route path="*" element={<NotFound />} />
                   </Route>
 
-                  <Route path="*" element={<RoleProtectedRoute minLvl={10} subMin={3} />}>
+                  <Route path="*" element={<StoreProtectedRoute roleMin={10} subLvl={3} />}>
                     <Route path="app-settings" element={<AppSettings />} />
 
                     <Route path="*" element={<NotFound />} />
                   </Route>
 
-                  <Route path="*" element={<RoleProtectedRoute minLvl={2} />}>
+                  <Route path="*" element={<StoreProtectedRoute roleMin={2} />}>
                     <Route path="products" element={<Products />} />
                     <Route path="products/add" element={<AddProduct />} />
                     <Route path="products/:id/edit" element={<AddProduct />} />
@@ -147,7 +146,7 @@ function App() {
                     <Route path="*" element={<NotFound />} />
                   </Route>
 
-                  <Route path="*" element={<RoleProtectedRoute minLvl={2} subMin={3} />}>
+                  <Route path="*" element={<StoreProtectedRoute roleMin={2} subLvl={3} />}>
                     <Route path="team" element={<Team />} />
                     <Route path="notifications" element={<Notifications />} />
 
