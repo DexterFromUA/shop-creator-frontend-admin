@@ -1,15 +1,15 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
-import { StoreProvider } from './context/StoreContext';
+import { StoreProvider, useStore } from './context/StoreContext';
 import Layout from './components/Layout/Layout';
 import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 import Auth from './pages/auth/Auth';
 import SimpleLayout from './components/Layout/SimpleLayout';
-const EditStore = lazy(() => import('./pages/EditStore'))
+const EditStore = lazy(() => import('./pages/EditStore'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Products = lazy(() => import('./pages/Products'));
 const AddProduct = lazy(() => import('./pages/AddProduct'));
@@ -51,6 +51,16 @@ const ProtectedRoute = ({ children }) => {
   }
 
   return isAuthenticated ? children : <Navigate to="/auth" />;
+};
+
+const RoleProtectedRoute = ({ minLvl = 0, maxLvl = 10 }) => {
+  const { roleCheck } = useStore();
+
+  React.useEffect(() => {
+    console.log('ROLE LVL is:', roleCheck);
+  }, [roleCheck]);
+
+  return roleCheck >= minLvl && roleCheck <= maxLvl ? <Outlet /> : <Navigate to="/stores" />;
 };
 
 function App() {
@@ -109,20 +119,31 @@ function App() {
                 >
                   <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="products" element={<Products />} />
-                  <Route path="products/add" element={<AddProduct />} />
-                  <Route path="products/:id/edit" element={<AddProduct />} />
                   <Route path="orders" element={<Orders />} />
                   <Route path="orders/:id" element={<OrderPreview />} />
-                  <Route path="products/:id" element={<ProductView />} />
-                  <Route path="create-app" element={<CreateApp />} />
-                  <Route path="app-settings" element={<AppSettings />} />
-                  <Route path="team" element={<Team />} />
-                  <Route path="users" element={<Users />} />
-                  <Route path="notifications" element={<Notifications />} />
                   <Route path="web-notifications" element={<WebNotifications />} />
-                  <Route path="payouts" element={<Payouts />} />
-                  <Route path="settings" element={<EditStore />} />
+
+                  <Route path="*" element={<RoleProtectedRoute minLvl={10} />}>
+                    <Route path="payouts" element={<Payouts />} />
+                    <Route path="create-app" element={<CreateApp />} />
+                    <Route path="app-settings" element={<AppSettings />} />
+
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+
+                  <Route path="*" element={<RoleProtectedRoute minLvl={2} />}>
+                    <Route path="products" element={<Products />} />
+                    <Route path="products/add" element={<AddProduct />} />
+                    <Route path="products/:id/edit" element={<AddProduct />} />
+                    <Route path="products/:id" element={<ProductView />} />
+                    <Route path="team" element={<Team />} />
+                    <Route path="users" element={<Users />} />
+                    <Route path="notifications" element={<Notifications />} />
+                    <Route path="settings" element={<EditStore />} />
+
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+
                   <Route path="*" element={<NotFound />} />
                 </Route>
 

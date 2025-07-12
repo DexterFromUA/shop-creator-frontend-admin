@@ -8,7 +8,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 const AppHeader = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
-  const { currentStore, storeId, loading } = useStore();
+  const { currentStore, storeId, loading, subscriptionCheck, roleCheck } = useStore();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -76,22 +76,13 @@ const AppHeader = () => {
     },
   ]);
 
-  const isOwnerProOrUnlimited =
-    currentStore?.owner &&
-    (currentStore.owner.subscriptionType === 'PRO' ||
-      currentStore.owner.subscriptionType === 'UNLIMITED');
-
-  const isUserHasAccess = [...(currentStore?.managers || []), currentStore?.owner || {}].some(
-    (el) => el.id === user.id
-  );
-
   const menuItems =
     storeId && !loading
       ? [
           { to: `/store/${storeId}/dashboard`, label: 'Dashboard', icon: '📊' },
           { to: `/store/${storeId}/orders`, label: 'Orders', icon: '🛒' },
-          { to: `/store/${storeId}/products`, label: 'Products', icon: '📦' },
-          ...(isOwnerProOrUnlimited && isUserHasAccess
+          roleCheck > 1 && { to: `/store/${storeId}/products`, label: 'Products', icon: '📦' },
+          ...(subscriptionCheck > 2 && roleCheck > 1
             ? [{ to: `/store/${storeId}/notifications`, label: 'Notifications', icon: '🔔' }]
             : []),
         ]
@@ -332,7 +323,7 @@ const AppHeader = () => {
         </div>
 
         {/* Admin Menu */}
-        <div className="user-menu-wrapper" ref={adminDropdownRef}>
+        {roleCheck > 1 && <div className="user-menu-wrapper" ref={adminDropdownRef}>
           <button
             className="header-icon-btn"
             onClick={() => setAdminDropdownOpen((v) => !v)}
@@ -355,7 +346,7 @@ const AppHeader = () => {
           </button>
           {adminDropdownOpen && (
             <div className="user-dropdown">
-              {isOwnerProOrUnlimited && isUserHasAccess && (
+              {subscriptionCheck > 2 && roleCheck > 1 && (
                 <div
                   className="user-dropdown-item"
                   onClick={() => {
@@ -404,7 +395,7 @@ const AppHeader = () => {
               </div>
             </div>
           )}
-        </div>
+        </div>}
 
         {/* User Menu */}
         <div className="user-menu-wrapper" ref={userDropdownRef}>
