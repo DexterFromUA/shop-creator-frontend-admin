@@ -56,10 +56,6 @@ const ProtectedRoute = ({ children }) => {
 const RoleProtectedRoute = ({ minLvl = 0, maxLvl = 10 }) => {
   const { roleCheck } = useStore();
 
-  React.useEffect(() => {
-    console.log('ROLE LVL is:', roleCheck);
-  }, [roleCheck]);
-
   return roleCheck >= minLvl && roleCheck <= maxLvl ? <Outlet /> : <Navigate to="/stores" />;
 };
 
@@ -143,8 +139,6 @@ function App() {
 
                     <Route path="*" element={<NotFound />} />
                   </Route>
-
-                  <Route path="*" element={<NotFound />} />
                 </Route>
 
                 {/* Global catch-all route for any unmatched URLs */}
