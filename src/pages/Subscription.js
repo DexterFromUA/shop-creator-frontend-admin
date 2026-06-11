@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,13 +15,26 @@ const Subscription = () => {
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(user?.subscriptionType || 'BASIC');
-
-  const [storeButtonConfig, setStoreButtonConfig] = useState({
-    text: 'Stores',
-    action: () => navigate('/stores', { state: { fromStorePage: true } }),
+  const [cardModalOpen, setCardModalOpen] = useState(false);
+  const [cardForm, setCardForm] = useState({
+    paymentCardNumber: '',
+    paymentCardHolder: '',
+    paymentCardExpiryMonth: '',
+    paymentCardExpiryYear: '',
+    paymentCardCvv: '',
   });
+  const [cardLoading, setCardLoading] = useState(false);
+  const [invoices] = useState([
+    { id: 'INV-001', date: '2024-01-15', amount: '$29.99', status: 'paid' },
+    { id: 'INV-002', date: '2024-02-15', amount: '$29.99', status: 'paid' },
+    { id: 'INV-003', date: '2024-03-15', amount: '$29.99', status: 'due' },
+    { id: 'INV-004', date: '2024-04-15', amount: '$29.99', status: 'paid' },
+    { id: 'INV-005', date: '2024-05-15', amount: '$29.99', status: 'paid' },
+    { id: 'INV-006', date: '2024-06-15', amount: '$29.99', status: 'paid' },
+    { id: 'INV-007', date: '2024-07-15', amount: '$99.99', status: 'due' },
+  ]);
 
-  const getUserCard = () => {
+  const userCard = useMemo(() => {
     if (user?.paymentCardNumber) {
       const cardNumber = user.paymentCardNumber;
       const lastFour = cardNumber.slice(-4);
@@ -40,36 +53,7 @@ const Subscription = () => {
       };
     }
     return null;
-  };
-
-  const [cards, setCards] = useState(() => {
-    const userCard = getUserCard();
-    return userCard ? [userCard] : [];
-  });
-  const [cardModalOpen, setCardModalOpen] = useState(false);
-  const [cardForm, setCardForm] = useState({
-    paymentCardNumber: '',
-    paymentCardHolder: '',
-    paymentCardExpiryMonth: '',
-    paymentCardExpiryYear: '',
-    paymentCardCvv: '',
-  });
-  const [cardLoading, setCardLoading] = useState(false);
-
-  const [invoices] = useState([
-    { id: 'INV-001', date: '2024-01-15', amount: '$29.99', status: 'paid' },
-    { id: 'INV-002', date: '2024-02-15', amount: '$29.99', status: 'paid' },
-    { id: 'INV-003', date: '2024-03-15', amount: '$29.99', status: 'due' },
-    { id: 'INV-004', date: '2024-04-15', amount: '$29.99', status: 'paid' },
-    { id: 'INV-005', date: '2024-05-15', amount: '$29.99', status: 'paid' },
-    { id: 'INV-006', date: '2024-06-15', amount: '$29.99', status: 'paid' },
-    { id: 'INV-007', date: '2024-07-15', amount: '$99.99', status: 'due' },
-    { id: 'INV-008', date: '2024-08-15', amount: '$29.99', status: 'paid' },
-    { id: 'INV-009', date: '2024-09-15', amount: '$29.99', status: 'paid' },
-    { id: 'INV-010', date: '2024-10-15', amount: '$99.99', status: 'paid' },
-    { id: 'INV-011', date: '2024-11-15', amount: '$29.99', status: 'due' },
-    { id: 'INV-012', date: '2024-12-15', amount: '$29.99', status: 'paid' },
-  ]);
+  }, [user]);
 
   const plans = [
     {
@@ -135,7 +119,7 @@ const Subscription = () => {
       return;
     }
 
-    if (selectedPlan !== 'BASIC' && cards.length === 0) {
+    if (selectedPlan !== 'BASIC' && !userCard) {
       addToast('Please add a payment card before upgrading to a paid plan', 'error');
       return;
     }
@@ -264,56 +248,6 @@ const Subscription = () => {
     });
   };
 
-  const getAvailableStores = () => {
-    if (!user) return [];
-
-    const allStores = [
-      ...(user.stores || []).map((store) => ({ ...store, role: 'OWNER' })),
-      ...(user.managingStores || []).map((store) => ({ ...store, role: 'MANAGER' })),
-      ...(user.deliveringStores || []).map((store) => ({ ...store, role: 'COURIER' })),
-    ];
-
-    const availableStores = allStores.filter((store, index, arr) => {
-      const isUnique = arr.findIndex((s) => s.id === store.id) === index;
-      if (!isUnique) return false;
-
-      if (!store.isActive) {
-        return false;
-      }
-
-      if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {
-        return false;
-      }
-      return true;
-    });
-
-    return availableStores;
-  };
-
-  const getStoreButtonLogic = () => {
-    const availableStores = getAvailableStores();
-    const subscription = user?.subscriptionType;
-
-    let shouldGoToSingleStore = false;
-    let targetStore = null;
-
-    if (subscription === 'BASIC') {
-      shouldGoToSingleStore = availableStores.length === 1;
-      targetStore = availableStores[0];
-    } else if (subscription === 'ADVANCED') {
-      const ownedStores = availableStores.filter((store) => store.role === 'OWNER');
-      shouldGoToSingleStore = ownedStores.length === 1;
-      targetStore = ownedStores[0];
-    }
-
-    return {
-      text: shouldGoToSingleStore ? 'Store' : 'Stores',
-      action: shouldGoToSingleStore
-        ? () => navigate(`/store/${targetStore.id}/dashboard`)
-        : () => navigate('/stores', { state: { fromStorePage: true } }),
-    };
-  };
-
   const statusStyles = {
     paid: { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981' },
     due: { bg: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' },
@@ -334,17 +268,9 @@ const Subscription = () => {
   }, []);
 
   useEffect(() => {
-    const userCard = getUserCard();
-    setCards(userCard ? [userCard] : []);
-  }, [user]);
-
-  useEffect(() => {
     refreshUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    setStoreButtonConfig(getStoreButtonLogic());
-  }, [user?.subscriptionType, user?.stores, user?.managingStores, user?.deliveringStores]);
 
   const containerVariants = {
     initial: { opacity: 0 },
@@ -403,7 +329,9 @@ const Subscription = () => {
             title="Subscription Management"
             description="Manage your subscription plan and billing information."
             RightContent={
-              <Button onClick={storeButtonConfig.action}>{storeButtonConfig.text}</Button>
+              <Button onClick={() => navigate('/stores', { state: { fromStorePage: true } })}>
+                Stores
+              </Button>
             }
           >
             <h3
@@ -535,7 +463,7 @@ const Subscription = () => {
                   ))}
                 </ul>
 
-                {plan.id !== 'BASIC' && cards.length === 0 && (
+                {plan.id !== 'BASIC' && !userCard && (
                   <div
                     style={{
                       marginTop: 12,
@@ -556,7 +484,7 @@ const Subscription = () => {
 
           {/* Update Button */}
           <div style={{ marginTop: 32, textAlign: 'center' }}>
-            {selectedPlan !== 'BASIC' && cards.length === 0 && (
+            {selectedPlan !== 'BASIC' && !userCard && (
               <div
                 style={{
                   marginBottom: 16,
@@ -575,7 +503,7 @@ const Subscription = () => {
             <Button
               filled
               onClick={handlePlanChange}
-              disabled={loading || (selectedPlan !== 'BASIC' && cards.length === 0)}
+              disabled={loading || (selectedPlan !== 'BASIC' && !userCard)}
               style={{ padding: '12px 32px', fontSize: 16, fontWeight: 600 }}
             >
               {loading ? 'Updating...' : 'Update Subscription'}
@@ -596,7 +524,7 @@ const Subscription = () => {
             <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: 'var(--color-text)' }}>
               Payment Methods
             </h3>
-            {cards.length === 0 && (
+            {!userCard && (
               <button
                 onClick={() => setCardModalOpen(true)}
                 style={{
@@ -614,50 +542,47 @@ const Subscription = () => {
               </button>
             )}
           </div>
-          {cards.length === 0 ? (
+          {!userCard ? (
             <div style={{ padding: '16px 0', color: 'var(--color-text-secondary)', fontSize: 15 }}>
               No cards added.
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {cards.map((card) => (
-                <div
-                  key={card.id}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: 16,
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 12,
+                  background: 'var(--color-bg-secondary)',
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 15 }}>
+                    {userCard.brand} ending in {userCard.last4}
+                  </div>
+                  <div style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
+                    Exp {userCard.exp}
+                  </div>
+                </div>
+                <button
+                  onClick={handleRemoveCard}
+                  disabled={cardLoading}
                   style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: 16,
+                    padding: '6px 12px',
+                    borderRadius: 8,
+                    background: 'var(--color-bg)',
                     border: '1px solid var(--color-border)',
-                    borderRadius: 12,
-                    background: 'var(--color-bg-secondary)',
+                    cursor: cardLoading ? 'not-allowed' : 'pointer',
+                    fontSize: 14,
+                    opacity: cardLoading ? 0.6 : 1,
                   }}
                 >
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 15 }}>
-                      {card.brand} ending in {card.last4}
-                    </div>
-                    <div style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
-                      Exp {card.exp}
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleRemoveCard}
-                    disabled={cardLoading}
-                    style={{
-                      padding: '6px 12px',
-                      borderRadius: 8,
-                      background: 'var(--color-bg)',
-                      border: '1px solid var(--color-border)',
-                      cursor: cardLoading ? 'not-allowed' : 'pointer',
-                      fontSize: 14,
-                      opacity: cardLoading ? 0.6 : 1,
-                    }}
-                  >
-                    {cardLoading ? 'Removing...' : 'Remove'}
-                  </button>
-                </div>
-              ))}
+                  {cardLoading ? 'Removing...' : 'Remove'}
+                </button>
+              </div>
             </div>
           )}
         </PageContainer>
