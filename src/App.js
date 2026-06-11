@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
@@ -9,6 +10,8 @@ import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 import Auth from './pages/auth/Auth';
 import SimpleLayout from './components/Layout/SimpleLayout';
+import composeProviders from './utils/composeProviders';
+
 const EditStore = lazy(() => import('./pages/EditStore'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Products = lazy(() => import('./pages/Products'));
@@ -63,105 +66,131 @@ const StoreProtectedRoute = ({ roleMin = 0, roleMax = 10, subLvl = 0 }) => {
   );
 };
 
+const Providers = composeProviders([
+  AuthProvider,
+  ThemeProvider,
+  ToastProvider,
+  Router,
+  [
+    Suspense,
+    {
+      fallback: (
+        <div
+          style={{
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              border: '4px solid #e5e7eb',
+              borderTop: '4px solid #111827',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 16px',
+            }}
+          />
+        </div>
+      ),
+    },
+  ],
+]);
+
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <ScrollToTop />
-        <ThemeProvider>
-          <ToastProvider>
-            <Suspense fallback={null}>
-              <Routes>
-                <Route path="/auth" element={<Auth />} />
-                {/* <Route path="/verify" element={<VerifyCode />} /> */}
-                <Route path="/invite/:token" element={<InvitePage />} />
-                <Route
-                  path="/stores"
-                  element={
-                    <ProtectedRoute>
-                      <SimpleLayout>
-                        <StoreSelection />
-                      </SimpleLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/stores/create"
-                  element={
-                    <ProtectedRoute>
-                      <SimpleLayout>
-                        <CreateStore />
-                      </SimpleLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/subscription"
-                  element={
-                    <ProtectedRoute>
-                      <SimpleLayout>
-                        <Subscription />
-                      </SimpleLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/" element={<Navigate to="/stores" replace />} />
-                <Route
-                  path="/store/:storeId/*"
-                  element={
-                    <ProtectedRoute>
-                      <StoreProvider>
-                        <Layout />
-                      </StoreProvider>
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<Navigate to="dashboard" replace />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="orders" element={<Orders />} />
-                  <Route path="orders/:id" element={<OrderPreview />} />
-                  <Route path="web-notifications" element={<WebNotifications />} />
+    <Providers>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<Navigate to="/stores" replace />} />
+        <Route path="/auth" element={<Auth />} />
+        {/* <Route path="/verify" element={<VerifyCode />} /> */}
+        <Route path="/invite/:token" element={<InvitePage />} />
+        <Route
+          path="/stores"
+          element={
+            <ProtectedRoute>
+              <SimpleLayout>
+                <StoreSelection />
+              </SimpleLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stores/create"
+          element={
+            <ProtectedRoute>
+              <SimpleLayout>
+                <CreateStore />
+              </SimpleLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/subscription"
+          element={
+            <ProtectedRoute>
+              <SimpleLayout>
+                <Subscription />
+              </SimpleLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/store/:storeId/*"
+          element={
+            <ProtectedRoute>
+              <StoreProvider>
+                <Layout />
+              </StoreProvider>
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="orders/:id" element={<OrderPreview />} />
+          <Route path="web-notifications" element={<WebNotifications />} />
 
-                  <Route path="*" element={<StoreProtectedRoute roleMin={10} />}>
-                    <Route path="payouts" element={<Payouts />} />
-                    <Route path="create-app" element={<CreateApp />} />
+          <Route path="*" element={<StoreProtectedRoute roleMin={10} />}>
+            <Route path="payouts" element={<Payouts />} />
+            <Route path="create-app" element={<CreateApp />} />
 
-                    <Route path="*" element={<NotFound />} />
-                  </Route>
+            <Route path="*" element={<NotFound />} />
+          </Route>
 
-                  <Route path="*" element={<StoreProtectedRoute roleMin={10} subLvl={3} />}>
-                    <Route path="app-settings" element={<AppSettings />} />
+          <Route path="*" element={<StoreProtectedRoute roleMin={10} subLvl={3} />}>
+            <Route path="app-settings" element={<AppSettings />} />
 
-                    <Route path="*" element={<NotFound />} />
-                  </Route>
+            <Route path="*" element={<NotFound />} />
+          </Route>
 
-                  <Route path="*" element={<StoreProtectedRoute roleMin={2} />}>
-                    <Route path="products" element={<Products />} />
-                    <Route path="products/add" element={<AddProduct />} />
-                    <Route path="products/:id/edit" element={<AddProduct />} />
-                    <Route path="products/:id" element={<ProductView />} />
-                    <Route path="users" element={<Users />} />
-                    <Route path="settings" element={<EditStore />} />
+          <Route path="*" element={<StoreProtectedRoute roleMin={2} />}>
+            <Route path="products" element={<Products />} />
+            <Route path="products/add" element={<AddProduct />} />
+            <Route path="products/:id/edit" element={<AddProduct />} />
+            <Route path="products/:id" element={<ProductView />} />
+            <Route path="users" element={<Users />} />
+            <Route path="settings" element={<EditStore />} />
 
-                    <Route path="*" element={<NotFound />} />
-                  </Route>
+            <Route path="*" element={<NotFound />} />
+          </Route>
 
-                  <Route path="*" element={<StoreProtectedRoute roleMin={2} subLvl={3} />}>
-                    <Route path="team" element={<Team />} />
-                    <Route path="notifications" element={<Notifications />} />
+          <Route path="*" element={<StoreProtectedRoute roleMin={2} subLvl={3} />}>
+            <Route path="team" element={<Team />} />
+            <Route path="notifications" element={<Notifications />} />
 
-                    <Route path="*" element={<NotFound />} />
-                  </Route>
-                </Route>
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Route>
 
-                {/* Global catch-all route for any unmatched URLs */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </ToastProvider>
-        </ThemeProvider>
-      </Router>
-    </AuthProvider>
+        {/* Global catch-all route for any unmatched URLs */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Providers>
   );
 }
 

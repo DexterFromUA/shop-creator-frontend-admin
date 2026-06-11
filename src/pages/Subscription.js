@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { storeService } from '../utils/graphql';
@@ -15,13 +16,11 @@ const Subscription = () => {
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(user?.subscriptionType || 'BASIC');
 
-  // Состояние для кнопки сторов
   const [storeButtonConfig, setStoreButtonConfig] = useState({
     text: 'Stores',
     action: () => navigate('/stores', { state: { fromStorePage: true } }),
   });
 
-  // Payment Methods state
   const getUserCard = () => {
     if (user?.paymentCardNumber) {
       const cardNumber = user.paymentCardNumber;
@@ -57,7 +56,6 @@ const Subscription = () => {
   });
   const [cardLoading, setCardLoading] = useState(false);
 
-  // Invoices state
   const [invoices] = useState([
     { id: 'INV-001', date: '2024-01-15', amount: '$29.99', status: 'paid' },
     { id: 'INV-002', date: '2024-02-15', amount: '$29.99', status: 'paid' },
@@ -115,7 +113,6 @@ const Subscription = () => {
     },
   ];
 
-  // UNLIMITED план скрыт - только для админов, поэтому не включен в plans массив
   const allPlans = [
     ...plans,
     {
@@ -138,7 +135,6 @@ const Subscription = () => {
       return;
     }
 
-    // Проверяем наличие карты для платных планов
     if (selectedPlan !== 'BASIC' && cards.length === 0) {
       addToast('Please add a payment card before upgrading to a paid plan', 'error');
       return;
@@ -159,11 +155,9 @@ const Subscription = () => {
     }
   };
 
-  // Валидация номера карты (Luhn algorithm)
   const validateCardNumber = (number) => {
     const cleaned = number.replace(/\s/g, '');
 
-    // Проверяем, что только цифры и правильная длина
     if (!/^\d+$/.test(cleaned) || cleaned.length < 13 || cleaned.length > 19) {
       return false;
     }
@@ -171,13 +165,11 @@ const Subscription = () => {
     let sum = 0;
     let alternate = false;
 
-    // Проходим справа налево
     for (let i = cleaned.length - 1; i >= 0; i--) {
       let n = parseInt(cleaned.charAt(i), 10);
 
       if (alternate) {
         n *= 2;
-        // Если больше 9, вычитаем 9 (это то же самое что складывать цифры)
         if (n > 9) {
           n -= 9;
         }
@@ -197,7 +189,6 @@ const Subscription = () => {
   };
 
   const handleCardSubmit = async () => {
-    // Валидация полей
     if (
       !cardForm.paymentCardNumber ||
       !cardForm.paymentCardHolder ||
@@ -209,7 +200,6 @@ const Subscription = () => {
       return;
     }
 
-    // Валидация номера карты
     const cleanedNumber = cardForm.paymentCardNumber.replace(/\s/g, '');
     console.log('Validating card number:', cleanedNumber);
     const isValid = validateCardNumber(cleanedNumber);
@@ -220,7 +210,6 @@ const Subscription = () => {
       return;
     }
 
-    // Валидация CVV
     if (!/^\d{3,4}$/.test(cardForm.paymentCardCvv)) {
       addToast('CVV must be 3 or 4 digits', 'error');
       return;
@@ -275,7 +264,6 @@ const Subscription = () => {
     });
   };
 
-  // Получаем доступные сторы для пользователя
   const getAvailableStores = () => {
     if (!user) return [];
 
@@ -285,18 +273,14 @@ const Subscription = () => {
       ...(user.deliveringStores || []).map((store) => ({ ...store, role: 'COURIER' })),
     ];
 
-    // Фильтруем доступные сторы (убираем заблокированные для BASIC пользователей и неактивные)
     const availableStores = allStores.filter((store, index, arr) => {
-      // Убираем дубликаты по ID
       const isUnique = arr.findIndex((s) => s.id === store.id) === index;
       if (!isUnique) return false;
 
-      // Если стор неактивен - считаем недоступным
       if (!store.isActive) {
         return false;
       }
 
-      // Если у пользователя план BASIC и он владелец стора - считаем недоступным
       if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {
         return false;
       }
@@ -306,7 +290,6 @@ const Subscription = () => {
     return availableStores;
   };
 
-  // Определяем логику кнопки сторов
   const getStoreButtonLogic = () => {
     const availableStores = getAvailableStores();
     const subscription = user?.subscriptionType;
@@ -315,16 +298,13 @@ const Subscription = () => {
     let targetStore = null;
 
     if (subscription === 'BASIC') {
-      // Для BASIC: показываем Store если ровно 1 доступный стор (любая роль)
       shouldGoToSingleStore = availableStores.length === 1;
       targetStore = availableStores[0];
     } else if (subscription === 'ADVANCED') {
-      // Для ADVANCED: показываем Store если ровно 1 стор где он OWNER
       const ownedStores = availableStores.filter((store) => store.role === 'OWNER');
       shouldGoToSingleStore = ownedStores.length === 1;
       targetStore = ownedStores[0];
     }
-    // Для PRO и UNLIMITED всегда показываем Stores
 
     return {
       text: shouldGoToSingleStore ? 'Store' : 'Stores',
@@ -341,7 +321,6 @@ const Subscription = () => {
   };
 
   useEffect(() => {
-    // Переопределяем overflow: hidden из Auth.css чтобы разрешить скролл
     const originalBodyOverflow = document.body.style.overflow;
     const originalHtmlOverflow = document.documentElement.style.overflow;
 
@@ -349,25 +328,21 @@ const Subscription = () => {
     document.documentElement.style.overflow = 'auto';
 
     return () => {
-      // Восстанавливаем оригинальные стили при размонтировании
       document.body.style.overflow = originalBodyOverflow;
       document.documentElement.style.overflow = originalHtmlOverflow;
     };
   }, []);
 
   useEffect(() => {
-    // Обновляем карты когда изменяется пользователь
     const userCard = getUserCard();
     setCards(userCard ? [userCard] : []);
   }, [user]);
 
   useEffect(() => {
-    // Автоматически обновляем данные пользователя при загрузке страницы
     refreshUser();
   }, []);
 
   useEffect(() => {
-    // Обновляем конфигурацию кнопки сторов при изменении подписки пользователя
     setStoreButtonConfig(getStoreButtonLogic());
   }, [user?.subscriptionType, user?.stores, user?.managingStores, user?.deliveringStores]);
 
@@ -428,9 +403,7 @@ const Subscription = () => {
             title="Subscription Management"
             description="Manage your subscription plan and billing information."
             RightContent={
-              <Button onClick={storeButtonConfig.action}>
-                {storeButtonConfig.text}
-              </Button>
+              <Button onClick={storeButtonConfig.action}>{storeButtonConfig.text}</Button>
             }
           >
             <h3

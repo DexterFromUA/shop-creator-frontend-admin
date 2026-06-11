@@ -1,20 +1,22 @@
 import React from 'react';
 
 const fadeInStyle = {
-  animation: 'pageFadeIn 0.5s cubic-bezier(0.4,0,0.2,1)'
+  animation: 'pageFadeIn 0.5s cubic-bezier(0.4,0,0.2,1)',
 };
 
-const PageContainer = ({ 
+const PageContainer = ({
   title,
   description,
-  isStretch = false,
+  isStretch = true,
   withPadding = false,
   isCenteredContent = false,
   RightContent = null,
   leftComponent = null,
-  minHeight = '80vh',
+  minHeight = '10vh',
   withBottomSpace = false,
-  children
+  loading,
+  loadingText,
+  children,
 }) => {
   React.useEffect(() => {
     if (!document.getElementById('page-fadein-keyframes')) {
@@ -32,7 +34,7 @@ const PageContainer = ({
       boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
       boxSizing: 'border-box',
       width: '100%',
-      ...fadeInStyle
+      ...fadeInStyle,
     };
 
     if (isStretch) {
@@ -40,7 +42,7 @@ const PageContainer = ({
     } else {
       cardStyles.height = minHeight;
       cardStyles.overflowY = 'auto';
-      
+
       if (isCenteredContent) {
         cardStyles.display = 'flex';
         cardStyles.alignItems = 'center';
@@ -64,23 +66,30 @@ const PageContainer = ({
     <>
       {/* Page Header */}
       {(title || description || leftComponent || RightContent) && (
-        <div style={{ 
-          marginBottom: 32,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          gap: 16
-        }}>
+        <div
+          style={{
+            marginBottom: 32,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: 16,
+          }}
+        >
           <div>
             {(leftComponent || title) && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: description ? 8 : 0 }}>
-                {leftComponent && (
-                  <div>
-                    {leftComponent}
-                  </div>
-                )}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 18,
+                  marginBottom: description ? 8 : 0,
+                }}
+              >
+                {leftComponent && <div>{leftComponent}</div>}
                 {title && (
-                  <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}>
+                  <h1
+                    style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}
+                  >
                     {title}
                   </h1>
                 )}
@@ -92,20 +101,44 @@ const PageContainer = ({
               </p>
             )}
           </div>
-          {RightContent && (
-            <div>
-              {RightContent}
-            </div>
-          )}
+          {RightContent && <div>{RightContent}</div>}
         </div>
       )}
 
       {/* Main Content Card */}
       <div style={getCardStyles()}>
-        {children}
+        {loading ? (
+          <div
+            style={{
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div style={{ textAlign: 'center' }}>
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  border: '4px solid #e5e7eb',
+                  borderTop: '4px solid #111827',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                  margin: '0 auto 16px',
+                }}
+              ></div>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: 16 }}>
+                {loadingText || 'Loading your data...'}
+              </p>
+            </div>
+          </div>
+        ) : (
+          children
+        )}
       </div>
     </>
   );
 };
 
-export default PageContainer; 
+export default PageContainer;

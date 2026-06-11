@@ -15,11 +15,11 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await authService.login(email, password);
-      
+
       setIsAuthenticated(true);
       localStorage.setItem(TOKEN_KEY, response.token);
       setUser(response.client);
-      
+
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -32,14 +32,13 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await authService.register(email, password, name);
-      
+
       setIsAuthenticated(true);
       localStorage.setItem(TOKEN_KEY, response.token);
-      
-      // Загружаем актуальные данные пользователя с сервера
+
       const userData = await authService.getCurrentUser();
       setUser(userData);
-      
+
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -60,7 +59,7 @@ export const AuthProvider = ({ children }) => {
 
   const refreshUser = async () => {
     if (!isAuthenticated) return;
-    
+
     try {
       const fresh = await authService.getCurrentUser();
       setUser(fresh);
@@ -73,12 +72,12 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem(TOKEN_KEY);
-      
+
       if (token) {
         try {
           setLoading(true);
           const userData = await authService.getCurrentUser();
-          console.log(userData)
+          console.log(userData);
           setUser(userData);
           setIsAuthenticated(true);
         } catch (error) {
@@ -90,25 +89,27 @@ export const AuthProvider = ({ children }) => {
           setLoading(false);
         }
       }
-      
+
       setInitializing(false);
     };
 
     initializeAuth();
-  }, []); // Выполняется только один раз при инициализации
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated, 
-      loading,
-      initializing,
-      login, 
-      register, 
-      logout,
-      updateUser,
-      refreshUser 
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        loading,
+        initializing,
+        login,
+        register,
+        logout,
+        updateUser,
+        refreshUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -120,4 +121,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};

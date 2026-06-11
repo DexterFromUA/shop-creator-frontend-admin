@@ -12,9 +12,11 @@ const AppHeader = () => {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const userDropdownRef = useRef();
   const adminDropdownRef = useRef();
   const notificationsRef = useRef();
+  const menuRefs = useRef([]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,34 +52,10 @@ const AppHeader = () => {
       read: false,
       type: 'order',
     },
-    {
-      id: 2,
-      title: 'Payment Successful',
-      message: 'Payment for order #12344 has been processed',
-      time: '15 minutes ago',
-      read: false,
-      type: 'payment',
-    },
-    {
-      id: 3,
-      title: 'Low Stock Alert',
-      message: 'Product "Wireless Headphones" is running low on stock',
-      time: '1 hour ago',
-      read: true,
-      type: 'stock',
-    },
-    {
-      id: 4,
-      title: 'System Update',
-      message: 'New dashboard features are now available',
-      time: '2 hours ago',
-      read: true,
-      type: 'system',
-    },
   ]);
 
-  const menuItems =
-    storeId && !loading
+  const menuItems = useMemo(() => {
+    return storeId && !loading
       ? [
           { to: `/store/${storeId}/dashboard`, label: 'Dashboard', icon: '📊' },
           { to: `/store/${storeId}/orders`, label: 'Orders', icon: '🛒' },
@@ -89,14 +67,13 @@ const AppHeader = () => {
             : []),
         ]
       : [];
+  }, [loading, roleCheck, storeId]);
 
-  const menuRefs = useRef([]);
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
-  const getActiveMenuIndex = () =>
-    menuItems.findIndex(
+  const activeMenuIndex = useMemo(() => {
+    return menuItems.findIndex(
       (item) => location.pathname === item.to || location.pathname.startsWith(item.to + '/')
     );
-  const activeMenuIndex = getActiveMenuIndex();
+  }, [menuItems, location.pathname]);
 
   useEffect(() => {
     if (activeMenuIndex !== -1 && menuRefs.current[activeMenuIndex]) {
@@ -110,8 +87,7 @@ const AppHeader = () => {
     }
   }, [location.pathname, activeMenuIndex]);
 
-  // Close dropdowns on outside click
-  React.useEffect(() => {
+  useEffect(() => {
     function handleClick(e) {
       if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
         setUserDropdownOpen(false);

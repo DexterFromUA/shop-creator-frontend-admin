@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { storeService } from '../utils/graphql';
@@ -143,57 +144,26 @@ const StoreSelection = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div
-        style={{
-          minHeight: '100vh',
-          background: 'var(--color-bg-secondary)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <div style={{ textAlign: 'center' }}>
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              border: '4px solid #e5e7eb',
-              borderTop: '4px solid #111827',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
-              margin: '0 auto 16px',
-            }}
-          ></div>
-          <p style={{ color: 'var(--color-text-secondary)', fontSize: 16 }}>
-            Loading your stores...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <PageContainer
-      title={stores.length > 0 ? 'Select Your Store' : 'Your Stores'}
-      description={stores.length > 0
-        ? `You have ${stores.length} store${stores.length > 1 ? 's' : ''}. Choose one to manage.`
-        : 'Get started by creating your first store.'}
+      title={'Your Stores'}
+      description={
+        stores.length > 0
+          ? `You have ${stores.length} store${stores.length > 1 ? 's' : ''}. Choose one to manage.`
+          : 'Get started by creating your first store.'
+      }
       RightContent={
         <div style={{ display: 'flex', gap: 12 }}>
-          <Button onClick={() => navigate('/subscription')}>
-            Subscription
-          </Button>
-          <Button filled onClick={logout}>
+          <Button onClick={() => navigate('/subscription')}>Subscription</Button>
+          <Button onClick={logout} color={'#ef4444'}>
             Logout
           </Button>
         </div>
       }
       isStretch={false}
-      withHeader={false}
+      minHeight={'80vh'}
+      loading={loading}
     >
-      {/* Контент карточки (Stores List и Create Store) */}
       <div style={{ padding: 32 }}>
         {stores.length > 0 && (
           <div
@@ -217,9 +187,7 @@ const StoreSelection = () => {
                     background: isDisabled
                       ? 'var(--color-bg-tertiary)'
                       : 'var(--color-bg-secondary)',
-                    border: isDisabled
-                      ? '2px dashed #d1d5db'
-                      : '2px dashed var(--color-border)',
+                    border: isDisabled ? '2px dashed #d1d5db' : '2px dashed var(--color-border)',
                     borderRadius: 18,
                     padding: 24,
                     cursor: isDisabled ? 'not-allowed' : 'pointer',
@@ -392,11 +360,7 @@ const StoreSelection = () => {
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {isInactive
-                      ? 'Store Inactive'
-                      : isBlocked
-                        ? 'Upgrade to Access'
-                        : 'Manage →'}
+                    {isInactive ? 'Store Inactive' : isBlocked ? 'Upgrade to Access' : 'Manage →'}
                   </div>
                 </div>
               );
@@ -404,7 +368,6 @@ const StoreSelection = () => {
           </div>
         )}
 
-        {/* Create New Store Button */}
         <div>
           <div
             onClick={handleCreateStoreClick}
@@ -430,8 +393,7 @@ const StoreSelection = () => {
               const ownedStores = stores.filter((store) => store.role === 'OWNER');
               const storeLimit = getStoreLimit(user?.subscriptionType);
               const isBasic = user?.subscriptionType === 'BASIC';
-              const isLimitReached =
-                ownedStores.length >= storeLimit && storeLimit !== Infinity;
+              const isLimitReached = ownedStores.length >= storeLimit && storeLimit !== Infinity;
 
               return (
                 <>
