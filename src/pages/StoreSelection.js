@@ -163,6 +163,7 @@ const StoreSelection = () => {
       isStretch={false}
       minHeight={'80vh'}
       loading={loading}
+      withPadding={false}
     >
       <div style={{ padding: 32 }}>
         {stores.length > 0 && (

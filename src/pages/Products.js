@@ -7,7 +7,7 @@ import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
 import './Dashboard.css';
 
-// Keep this export for ProductView.js compatibility 
+// Keep this export for ProductView.js compatibility
 export const initialProducts = [
   { id: 1, name: 'Wireless Earbuds', price: '$129.99', stock: 45, category: 'Electronics' },
   { id: 2, name: 'Smart Watch', price: '$199.99', stock: 28, category: 'Electronics' },
@@ -38,18 +38,18 @@ const Products = () => {
   const { storeId } = useParams();
 
   useEffect(() => {
-          const loadProducts = async () => {
-        // Prevent multiple simultaneous loads
-        if (loadingRef.current) {
-          return;
-        }
-        
-        try {
-          loadingRef.current = true;
-          setLoading(true);
-          const data = await productService.getStoreProducts(storeId);
-          setProducts(data);
-        } catch (error) {
+    const loadProducts = async () => {
+      // Prevent multiple simultaneous loads
+      if (loadingRef.current) {
+        return;
+      }
+
+      try {
+        loadingRef.current = true;
+        setLoading(true);
+        const data = await productService.getStoreProducts(storeId);
+        setProducts(data);
+      } catch (error) {
         console.error('Error loading products:', error);
         addToast('Failed to load products', 'error');
         setProducts([]); // Clear products on error
@@ -64,7 +64,7 @@ const Products = () => {
     }
   }, [storeId]);
 
-  const filtered = products.filter(product => {
+  const filtered = products.filter((product) => {
     const term = search.toLowerCase();
     return (
       product.name.toLowerCase().includes(term) ||
@@ -78,7 +78,7 @@ const Products = () => {
 
   useEffect(() => {
     const calculateIndicator = () => {
-      const activeButton = buttonsRef.current.find(btn => btn && btn.dataset.view === viewMode);
+      const activeButton = buttonsRef.current.find((btn) => btn && btn.dataset.view === viewMode);
       if (activeButton && containerRef.current) {
         const containerRect = containerRef.current.getBoundingClientRect();
         const buttonRect = activeButton.getBoundingClientRect();
@@ -102,11 +102,11 @@ const Products = () => {
     animate: { opacity: 1, transition: { duration: 0.3 } },
     exit: { opacity: 0, transition: { duration: 0.2 } },
   };
-  
+
   const gridContainerVariants = {
     animate: { transition: { staggerChildren: 0.05 } },
   };
-  
+
   const gridItemVariants = {
     initial: { opacity: 0, y: 20, scale: 0.98 },
     animate: { opacity: 1, y: 0, scale: 1 },
@@ -116,11 +116,8 @@ const Products = () => {
     <>
       {/* Search and Controls Card */}
       <PageContainer
-        isStretch
-        minHeight="auto"
         title="Products"
         description="Manage your product catalog, inventory, and pricing"
-        withPadding
         withBottomSpace
         RightContent={
           <Button onClick={() => navigate(`/store/${storeId}/products/add`)} filled>
@@ -229,21 +226,40 @@ const Products = () => {
         </div>
       </PageContainer>
 
-      <PageContainer minHeight="60vh">
-          {loading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 64 }}>
-              <div style={{ color: 'var(--color-text-secondary)', fontSize: 16 }}>Loading products...</div>
+      <PageContainer minHeight="60vh" withPadding={false}>
+        {loading ? (
+          <div
+            style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 64 }}
+          >
+            <div style={{ color: 'var(--color-text-secondary)', fontSize: 16 }}>
+              Loading products...
             </div>
-          ) : products.length === 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 64, textAlign: 'center' }}>
-              <div style={{ fontSize: 24, marginBottom: 8 }}>📦</div>
-              <div style={{ color: 'var(--color-text)', fontSize: 18, fontWeight: 600, marginBottom: 8 }}>No products yet</div>
-              <div style={{ color: 'var(--color-text-secondary)', fontSize: 14, marginBottom: 24 }}>Create your first product to get started</div>
-              <Button filled onClick={() => navigate(`/store/${storeId}/products/add`)}>
-                + Add Product
-              </Button>
+          </div>
+        ) : products.length === 0 ? (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: 64,
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: 24, marginBottom: 8 }}>📦</div>
+            <div
+              style={{ color: 'var(--color-text)', fontSize: 18, fontWeight: 600, marginBottom: 8 }}
+            >
+              No products yet
             </div>
-          ) : (
+            <div style={{ color: 'var(--color-text-secondary)', fontSize: 14, marginBottom: 24 }}>
+              Create your first product to get started
+            </div>
+            <Button filled onClick={() => navigate(`/store/${storeId}/products/add`)}>
+              + Add Product
+            </Button>
+          </div>
+        ) : (
           <AnimatePresence mode="wait">
             {viewMode === 'grid' ? (
               <motion.div
@@ -252,7 +268,12 @@ const Products = () => {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 24, padding: 32 }}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                  gap: 24,
+                  padding: 32,
+                }}
               >
                 {filtered.map((product) => (
                   <motion.div
@@ -270,17 +291,44 @@ const Products = () => {
                       border: '1px solid var(--color-border)',
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                      }}
+                    >
                       <div>
                         <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{product.name}</h3>
-                        <p style={{ margin: '8px 0 0 0', color: 'var(--color-text-secondary)', fontSize: 14 }}>{product.category || 'Uncategorized'}</p>
+                        <p
+                          style={{
+                            margin: '8px 0 0 0',
+                            color: 'var(--color-text-secondary)',
+                            fontSize: 14,
+                          }}
+                        >
+                          {product.category || 'Uncategorized'}
+                        </p>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                        <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-accent)' }}>{formatPrice(product.price)}</span>
-                        <span style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}>Stock: {product.amount}</span>
+                      <div
+                        style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}
+                      >
+                        <span
+                          style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-accent)' }}
+                        >
+                          {formatPrice(product.price)}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 14,
+                            color: 'var(--color-text-secondary)',
+                            marginTop: 4,
+                          }}
+                        >
+                          Stock: {product.amount}
+                        </span>
                       </div>
                     </div>
-
                   </motion.div>
                 ))}
               </motion.div>
@@ -304,10 +352,28 @@ const Products = () => {
                   </thead>
                   <tbody>
                     {filtered.map((product, i) => (
-                      <motion.tr key={product.id} variants={listVariants} initial="initial" animate="animate" exit="exit" style={{ cursor: 'pointer' }} onClick={() => navigate(`/store/${storeId}/products/${product.id}`)}>
+                      <motion.tr
+                        key={product.id}
+                        variants={listVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => navigate(`/store/${storeId}/products/${product.id}`)}
+                      >
                         <td style={{ padding: '20px 32px' }}>{product.name}</td>
-                        <td style={{ padding: '20px 32px' }}>{product.category || 'Uncategorized'}</td>
-                        <td style={{ padding: '20px 32px', color: 'var(--color-accent)', fontWeight: 600 }}>{formatPrice(product.price)}</td>
+                        <td style={{ padding: '20px 32px' }}>
+                          {product.category || 'Uncategorized'}
+                        </td>
+                        <td
+                          style={{
+                            padding: '20px 32px',
+                            color: 'var(--color-accent)',
+                            fontWeight: 600,
+                          }}
+                        >
+                          {formatPrice(product.price)}
+                        </td>
                         <td style={{ padding: '20px 32px' }}>{product.amount}</td>
                       </motion.tr>
                     ))}
@@ -316,10 +382,10 @@ const Products = () => {
               </motion.div>
             )}
           </AnimatePresence>
-          )}
+        )}
       </PageContainer>
     </>
   );
 };
 
-export default Products; 
+export default Products;

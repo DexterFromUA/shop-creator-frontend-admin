@@ -588,7 +588,7 @@ const Subscription = () => {
         </PageContainer>
 
         {/* Invoices */}
-        <PageContainer isStretch minHeight="auto">
+        <PageContainer isStretch withPadding={false}>
           <div
             style={{
               padding: '24px 32px',

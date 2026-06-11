@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+
 import PageContainer from '../components/common/PageContainer';
 import './Dashboard.css';
 
@@ -62,135 +63,6 @@ const orders = [
     status: 'Delivered',
     date: '5 days ago',
   },
-  { id: '#10392', customer: 'Robert Fox', total: '$342.50', status: 'Pending', date: '6 days ago' },
-  { id: '#10391', customer: 'Eleanor Pena', total: '$67.25', status: 'Failed', date: '1 week ago' },
-  {
-    id: '#10390',
-    customer: 'Guy Hawkins',
-    total: '$178.00',
-    status: 'Delivered',
-    date: '1 week ago',
-  },
-  {
-    id: '#10389',
-    customer: 'Jenny Wilson',
-    total: '$445.75',
-    status: 'Shipped',
-    date: '1 week ago',
-  },
-  {
-    id: '#10388',
-    customer: 'Cameron Williamson',
-    total: '$123.45',
-    status: 'Pending',
-    date: '1 week ago',
-  },
-  {
-    id: '#10387',
-    customer: 'Brooklyn Simmons',
-    total: '$267.80',
-    status: 'Delivered',
-    date: '2 weeks ago',
-  },
-  {
-    id: '#10386',
-    customer: 'Theresa Webb',
-    total: '$98.99',
-    status: 'Shipped',
-    date: '2 weeks ago',
-  },
-  {
-    id: '#10385',
-    customer: 'Ronald Richards',
-    total: '$189.50',
-    status: 'Failed',
-    date: '2 weeks ago',
-  },
-  {
-    id: '#10384',
-    customer: 'Albert Flores',
-    total: '$334.25',
-    status: 'Delivered',
-    date: '2 weeks ago',
-  },
-  {
-    id: '#10383',
-    customer: 'Kathryn Murphy',
-    total: '$76.80',
-    status: 'Pending',
-    date: '2 weeks ago',
-  },
-  {
-    id: '#10382',
-    customer: 'Bessie Cooper',
-    total: '$156.00',
-    status: 'Shipped',
-    date: '3 weeks ago',
-  },
-  {
-    id: '#10381',
-    customer: 'Arlene McCoy',
-    total: '$289.75',
-    status: 'Delivered',
-    date: '3 weeks ago',
-  },
-  { id: '#10380', customer: 'Devon Lane', total: '$112.50', status: 'Failed', date: '3 weeks ago' },
-  {
-    id: '#10379',
-    customer: 'Darrell Steward',
-    total: '$198.25',
-    status: 'Pending',
-    date: '3 weeks ago',
-  },
-  {
-    id: '#10378',
-    customer: 'Floyd Miles',
-    total: '$445.00',
-    status: 'Delivered',
-    date: '3 weeks ago',
-  },
-  {
-    id: '#10377',
-    customer: 'Courtney Henry',
-    total: '$89.99',
-    status: 'Shipped',
-    date: '4 weeks ago',
-  },
-  {
-    id: '#10376',
-    customer: 'Wade Warren',
-    total: '$167.80',
-    status: 'Delivered',
-    date: '4 weeks ago',
-  },
-  {
-    id: '#10375',
-    customer: 'Brett Cunningham',
-    total: '$234.50',
-    status: 'Failed',
-    date: '4 weeks ago',
-  },
-  {
-    id: '#10374',
-    customer: 'Dianne Russell',
-    total: '$78.25',
-    status: 'Pending',
-    date: '4 weeks ago',
-  },
-  {
-    id: '#10373',
-    customer: 'Ted Howard',
-    total: '$345.75',
-    status: 'Delivered',
-    date: '1 month ago',
-  },
-  {
-    id: '#10372',
-    customer: 'Cameron Bell',
-    total: '$123.45',
-    status: 'Shipped',
-    date: '1 month ago',
-  },
 ];
 
 const statusBgColor = {
@@ -226,11 +98,8 @@ const Orders = () => {
     <>
       {/* Search and Filter Card */}
       <PageContainer
-        isStretch
-        minHeight="auto"
         title="Orders"
         description="Track and manage customer orders, deliveries, and payments"
-        withPadding
         withBottomSpace
       >
         <div
@@ -301,7 +170,7 @@ const Orders = () => {
           </select>
         </div>
       </PageContainer>
-      <PageContainer minHeight='60vh'>
+      <PageContainer minHeight="60vh" isStretch={false} withPadding={false}>
         {filtered.length === 0 ? (
           <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>No orders</div>
         ) : (
