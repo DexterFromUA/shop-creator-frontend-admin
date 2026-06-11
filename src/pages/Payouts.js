@@ -29,7 +29,8 @@ const AddBankModal = ({ open, onClose, onSave, existing, saving }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.bankAccountNumber.trim() || !form.bankAccountHolder.trim() || !form.bankName.trim()) return;
+    if (!form.bankAccountNumber.trim() || !form.bankAccountHolder.trim() || !form.bankName.trim())
+      return;
     onSave(form);
   };
 
@@ -169,9 +170,11 @@ const AddBankModal = ({ open, onClose, onSave, existing, saving }) => {
             />
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
-            <Button onClick={onClose} disabled={saving}>Cancel</Button>
+            <Button onClick={onClose} disabled={saving}>
+              Cancel
+            </Button>
             <Button filled type="submit" disabled={saving}>
-              {saving ? 'Saving...' : (existing ? 'Update' : 'Save')}
+              {saving ? 'Saving...' : existing ? 'Update' : 'Save'}
             </Button>
           </div>
         </form>
@@ -211,15 +214,15 @@ const Payouts = () => {
   useEffect(() => {
     const loadData = async () => {
       if (!storeId) return;
-      
+
       setLoading(true);
       try {
         // Load bank account and transactions in parallel
         const [bankAccountData, transactionsData] = await Promise.all([
           payoutService.getStoreBankAccount(storeId),
-          payoutService.getStoreTransactions(storeId)
+          payoutService.getStoreTransactions(storeId),
         ]);
-        
+
         setBankAccount(bankAccountData);
         setTransactions(transactionsData);
       } catch (error) {
@@ -228,7 +231,7 @@ const Payouts = () => {
         setLoading(false);
       }
     };
-    
+
     loadData();
   }, [storeId, addToast]);
 
@@ -296,20 +299,30 @@ const Payouts = () => {
               {bankAccount ? 'Change' : '+ Add'} Account
             </Button>
           </div>
-          {bankAccount && (bankAccount.bankAccountNumber || bankAccount.bankAccountHolder || bankAccount.bankName) ? (
+          {bankAccount &&
+          (bankAccount.bankAccountNumber ||
+            bankAccount.bankAccountHolder ||
+            bankAccount.bankName) ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <span style={{ fontWeight: 600, fontSize: 16 }}>
                   {bankAccount.bankAccountHolder || 'No account holder'}
                 </span>
-                <span style={{ fontWeight: 500, fontSize: 15, color: 'var(--color-text-secondary)' }}>
+                <span
+                  style={{ fontWeight: 500, fontSize: 15, color: 'var(--color-text-secondary)' }}
+                >
                   {bankAccount.bankName || 'No bank name'}
                 </span>
-                <span style={{ fontSize: 14, color: 'var(--color-text-secondary)', fontFamily: 'monospace' }}>
-                  {bankAccount.bankAccountNumber ? 
-                    `••••••••••••••••••••••••${bankAccount.bankAccountNumber.slice(-4)}` : 
-                    'No account number'
-                  }
+                <span
+                  style={{
+                    fontSize: 14,
+                    color: 'var(--color-text-secondary)',
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {bankAccount.bankAccountNumber
+                    ? `••••••••••••••••••••••••${bankAccount.bankAccountNumber.slice(-4)}`
+                    : 'No account number'}
                 </span>
                 {bankAccount.bankIban && (
                   <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
@@ -331,7 +344,7 @@ const Payouts = () => {
         </div>
       </PageContainer>
 
-      <PageContainer title="Transaction History" minHeight="80vh">
+      <PageContainer title="Transaction History" minHeight="80vh" withPadding={false}>
         <table className="dashboard-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
@@ -366,33 +379,41 @@ const Payouts = () => {
                 <td style={{ padding: 16, maxWidth: 200 }}>
                   <div style={{ fontSize: 14 }}>{t.description}</div>
                   {t.referenceOrderId && (
-                    <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 2 }}>
+                    <div
+                      style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 2 }}
+                    >
                       {t.referenceOrderId}
                     </div>
                   )}
                 </td>
-                <td style={{ 
-                  padding: 16, 
-                  fontFamily: 'monospace',
-                  color: t.amount >= 0 ? '#10b981' : '#ef4444',
-                  fontWeight: 600,
-                }}>
+                <td
+                  style={{
+                    padding: 16,
+                    fontFamily: 'monospace',
+                    color: t.amount >= 0 ? '#10b981' : '#ef4444',
+                    fontWeight: 600,
+                  }}
+                >
                   {formatAmount(t.amount, t.currency)}
                 </td>
-                <td style={{ 
-                  padding: 16, 
-                  fontFamily: 'monospace',
-                  fontSize: 13,
-                  color: 'var(--color-text-secondary)',
-                }}>
+                <td
+                  style={{
+                    padding: 16,
+                    fontFamily: 'monospace',
+                    fontSize: 13,
+                    color: 'var(--color-text-secondary)',
+                  }}
+                >
                   {t.processingFee ? `₴${t.processingFee.toFixed(2)}` : '-'}
                 </td>
-                <td style={{ 
-                  padding: 16, 
-                  fontFamily: 'monospace',
-                  color: t.netAmount >= 0 ? '#10b981' : '#ef4444',
-                  fontWeight: 600,
-                }}>
+                <td
+                  style={{
+                    padding: 16,
+                    fontFamily: 'monospace',
+                    color: t.netAmount >= 0 ? '#10b981' : '#ef4444',
+                    fontWeight: 600,
+                  }}
+                >
                   {formatAmount(t.netAmount, t.currency)}
                 </td>
                 <td style={{ padding: 16 }}>

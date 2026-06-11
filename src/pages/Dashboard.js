@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 import Button from '../components/common/Button';
-import './Dashboard.css';
 import PageContainer from '../components/common/PageContainer';
+import './Dashboard.css';
 
 const chartData = [32000, 37000, 29000, 41000, 42890, 39000];
 const chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
