@@ -7,15 +7,15 @@ const fadeInStyle = {
 const PageContainer = ({
   title,
   description,
-  isStretch = true,
-  withPadding = true,
-  isCenteredContent = false,
+  isCenteredContent,
   RightContent = null,
-  leftComponent = null,
+  LeftComponent = null,
   minHeight = 'auto',
-  withBottomSpace = false,
+  removeBottomSpace,
+  removeBorderSpace,
   loading,
   loadingText,
+  fixedSize,
   children,
 }) => {
   React.useEffect(() => {
@@ -34,10 +34,12 @@ const PageContainer = ({
       boxShadow: '0 2px 16px 0 rgba(80,80,120,0.08)',
       boxSizing: 'border-box',
       width: '100%',
+      marginBottom: 24,
+      padding: 32,
       ...fadeInStyle,
     };
 
-    if (isStretch) {
+    if (!fixedSize) {
       cardStyles.minHeight = minHeight;
     } else {
       cardStyles.height = minHeight;
@@ -51,12 +53,12 @@ const PageContainer = ({
       }
     }
 
-    if (withBottomSpace) {
-      cardStyles.marginBottom = 32;
+    if (removeBottomSpace) {
+      cardStyles.marginBottom = 0;
     }
 
-    if (withPadding) {
-      cardStyles.padding = 32;
+    if (removeBorderSpace) {
+      cardStyles.padding = 0;
     }
 
     return cardStyles;
@@ -65,10 +67,10 @@ const PageContainer = ({
   return (
     <>
       {/* Page Header */}
-      {(title || description || leftComponent || RightContent) && (
+      {(title || description || LeftComponent || RightContent) && (
         <div
           style={{
-            marginBottom: 32,
+            marginBottom: 16,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
@@ -76,7 +78,7 @@ const PageContainer = ({
           }}
         >
           <div>
-            {(leftComponent || title) && (
+            {(LeftComponent || title) && (
               <div
                 style={{
                   display: 'flex',
@@ -85,7 +87,7 @@ const PageContainer = ({
                   marginBottom: description ? 8 : 0,
                 }}
               >
-                {leftComponent && <div>{leftComponent}</div>}
+                {LeftComponent && <div>{LeftComponent}</div>}
                 {title && (
                   <h1
                     style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}

@@ -186,10 +186,7 @@ const WebNotifications = () => {
     <>
       {/* Search and Filter Card */}
       <PageContainer
-        withPadding
-        withBottomSpace
-        isStretch
-        minHeight='auto'
+        minHeight="auto"
         title="Web Notifications"
         description={`Manage and view all web application notifications · ${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`}
       >
@@ -268,8 +265,8 @@ const WebNotifications = () => {
       </PageContainer>
 
       {/* Notifications Content Card */}
-      <PageContainer minHeight='60vh'>
-        <div style={{ padding: 0, maxHeight: '60vh', overflowY: 'auto' }}>
+      <PageContainer minHeight="65vh" removeBorderSpace removeBottomSpace>
+        <div style={{ padding: 0, maxHeight: '65vh', overflowY: 'auto' }}>
           {filteredNotifications.length === 0 ? (
             <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>
               No notifications found

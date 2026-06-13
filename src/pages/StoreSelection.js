@@ -160,10 +160,10 @@ const StoreSelection = () => {
           </Button>
         </div>
       }
-      isStretch={false}
+      fixedSize
       minHeight={'80vh'}
       loading={loading}
-      withPadding={false}
+      removeBorderSpace
     >
       <div style={{ padding: 32 }}>
         {stores.length > 0 && (

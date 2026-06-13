@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+
 import { useStore } from '../context/StoreContext';
 import { inviteService } from '../utils/graphql';
 import { useToast } from '../context/ToastContext';
@@ -68,7 +69,9 @@ const ConfirmDeleteModal = ({ open, onClose, onConfirm, userName }) => {
             </p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
               <Button onClick={onClose}>Cancel</Button>
-              <Button filled color="#ef4444" onClick={onConfirm}>Remove</Button>
+              <Button filled color="#ef4444" onClick={onConfirm}>
+                Remove
+              </Button>
             </div>
           </motion.div>
         </motion.div>
@@ -217,7 +220,9 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
                   </select>
                 </div>
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
-                  <Button type="button" onClick={handleClose} disabled={loading}>Cancel</Button>
+                  <Button type="button" onClick={handleClose} disabled={loading}>
+                    Cancel
+                  </Button>
                   <Button filled type="submit" disabled={loading}>
                     {loading ? 'Creating...' : 'Create Invite'}
                   </Button>
@@ -246,11 +251,15 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
                         fontSize: 15,
                       }}
                     />
-                    <Button filled onClick={copyToClipboard}>Copy Link</Button>
+                    <Button filled onClick={copyToClipboard}>
+                      Copy Link
+                    </Button>
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-                  <Button filled onClick={handleClose}>Close</Button>
+                  <Button filled onClick={handleClose}>
+                    Close
+                  </Button>
                 </div>
               </div>
             )}
@@ -265,14 +274,12 @@ const Team = () => {
   const { currentStore, refreshStore } = useStore();
   const navigate = useNavigate();
   const { addToast } = useToast();
-
   const [modal, setModal] = useState({ open: false });
   const [deleteModal, setDeleteModal] = useState({ open: false, user: null });
   const [search, setSearch] = useState('');
   const [invites, setInvites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('members');
-
   const [indicatorStyle, setIndicatorStyle] = useState({});
   const buttonsRef = useRef([]);
   const containerRef = useRef(null);
@@ -302,26 +309,27 @@ const Team = () => {
     } catch (error) {
       console.error('Failed to load invites:', error);
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 2000);
     }
   }, [currentStore?.id]);
 
   useEffect(() => {
     loadInvites();
-  }, [currentStore?.id]);
+  }, [currentStore, loadInvites]);
 
-  // Reload data when window gets focus (e.g., after accepting invite)
-  useEffect(() => {
-    const handleFocus = () => {
-      // loadInvites();
-      refreshStore(); // Also refresh store data to get updated team members
-    };
+  // useEffect(() => {
+  //   const handleFocus = () => {
+  //     // loadInvites();
+  //     refreshStore(); // Also refresh store data to get updated team members
+  //   };
 
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [loadInvites, refreshStore]);
+  //   window.addEventListener('focus', handleFocus);
+  //   return () => window.removeEventListener('focus', handleFocus);
+  // }, [loadInvites, refreshStore]);
 
-  const calculateIndicator = () => {
+  const calculateIndicator = useCallback(() => {
     const activeButton = buttonsRef.current.find((btn) => btn && btn.dataset.view === viewMode);
     if (activeButton && containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
@@ -331,10 +339,9 @@ const Team = () => {
         left: buttonRect.left - containerRect.left,
       });
     }
-  };
+  }, [viewMode]);
 
   useEffect(() => {
-    // Calculate indicator when viewMode changes
     const timer = setTimeout(calculateIndicator, 10);
     window.addEventListener('resize', calculateIndicator);
 
@@ -342,15 +349,14 @@ const Team = () => {
       clearTimeout(timer);
       window.removeEventListener('resize', calculateIndicator);
     };
-  }, [viewMode]);
+  }, [calculateIndicator, viewMode]);
 
   useEffect(() => {
-    // Calculate indicator after data is loaded
     if (!loading) {
       const timer = setTimeout(calculateIndicator, 100);
       return () => clearTimeout(timer);
     }
-  }, [loading, viewMode]);
+  }, [calculateIndicator, loading, viewMode]);
 
   const handleInviteCreated = (newInvite) => {
     setInvites((prev) => [newInvite, ...prev]);
@@ -359,7 +365,6 @@ const Team = () => {
   const handleRevokeInvite = async (inviteId) => {
     try {
       const revokedInvite = await inviteService.revokeInvite(inviteId);
-      // Update the invite in the list instead of removing it
       setInvites((prev) =>
         prev.map((invite) =>
           invite.id === inviteId
@@ -411,8 +416,7 @@ const Team = () => {
         title="Premium Feature"
         description="Team management is available for stores with PRO subscriptions"
         isCenteredContent
-        withPadding
-        minHeight="60vh"
+        minHeight="65vh"
       >
         <div style={{ fontSize: 64, marginBottom: 24 }}>🔒</div>
         <p
@@ -441,11 +445,7 @@ const Team = () => {
     <>
       {/* Search and Filter Toolbar */}
       <PageContainer
-        withPadding
-        withBottomSpace
         title="Team"
-        isStretch
-        minHeight='auto'
         description="Manage your team—admins, managers & couriers"
         RightContent={
           <Button filled onClick={() => setModal({ open: true })}>
@@ -557,136 +557,42 @@ const Team = () => {
       </PageContainer>
 
       {/* Team Members and Invites */}
-      <PageContainer minHeight="60vh">
-        <div style={{ padding: 0, height: '60vh', overflowY: 'auto' }}>
-          {loading ? (
-            <div style={{ color: 'var(--color-text)', padding: '32px 0', textAlign: 'center' }}>
-              Loading team...
-            </div>
-          ) : (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={viewMode}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                style={{ padding: 0 }}
-              >
-                {viewMode === 'members' ? (
-                  // Team Members Tab
-                  filteredUsers.length > 0 ? (
-                    filteredUsers.map((user, i) => {
-                      // Determine role from store relationships
-                      const isManager = currentStore?.managers?.some((m) => m.id === user.id);
-                      const role = isManager ? 'manager' : 'courier';
-
-                      return (
-                        <div
-                          key={user.id}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            padding: '16px 32px',
-                            borderBottom:
-                              i === filteredUsers.length - 1
-                                ? 'none'
-                                : '1px solid var(--color-border)',
-                            gap: 16,
-                            flexWrap: 'wrap',
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 16,
-                              minWidth: 220,
-                            }}
-                          >
-                            <div
-                              style={{
-                                width: 48,
-                                height: 48,
-                                borderRadius: 16,
-                                background: 'var(--color-bg-secondary)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: 22,
-                              }}
-                            >
-                              {role === 'manager' ? '👔' : '🚚'}
-                            </div>
-                            <div>
-                              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
-                                {user.name || 'No name'}
-                              </h3>
-                              <p
-                                style={{
-                                  margin: 0,
-                                  fontSize: 14,
-                                  color: 'var(--color-text-secondary)',
-                                }}
-                              >
-                                {user.email}
-                              </p>
-                            </div>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                            <span
-                              style={{
-                                background: 'rgba(16, 185, 129, 0.1)',
-                                color: '#10b981',
-                                padding: '4px 10px',
-                                borderRadius: 8,
-                                fontSize: 13,
-                                fontWeight: 600,
-                                textTransform: 'capitalize',
-                              }}
-                            >
-                              {role}
-                            </span>
-                            <Button color="#ef4444" onClick={() =>
-                                handleRemoveTeamMember(user.id, user.name || user.email)
-                              } style={{ padding:'6px 10px', fontSize:13 }}>
-                              Remove
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>
-                      {search
-                        ? 'No team members found'
-                        : 'No team members yet. Start by inviting someone!'}
-                    </div>
-                  )
-                ) : // Invites Tab
-                filteredInvites.length > 0 ? (
-                  filteredInvites.map((invite, i) => {
-                    const now = new Date();
-                    const expiresAt = new Date(parseInt(invite.expiresAt));
-                    const isExpired =
-                      !invite.isUsed &&
-                      !invite.revoked &&
-                      !isNaN(expiresAt.getTime()) &&
-                      now > expiresAt;
-                    const isUsed = invite.isUsed;
-                    const isRevoked = invite.revoked;
+      <PageContainer
+        minHeight="65vh"
+        fixedSize
+        loading={loading}
+        loadingText={'Getting crew...'}
+        removeBorderSpace
+        removeBottomSpace
+      >
+        <div style={{ padding: 0, height: '65vh', overflowY: 'auto' }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={viewMode}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              style={{ padding: 0 }}
+            >
+              {viewMode === 'members' ? (
+                // Team Members Tab
+                filteredUsers.length > 0 ? (
+                  filteredUsers.map((user, i) => {
+                    // Determine role from store relationships
+                    const isManager = currentStore?.managers?.some((m) => m.id === user.id);
+                    const role = isManager ? 'manager' : 'courier';
 
                     return (
                       <div
-                        key={invite.id}
+                        key={user.id}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
                           padding: '16px 32px',
                           borderBottom:
-                            i === filteredInvites.length - 1
+                            i === filteredUsers.length - 1
                               ? 'none'
                               : '1px solid var(--color-border)',
                           gap: 16,
@@ -713,11 +619,11 @@ const Team = () => {
                               fontSize: 22,
                             }}
                           >
-                            {invite.role === 'MANAGER' ? '👔' : '🚚'}
+                            {role === 'manager' ? '👔' : '🚚'}
                           </div>
                           <div>
                             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
-                              {invite.email ? invite.email : `${invite.role.toLowerCase()} invite`}
+                              {user.name || 'No name'}
                             </h3>
                             <p
                               style={{
@@ -726,39 +632,15 @@ const Team = () => {
                                 color: 'var(--color-text-secondary)',
                               }}
                             >
-                              Created {new Date(parseInt(invite.createdAt)).toLocaleDateString()}
-                              {isUsed &&
-                                invite.usedAt &&
-                                ` • Used ${new Date(parseInt(invite.usedAt)).toLocaleDateString()}`}
-                              {isRevoked &&
-                                invite.revokedAt &&
-                                ` • Revoked ${new Date(parseInt(invite.revokedAt)).toLocaleDateString()}`}
-                              {!isUsed &&
-                                !isRevoked &&
-                                ` • Expires ${new Date(parseInt(invite.expiresAt)).toLocaleDateString()}`}
-                              {isUsed &&
-                                invite.usedBy &&
-                                ` by ${invite.usedBy.name || invite.usedBy.email}`}
+                              {user.email}
                             </p>
                           </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                           <span
                             style={{
-                              background: isUsed
-                                ? 'rgba(16, 185, 129, 0.1)'
-                                : isRevoked
-                                  ? 'rgba(239, 68, 68, 0.1)'
-                                  : isExpired
-                                    ? 'rgba(107, 114, 128, 0.1)'
-                                    : 'rgba(251, 191, 36, 0.1)',
-                              color: isUsed
-                                ? '#10b981'
-                                : isRevoked
-                                  ? '#ef4444'
-                                  : isExpired
-                                    ? '#6b7280'
-                                    : '#f59e0b',
+                              background: 'rgba(16, 185, 129, 0.1)',
+                              color: '#10b981',
                               padding: '4px 10px',
                               borderRadius: 8,
                               fontSize: 13,
@@ -766,36 +648,165 @@ const Team = () => {
                               textTransform: 'capitalize',
                             }}
                           >
-                            {isUsed
-                              ? 'Used'
-                              : isRevoked
-                                ? 'Revoked'
-                                : isExpired
-                                  ? 'Expired'
-                                  : `Pending ${invite.role.toLowerCase()}`}
+                            {role}
                           </span>
-                          {!isUsed && !isRevoked && !isExpired && (
-                            <>
-                              <Button color="#10b981" onClick={() => handleCopyInviteLink(invite.token)} style={{ padding:'6px 10px', fontSize:13 }}>
-                                Copy
-                              </Button>
-                              <Button color="#ef4444" onClick={() => handleRevokeInvite(invite.id)} style={{ padding:'6px 10px', fontSize:13 }}>
-                                Revoke
-                              </Button>
-                            </>
-                          )}
+                          <Button
+                            color="#ef4444"
+                            onClick={() => handleRemoveTeamMember(user.id, user.name || user.email)}
+                            style={{ padding: '6px 10px', fontSize: 13 }}
+                          >
+                            Remove
+                          </Button>
                         </div>
                       </div>
                     );
                   })
                 ) : (
                   <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>
-                    {search ? 'No invites found' : 'No pending invites. Create one to get started!'}
+                    {search
+                      ? 'No team members found'
+                      : 'No team members yet. Start by inviting someone!'}
                   </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          )}
+                )
+              ) : // Invites Tab
+              filteredInvites.length > 0 ? (
+                filteredInvites.map((invite, i) => {
+                  const now = new Date();
+                  const expiresAt = new Date(parseInt(invite.expiresAt));
+                  const isExpired =
+                    !invite.isUsed &&
+                    !invite.revoked &&
+                    !isNaN(expiresAt.getTime()) &&
+                    now > expiresAt;
+                  const isUsed = invite.isUsed;
+                  const isRevoked = invite.revoked;
+
+                  return (
+                    <div
+                      key={invite.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '16px 32px',
+                        borderBottom:
+                          i === filteredInvites.length - 1
+                            ? 'none'
+                            : '1px solid var(--color-border)',
+                        gap: 16,
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 16,
+                          minWidth: 220,
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: 16,
+                            background: 'var(--color-bg-secondary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 22,
+                          }}
+                        >
+                          {invite.role === 'MANAGER' ? '👔' : '🚚'}
+                        </div>
+                        <div>
+                          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
+                            {invite.email ? invite.email : `${invite.role.toLowerCase()} invite`}
+                          </h3>
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: 14,
+                              color: 'var(--color-text-secondary)',
+                            }}
+                          >
+                            Created {new Date(parseInt(invite.createdAt)).toLocaleDateString()}
+                            {isUsed &&
+                              invite.usedAt &&
+                              ` • Used ${new Date(parseInt(invite.usedAt)).toLocaleDateString()}`}
+                            {isRevoked &&
+                              invite.revokedAt &&
+                              ` • Revoked ${new Date(parseInt(invite.revokedAt)).toLocaleDateString()}`}
+                            {!isUsed &&
+                              !isRevoked &&
+                              ` • Expires ${new Date(parseInt(invite.expiresAt)).toLocaleDateString()}`}
+                            {isUsed &&
+                              invite.usedBy &&
+                              ` by ${invite.usedBy.name || invite.usedBy.email}`}
+                          </p>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                        <span
+                          style={{
+                            background: isUsed
+                              ? 'rgba(16, 185, 129, 0.1)'
+                              : isRevoked
+                                ? 'rgba(239, 68, 68, 0.1)'
+                                : isExpired
+                                  ? 'rgba(107, 114, 128, 0.1)'
+                                  : 'rgba(251, 191, 36, 0.1)',
+                            color: isUsed
+                              ? '#10b981'
+                              : isRevoked
+                                ? '#ef4444'
+                                : isExpired
+                                  ? '#6b7280'
+                                  : '#f59e0b',
+                            padding: '4px 10px',
+                            borderRadius: 8,
+                            fontSize: 13,
+                            fontWeight: 600,
+                            textTransform: 'capitalize',
+                          }}
+                        >
+                          {isUsed
+                            ? 'Used'
+                            : isRevoked
+                              ? 'Revoked'
+                              : isExpired
+                                ? 'Expired'
+                                : `Pending ${invite.role.toLowerCase()}`}
+                        </span>
+                        {!isUsed && !isRevoked && !isExpired && (
+                          <>
+                            <Button
+                              color="#10b981"
+                              onClick={() => handleCopyInviteLink(invite.token)}
+                              style={{ padding: '6px 10px', fontSize: 13 }}
+                            >
+                              Copy
+                            </Button>
+                            <Button
+                              color="#ef4444"
+                              onClick={() => handleRevokeInvite(invite.id)}
+                              style={{ padding: '6px 10px', fontSize: 13 }}
+                            >
+                              Revoke
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>
+                  {search ? 'No invites found' : 'No pending invites. Create one to get started!'}
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </PageContainer>
 

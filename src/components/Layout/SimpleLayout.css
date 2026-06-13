@@ -10,7 +10,7 @@
   width: 100%;
   min-height: 100vh;
   background: var(--color-bg-secondary);
-  padding: 48px 16px;
+  padding: 24px 16px;
   box-sizing: border-box;
 }
 
@@ -25,4 +25,4 @@
   .simple-content {
     padding: 24px 12px;
   }
-} 
+}

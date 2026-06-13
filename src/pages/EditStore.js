@@ -78,27 +78,36 @@ const EditStore = () => {
   };
 
   const handleCancel = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     navigate(`/store/${storeId}`);
   };
 
   return (
-    <PageContainer
-      withPadding
-      isStretch
-      minHeight="auto"
-      title="Edit Store"
-      description="Update your store details."
-    >
+    <PageContainer minHeight="auto" title="Edit Store" description="Update your store details.">
       <form onSubmit={handleSubmit}>
         {/* Basic Information (reuse same inputs as CreateStore) */}
         <div style={{ marginBottom: 32 }}>
-          <h3 style={{ margin: '0 0 16px 0', fontSize: 18, fontWeight: 600, color: 'var(--color-text)' }}>
+          <h3
+            style={{
+              margin: '0 0 16px 0',
+              fontSize: 18,
+              fontWeight: 600,
+              color: 'var(--color-text)',
+            }}
+          >
             Basic Information
           </h3>
           <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Store Name *
               </label>
               <input
@@ -107,11 +116,30 @@ const EditStore = () => {
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder="Enter your store name"
-                style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--color-border)', borderRadius: 12, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 14, outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid var(--color-border)',
+                  borderRadius: 12,
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text)',
+                  fontSize: 14,
+                  outline: 'none',
+                  transition: 'border-color 0.2s',
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Description *
               </label>
               <textarea
@@ -120,7 +148,20 @@ const EditStore = () => {
                 onChange={handleInputChange}
                 placeholder="Describe what your store sells"
                 rows={3}
-                style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--color-border)', borderRadius: 12, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 14, outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box', resize: 'vertical', minHeight: 80 }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid var(--color-border)',
+                  borderRadius: 12,
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text)',
+                  fontSize: 14,
+                  outline: 'none',
+                  transition: 'border-color 0.2s',
+                  boxSizing: 'border-box',
+                  resize: 'vertical',
+                  minHeight: 80,
+                }}
               />
             </div>
           </div>
@@ -139,7 +180,15 @@ const EditStore = () => {
           </h3>
           <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr 1fr' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Phone Number
               </label>
               <input
@@ -148,11 +197,30 @@ const EditStore = () => {
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder="+1 (555) 123-4567"
-                style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--color-border)', borderRadius: 12, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 14, outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid var(--color-border)',
+                  borderRadius: 12,
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text)',
+                  fontSize: 14,
+                  outline: 'none',
+                  transition: 'border-color 0.2s',
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Email Address
               </label>
               <input
@@ -161,11 +229,30 @@ const EditStore = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="store@example.com"
-                style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--color-border)', borderRadius: 12, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 14, outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid var(--color-border)',
+                  borderRadius: 12,
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text)',
+                  fontSize: 14,
+                  outline: 'none',
+                  transition: 'border-color 0.2s',
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Website
               </label>
               <input
@@ -174,7 +261,18 @@ const EditStore = () => {
                 value={formData.website}
                 onChange={handleInputChange}
                 placeholder="https://www.yourstore.com"
-                style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--color-border)', borderRadius: 12, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 14, outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid var(--color-border)',
+                  borderRadius: 12,
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text)',
+                  fontSize: 14,
+                  outline: 'none',
+                  transition: 'border-color 0.2s',
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
           </div>
@@ -194,7 +292,15 @@ const EditStore = () => {
           </h3>
           <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 2fr' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 City
               </label>
               <input
@@ -203,11 +309,30 @@ const EditStore = () => {
                 value={formData.city}
                 onChange={handleInputChange}
                 placeholder="New York"
-                style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--color-border)', borderRadius: 12, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 14, outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid var(--color-border)',
+                  borderRadius: 12,
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text)',
+                  fontSize: 14,
+                  outline: 'none',
+                  transition: 'border-color 0.2s',
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Address
               </label>
               <input
@@ -216,18 +341,41 @@ const EditStore = () => {
                 value={formData.address}
                 onChange={handleInputChange}
                 placeholder="123 Main Street, Suite 100"
-                style={{ width: '100%', padding: '12px 16px', border: '2px solid var(--color-border)', borderRadius: 12, background: 'var(--color-bg-secondary)', color: 'var(--color-text)', fontSize: 14, outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid var(--color-border)',
+                  borderRadius: 12,
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text)',
+                  fontSize: 14,
+                  outline: 'none',
+                  transition: 'border-color 0.2s',
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end', paddingTop: 24, borderTop: '1px solid var(--color-border)' }}>
-          <Button onClick={handleCancel} disabled={loading}>Cancel</Button>
-          <Button filled type="submit" disabled={loading}>{loading ? 'Updating...' : 'Update Store'}</Button>
+        <div
+          style={{
+            display: 'flex',
+            gap: 16,
+            justifyContent: 'flex-end',
+            paddingTop: 24,
+            borderTop: '1px solid var(--color-border)',
+          }}
+        >
+          <Button onClick={handleCancel} disabled={loading}>
+            Cancel
+          </Button>
+          <Button filled type="submit" disabled={loading}>
+            {loading ? 'Updating...' : 'Update Store'}
+          </Button>
         </div>
       </form>
     </PageContainer>
   );
 };
 
-export default EditStore; 
+export default EditStore;

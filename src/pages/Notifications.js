@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { useStore } from '../context/StoreContext';
 import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
@@ -91,9 +92,7 @@ const NotificationForm = ({ onSubmit, notificationType }) => {
           }}
         >
           <option value="all">All Users</option>
-          <option value="managers">Managers Only</option>
-          <option value="couriers">Couriers Only</option>
-          <option value="custom">Custom Selection</option>
+          <option value="managers">Staff Only</option>
         </select>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -133,7 +132,13 @@ const NotificationForm = ({ onSubmit, notificationType }) => {
       <Button
         filled
         type="submit"
-        style={{ padding: '0.8rem 1.4rem', fontSize: 15, marginTop: 8 }}
+        style={{
+          padding: '0.8rem 1.4rem',
+          fontSize: 15,
+          marginTop: 8,
+          width: '15vw',
+          alignSelf: 'flex-end',
+        }}
       >
         Send {notificationType === 'email' ? 'Email' : 'Push'} Notification
       </Button>
@@ -246,8 +251,6 @@ const NotificationHistory = ({ notifications }) => {
 const Notifications = () => {
   const { currentStore } = useStore();
   const navigate = useNavigate();
-  
-  // Состояние для типа уведомления
   const [notificationType, setNotificationType] = useState('email');
 
   const [allHistory, setAllHistory] = useState([
@@ -294,16 +297,13 @@ const Notifications = () => {
     setAllHistory([newNotification, ...allHistory]);
   };
 
-  // Проверяем подписку владельца стора
   const isOwnerProOrUnlimited =
     currentStore?.owner?.subscriptionType === 'PRO' ||
     currentStore?.owner?.subscriptionType === 'UNLIMITED';
 
-  // Если подписка не подходит, показываем сообщение об ограничении
   if (!isOwnerProOrUnlimited) {
     return (
       <PageContainer
-        withPadding
         isCenteredContent
         title="Premium Feature"
         style={{ maxWidth: 800, textAlign: 'center', padding: 48 }}
@@ -342,90 +342,79 @@ const Notifications = () => {
     );
   }
 
-      return (
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {/* Send Notification Form */}
-        <PageContainer
-          isStretch
-          minHeight="auto"
-          title="Notifications"
-          description="Create and manage email and push notifications for your users"
-          withBottomSpace
-          withPadding
-          RightContent={
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <PageContainer
+        title="Notifications"
+        description="Create and manage email and push notifications for your users"
+        RightContent={
+          <div
+            style={{
+              position: 'relative',
+              display: 'flex',
+              background: 'var(--color-bg-secondary)',
+              padding: 4,
+              borderRadius: 8,
+              border: '2px solid black',
+              width: 120,
+            }}
+          >
             <div
               style={{
+                position: 'absolute',
+                top: 4,
+                bottom: 4,
+                width: 'calc(50% - 4px)',
+                left: notificationType === 'email' ? 4 : 'calc(50%)',
+                background: 'var(--color-bg)',
+                borderRadius: 6,
+                transition: 'left 0.3s ease',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+              }}
+            />
+            <button
+              onClick={() => setNotificationType('email')}
+              style={{
+                padding: '0.5rem 0',
+                border: 'none',
+                background: 'transparent',
+                color: 'var(--color-text)',
+                cursor: 'pointer',
                 position: 'relative',
-                display: 'flex',
-                background: 'var(--color-bg-secondary)',
-                padding: 4,
-                borderRadius: 8,
-                border: '2px solid black',
-                width: 120,
+                zIndex: 1,
+                transition: 'color 0.3s',
+                width: '50%',
+                fontSize: 14,
+                textAlign: 'center',
               }}
             >
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 4,
-                  bottom: 4,
-                  width: 'calc(50% - 4px)',
-                  left: notificationType === 'email' ? 4 : 'calc(50%)',
-                  background: 'var(--color-bg)',
-                  borderRadius: 6,
-                  transition: 'left 0.3s ease',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                }}
-              />
-              <button
-                onClick={() => setNotificationType('email')}
-                style={{
-                  padding: '0.5rem 0',
-                  border: 'none',
-                  background: 'transparent',
-                  color: 'var(--color-text)',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  zIndex: 1,
-                  transition: 'color 0.3s',
-                  width: '50%',
-                  fontSize: 14,
-                  textAlign: 'center'
-                }}
-              >
-                Email
-              </button>
-              <button
-                onClick={() => setNotificationType('push')}
-                style={{
-                  padding: '0.5rem 0',
-                  border: 'none',
-                  background: 'transparent',
-                  color: 'var(--color-text)',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  zIndex: 1,
-                  transition: 'color 0.3s',
-                  width: '50%',
-                  fontSize: 14,
-                }}
-              >
-                Push
-              </button>
-            </div>
-          }
-        >
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, color: 'var(--color-text)' }}>
-            Create notification
-          </h2>
-          <NotificationForm onSubmit={handleNotificationSubmit} notificationType={notificationType} />
-        </PageContainer>
+              Email
+            </button>
+            <button
+              onClick={() => setNotificationType('push')}
+              style={{
+                padding: '0.5rem 0',
+                border: 'none',
+                background: 'transparent',
+                color: 'var(--color-text)',
+                cursor: 'pointer',
+                position: 'relative',
+                zIndex: 1,
+                transition: 'color 0.3s',
+                width: '50%',
+                fontSize: 14,
+              }}
+            >
+              Mobile
+            </button>
+          </div>
+        }
+      >
+        <NotificationForm onSubmit={handleNotificationSubmit} notificationType={notificationType} />
+      </PageContainer>
 
       {/* Notification History */}
-      <PageContainer withPadding minHeight="80vh">
-        <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, color: 'var(--color-text)' }}>
-          Notification History
-        </h2>
+      <PageContainer minHeight="80vh" title={'Notification History'} removeBottomSpace>
         <NotificationHistory notifications={allHistory} />
       </PageContainer>
     </div>

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
+
 import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
 import { useStore } from '../context/StoreContext';
 import { useToast } from '../context/ToastContext';
 import { payoutService } from '../utils/graphql';
-import './Dashboard.css'; // reuse existing dashboard styles
+import './Dashboard.css';
 
 const AddBankModal = ({ open, onClose, onSave, existing, saving }) => {
   const [form, setForm] = useState(() => {
     if (existing) {
-      // Only extract the bank account fields we need for the input
       return {
         bankAccountNumber: existing.bankAccountNumber || '',
         bankAccountHolder: existing.bankAccountHolder || '',
@@ -210,7 +210,6 @@ const Payouts = () => {
     ADJUSTMENT: { bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' },
   };
 
-  // Load data from API
   useEffect(() => {
     const loadData = async () => {
       if (!storeId) return;
@@ -228,7 +227,9 @@ const Payouts = () => {
       } catch (error) {
         addToast(error.message, 'error');
       } finally {
-        setLoading(false);
+        setTimeout(() => {
+          setLoading(false);
+        }, 2000);
       }
     };
 
@@ -265,30 +266,27 @@ const Payouts = () => {
     });
   };
 
-  if (loading) {
-    return (
-      <PageContainer
-        title="Payouts & Transactions"
-        description="Loading..."
-        withPadding
-        withBottomSpace
-        isStretch
-        minHeight="auto"
-      >
-        <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>
-      </PageContainer>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <PageContainer
+  //       title="Payouts & Transactions"
+  //       description="Loading..."
+  //
+  //
+  //
+  //       minHeight="auto"
+  //     >
+  //       <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>
+  //     </PageContainer>
+  //   );
+  // }
 
   return (
     <>
       <PageContainer
         title="Payouts & Transactions"
         description="Manage your payout bank account and view transaction history"
-        withPadding
-        withBottomSpace
-        isStretch
-        minHeight="auto"
+        loading={loading}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -344,7 +342,14 @@ const Payouts = () => {
         </div>
       </PageContainer>
 
-      <PageContainer title="Transaction History" minHeight="80vh" withPadding={false}>
+      <PageContainer
+        title="Transaction History"
+        minHeight="80vh"
+        loading={loading}
+        fixedSize
+        removeBorderSpace
+        removeBottomSpace
+      >
         <table className="dashboard-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>

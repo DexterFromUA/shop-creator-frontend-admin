@@ -89,7 +89,7 @@ const CreateApp = () => {
 
   const handleFileChange = (e, fileType) => {
     const file = e.target.files[0];
-    
+
     if (file) {
       // Проверяем тип файла
       if (!file.type.startsWith('image/')) {
@@ -103,17 +103,17 @@ const CreateApp = () => {
         return;
       }
 
-      setFiles(prev => ({
+      setFiles((prev) => ({
         ...prev,
-        [fileType]: file
+        [fileType]: file,
       }));
 
       // Создаем превью
       const reader = new FileReader();
       reader.onload = (event) => {
-        setFilePreviews(prev => ({
+        setFilePreviews((prev) => ({
           ...prev,
-          [fileType]: event.target.result
+          [fileType]: event.target.result,
         }));
       };
       reader.readAsDataURL(file);
@@ -121,25 +121,25 @@ const CreateApp = () => {
   };
 
   const removeFile = (fileType) => {
-    setFiles(prev => ({
+    setFiles((prev) => ({
       ...prev,
-      [fileType]: null
+      [fileType]: null,
     }));
-    setFilePreviews(prev => ({
+    setFilePreviews((prev) => ({
       ...prev,
-      [fileType]: null
+      [fileType]: null,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!storeId) {
       addToast('Store ID is required', 'error');
       navigate('/stores');
       return;
     }
-    
+
     if (!formData.name.trim()) {
       addToast('Please enter an app name', 'error');
       return;
@@ -170,19 +170,28 @@ const CreateApp = () => {
         targetPlatforms: formData.targetPlatforms,
         defaultLanguage: formData.defaultLanguage,
         currency: formData.currency,
-        keywords: formData.keywords ? formData.keywords.split(',').map(k => k.trim()).filter(k => k) : [],
-        screenshots: formData.screenshots ? formData.screenshots.split(',').map(s => s.trim()).filter(s => s) : [],
-        storeId: storeId
+        keywords: formData.keywords
+          ? formData.keywords
+              .split(',')
+              .map((k) => k.trim())
+              .filter((k) => k)
+          : [],
+        screenshots: formData.screenshots
+          ? formData.screenshots
+              .split(',')
+              .map((s) => s.trim())
+              .filter((s) => s)
+          : [],
+        storeId: storeId,
       };
-      
+
       const newApp = await appService.createApp(appData);
-      
+
       // Обновляем данные магазина, чтобы appId был актуальным
       await refreshStore();
-      
+
       addToast(`App "${newApp.name}" created successfully!`, 'success');
       navigate(`/store/${storeId}/dashboard`, { state: { fromAppPage: true } });
-      
     } catch (error) {
       console.error('Error creating app:', error);
       addToast(error.message || 'Failed to create app. Please try again.', 'error');
@@ -215,7 +224,7 @@ const CreateApp = () => {
 
   const platformOptions = [
     { value: 'ANDROID', label: 'Android' },
-    { value: 'IOS', label: 'iOS' }
+    { value: 'IOS', label: 'iOS' },
   ];
 
   const languageOptions = [
@@ -224,7 +233,7 @@ const CreateApp = () => {
     { value: 'uk', label: 'Українська' },
     { value: 'es', label: 'Español' },
     { value: 'fr', label: 'Français' },
-    { value: 'de', label: 'Deutsch' }
+    { value: 'de', label: 'Deutsch' },
   ];
 
   const currencyOptions = [
@@ -232,7 +241,7 @@ const CreateApp = () => {
     { value: 'EUR', label: 'Euro (EUR)' },
     { value: 'UAH', label: 'Ukrainian Hryvnia (UAH)' },
     { value: 'RUB', label: 'Russian Ruble (RUB)' },
-    { value: 'GBP', label: 'British Pound (GBP)' }
+    { value: 'GBP', label: 'British Pound (GBP)' },
   ];
 
   // Если у магазина уже есть приложение, показываем сообщение
@@ -241,9 +250,7 @@ const CreateApp = () => {
       <PageContainer
         title="App Already Exists"
         description="This store already has a mobile app. You can only have one app per store."
-        withPadding
-        isStretch
-        minHeight="60vh"
+        minHeight="65vh"
       >
         <div
           style={{
@@ -280,9 +287,6 @@ const CreateApp = () => {
     <PageContainer
       title="Create Mobile App"
       description="Set up your mobile application with all the necessary configurations and branding."
-      withPadding
-      withBottomSpace
-      isStretch
       minHeight="auto"
     >
       <form onSubmit={handleSubmit}>
@@ -408,24 +412,28 @@ const CreateApp = () => {
 
         {/* Visual Design */}
         <div style={{ marginBottom: 32 }}>
-          <h3 style={{ 
-            margin: '0 0 16px 0', 
-            fontSize: 18, 
-            fontWeight: 600, 
-            color: 'var(--color-text)' 
-          }}>
+          <h3
+            style={{
+              margin: '0 0 16px 0',
+              fontSize: 18,
+              fontWeight: 600,
+              color: 'var(--color-text)',
+            }}
+          >
             Visual Design
           </h3>
-          
+
           <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr' }}>
             <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: 8, 
-                fontSize: 14, 
-                fontWeight: 600, 
-                color: 'var(--color-text)' 
-              }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 App Icon
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -449,7 +457,7 @@ const CreateApp = () => {
                     cursor: 'pointer',
                     transition: 'all 0.2s',
                     textAlign: 'center',
-                    minHeight: 80
+                    minHeight: 80,
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.borderColor = '#111827';
@@ -462,15 +470,15 @@ const CreateApp = () => {
                 >
                   {filePreviews.icon ? (
                     <div style={{ position: 'relative', width: '100%' }}>
-                      <img 
-                        src={filePreviews.icon} 
-                        alt="App icon preview" 
-                        style={{ 
-                          maxWidth: '80px', 
-                          maxHeight: '80px', 
+                      <img
+                        src={filePreviews.icon}
+                        alt="App icon preview"
+                        style={{
+                          maxWidth: '80px',
+                          maxHeight: '80px',
                           borderRadius: 8,
-                          objectFit: 'cover'
-                        }} 
+                          objectFit: 'cover',
+                        }}
                       />
                       <button
                         type="button"
@@ -494,7 +502,7 @@ const CreateApp = () => {
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontSize: 12,
-                          fontWeight: 'bold'
+                          fontWeight: 'bold',
                         }}
                       >
                         ×
@@ -503,9 +511,7 @@ const CreateApp = () => {
                   ) : (
                     <div style={{ color: 'var(--color-text-secondary)' }}>
                       📱 Click to upload app icon
-                      <div style={{ fontSize: 12, marginTop: 4 }}>
-                        PNG, JPG up to 5MB
-                      </div>
+                      <div style={{ fontSize: 12, marginTop: 4 }}>PNG, JPG up to 5MB</div>
                     </div>
                   )}
                 </label>
@@ -513,13 +519,15 @@ const CreateApp = () => {
             </div>
 
             <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: 8, 
-                fontSize: 14, 
-                fontWeight: 600, 
-                color: 'var(--color-text)' 
-              }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Splash Screen
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -543,7 +551,7 @@ const CreateApp = () => {
                     cursor: 'pointer',
                     transition: 'all 0.2s',
                     textAlign: 'center',
-                    minHeight: 80
+                    minHeight: 80,
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.borderColor = '#111827';
@@ -556,15 +564,15 @@ const CreateApp = () => {
                 >
                   {filePreviews.splashScreen ? (
                     <div style={{ position: 'relative', width: '100%' }}>
-                      <img 
-                        src={filePreviews.splashScreen} 
-                        alt="Splash screen preview" 
-                        style={{ 
-                          maxWidth: '120px', 
-                          maxHeight: '80px', 
+                      <img
+                        src={filePreviews.splashScreen}
+                        alt="Splash screen preview"
+                        style={{
+                          maxWidth: '120px',
+                          maxHeight: '80px',
                           borderRadius: 8,
-                          objectFit: 'cover'
-                        }} 
+                          objectFit: 'cover',
+                        }}
                       />
                       <button
                         type="button"
@@ -588,7 +596,7 @@ const CreateApp = () => {
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontSize: 12,
-                          fontWeight: 'bold'
+                          fontWeight: 'bold',
                         }}
                       >
                         ×
@@ -597,9 +605,7 @@ const CreateApp = () => {
                   ) : (
                     <div style={{ color: 'var(--color-text-secondary)' }}>
                       🖼️ Click to upload splash screen
-                      <div style={{ fontSize: 12, marginTop: 4 }}>
-                        PNG, JPG up to 5MB
-                      </div>
+                      <div style={{ fontSize: 12, marginTop: 4 }}>PNG, JPG up to 5MB</div>
                     </div>
                   )}
                 </label>
@@ -607,13 +613,15 @@ const CreateApp = () => {
             </div>
 
             <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: 8, 
-                fontSize: 14, 
-                fontWeight: 600, 
-                color: 'var(--color-text)' 
-              }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Primary Color
               </label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -628,7 +636,7 @@ const CreateApp = () => {
                     border: '2px solid var(--color-border)',
                     borderRadius: 8,
                     background: 'var(--color-bg-secondary)',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                 />
                 <input
@@ -647,20 +655,22 @@ const CreateApp = () => {
                     fontSize: 14,
                     outline: 'none',
                     transition: 'border-color 0.2s',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
                   }}
                 />
               </div>
             </div>
 
             <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: 8, 
-                fontSize: 14, 
-                fontWeight: 600, 
-                color: 'var(--color-text)' 
-              }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Secondary Color
               </label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -675,7 +685,7 @@ const CreateApp = () => {
                     border: '2px solid var(--color-border)',
                     borderRadius: 8,
                     background: 'var(--color-bg-secondary)',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                 />
                 <input
@@ -694,7 +704,7 @@ const CreateApp = () => {
                     fontSize: 14,
                     outline: 'none',
                     transition: 'border-color 0.2s',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
                   }}
                 />
               </div>
@@ -704,41 +714,54 @@ const CreateApp = () => {
 
         {/* Platform & Localization */}
         <div style={{ marginBottom: 32 }}>
-          <h3 style={{ 
-            margin: '0 0 16px 0', 
-            fontSize: 18, 
-            fontWeight: 600, 
-            color: 'var(--color-text)' 
-          }}>
+          <h3
+            style={{
+              margin: '0 0 16px 0',
+              fontSize: 18,
+              fontWeight: 600,
+              color: 'var(--color-text)',
+            }}
+          >
             Platform & Localization
           </h3>
-          
+
           <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr' }}>
             <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: 8, 
-                fontSize: 14, 
-                fontWeight: 600, 
-                color: 'var(--color-text)' 
-              }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Target Platforms *
               </label>
-              <div style={{ display: 'grid', gap: 8, gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
-                {platformOptions.map(platform => (
-                  <label key={platform.value} style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 8,
-                    padding: '8px 12px',
-                    border: '2px solid var(--color-border)',
-                    borderRadius: 8,
-                    background: formData.targetPlatforms.includes(platform.value) 
-                      ? 'var(--color-bg-secondary)' 
-                      : 'transparent',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gap: 8,
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                }}
+              >
+                {platformOptions.map((platform) => (
+                  <label
+                    key={platform.value}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '8px 12px',
+                      border: '2px solid var(--color-border)',
+                      borderRadius: 8,
+                      background: formData.targetPlatforms.includes(platform.value)
+                        ? 'var(--color-bg-secondary)'
+                        : 'transparent',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                  >
                     <input
                       type="checkbox"
                       name="targetPlatforms"
@@ -757,13 +780,15 @@ const CreateApp = () => {
 
             <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr' }}>
               <div>
-                <label style={{ 
-                  display: 'block', 
-                  marginBottom: 8, 
-                  fontSize: 14, 
-                  fontWeight: 600, 
-                  color: 'var(--color-text)' 
-                }}>
+                <label
+                  style={{
+                    display: 'block',
+                    marginBottom: 8,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: 'var(--color-text)',
+                  }}
+                >
                   Default Language
                 </label>
                 <select
@@ -780,23 +805,27 @@ const CreateApp = () => {
                     fontSize: 14,
                     outline: 'none',
                     transition: 'border-color 0.2s',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
                   }}
                 >
-                  {languageOptions.map(lang => (
-                    <option key={lang.value} value={lang.value}>{lang.label}</option>
+                  {languageOptions.map((lang) => (
+                    <option key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label style={{ 
-                  display: 'block', 
-                  marginBottom: 8, 
-                  fontSize: 14, 
-                  fontWeight: 600, 
-                  color: 'var(--color-text)' 
-                }}>
+                <label
+                  style={{
+                    display: 'block',
+                    marginBottom: 8,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: 'var(--color-text)',
+                  }}
+                >
                   Currency
                 </label>
                 <select
@@ -813,11 +842,13 @@ const CreateApp = () => {
                     fontSize: 14,
                     outline: 'none',
                     transition: 'border-color 0.2s',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
                   }}
                 >
-                  {currencyOptions.map(currency => (
-                    <option key={currency.value} value={currency.value}>{currency.label}</option>
+                  {currencyOptions.map((currency) => (
+                    <option key={currency.value} value={currency.value}>
+                      {currency.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -827,24 +858,28 @@ const CreateApp = () => {
 
         {/* Marketing & Media */}
         <div style={{ marginBottom: 32 }}>
-          <h3 style={{ 
-            margin: '0 0 16px 0', 
-            fontSize: 18, 
-            fontWeight: 600, 
-            color: 'var(--color-text)' 
-          }}>
+          <h3
+            style={{
+              margin: '0 0 16px 0',
+              fontSize: 18,
+              fontWeight: 600,
+              color: 'var(--color-text)',
+            }}
+          >
             Marketing & Media
           </h3>
-          
+
           <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr' }}>
             <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: 8, 
-                fontSize: 14, 
-                fontWeight: 600, 
-                color: 'var(--color-text)' 
-              }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Keywords
               </label>
               <input
@@ -863,7 +898,7 @@ const CreateApp = () => {
                   fontSize: 14,
                   outline: 'none',
                   transition: 'border-color 0.2s',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
                 }}
               />
               <small style={{ color: 'var(--color-text-secondary)', fontSize: 12 }}>
@@ -872,13 +907,15 @@ const CreateApp = () => {
             </div>
 
             <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: 8, 
-                fontSize: 14, 
-                fontWeight: 600, 
-                color: 'var(--color-text)' 
-              }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Screenshots URLs
               </label>
               <textarea
@@ -899,7 +936,7 @@ const CreateApp = () => {
                   transition: 'border-color 0.2s',
                   boxSizing: 'border-box',
                   resize: 'vertical',
-                  minHeight: 80
+                  minHeight: 80,
                 }}
               />
               <small style={{ color: 'var(--color-text-secondary)', fontSize: 12 }}>
@@ -910,18 +947,25 @@ const CreateApp = () => {
         </div>
 
         {/* Form Actions */}
-        <div style={{ 
-          display: 'flex', 
-          gap: 16, 
-          justifyContent: 'flex-end',
-          paddingTop: 24,
-          borderTop: '1px solid var(--color-border)'
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 16,
+            justifyContent: 'flex-end',
+            paddingTop: 24,
+            borderTop: '1px solid var(--color-border)',
+          }}
+        >
           <Button
             type="button"
             onClick={handleCancel}
             disabled={loading}
-            style={{ padding: '12px 24px', fontSize: 14, fontWeight: 600, opacity: loading ? 0.6 : 1 }}
+            style={{
+              padding: '12px 24px',
+              fontSize: 14,
+              fontWeight: 600,
+              opacity: loading ? 0.6 : 1,
+            }}
           >
             Cancel
           </Button>
@@ -929,17 +973,26 @@ const CreateApp = () => {
             filled
             type="submit"
             disabled={loading}
-            style={{ padding: '12px 24px', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}
+            style={{
+              padding: '12px 24px',
+              fontSize: 14,
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
           >
             {loading && (
-              <div style={{
-                width: 16,
-                height: 16,
-                border: '2px solid #fff3',
-                borderTop: '2px solid #fff',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite'
-              }} />
+              <div
+                style={{
+                  width: 16,
+                  height: 16,
+                  border: '2px solid #fff3',
+                  borderTop: '2px solid #fff',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                }}
+              />
             )}
             {loading ? 'Creating App...' : 'Create App'}
           </Button>
@@ -949,4 +1002,4 @@ const CreateApp = () => {
   );
 };
 
-export default CreateApp; 
+export default CreateApp;

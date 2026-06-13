@@ -5,13 +5,25 @@ import Button from '../components/common/Button';
 import './Dashboard.css';
 
 const orders = [
-  { id: '10402', customer: 'Savannah Nguyen', total: '$299.00', status: 'Delivered', date: '12 min ago', items: [
-    { name: 'Product A', qty: 1, price: '$199.00' },
-    { name: 'Product B', qty: 2, price: '$50.00' },
-  ] },
-  { id: '10401', customer: 'Jerome Bell', total: '$189.00', status: 'Pending', date: '22 min ago', items: [
-    { name: 'Product C', qty: 1, price: '$189.00' },
-  ] },
+  {
+    id: '10402',
+    customer: 'Savannah Nguyen',
+    total: '$299.00',
+    status: 'Delivered',
+    date: '12 min ago',
+    items: [
+      { name: 'Product A', qty: 1, price: '$199.00' },
+      { name: 'Product B', qty: 2, price: '$50.00' },
+    ],
+  },
+  {
+    id: '10401',
+    customer: 'Jerome Bell',
+    total: '$189.00',
+    status: 'Pending',
+    date: '22 min ago',
+    items: [{ name: 'Product C', qty: 1, price: '$189.00' }],
+  },
   // ...add more mock orders as needed
 ];
 
@@ -25,16 +37,20 @@ const statusClass = {
 const OrderPreview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const order = orders.find(o => o.id === id);
+  const order = orders.find((o) => o.id === id);
 
   if (!order) {
-    return <div className="dashboard"><h2>Order not found</h2></div>;
+    return (
+      <div className="dashboard">
+        <h2>Order not found</h2>
+      </div>
+    );
   }
 
   return (
     <PageContainer
       title={`Order #${order.id}`}
-      leftComponent={
+      LeftComponent={
         <Button
           onClick={() => navigate(-1)}
           style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0.8rem 1.2rem' }}
@@ -57,7 +73,6 @@ const OrderPreview = () => {
           Back
         </Button>
       }
-      isStretch
       minHeight="auto"
     >
       <div
@@ -71,21 +86,21 @@ const OrderPreview = () => {
         }}
       >
         <div style={{ minWidth: 220 }}>
-          <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 8 }}>
-            {order.customer}
-          </div>
+          <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 8 }}>{order.customer}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
-              {order.date}
-            </span>
+            <span style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>{order.date}</span>
             <span className={statusClass[order.status]} style={{ fontSize: 15 }}>
               {order.status}
             </span>
           </div>
         </div>
         <div style={{ textAlign: 'right', minWidth: 120 }}>
-          <div style={{ color: 'var(--color-text-secondary)', fontSize: 15, marginBottom: 8 }}>Total</div>
-          <div style={{ fontWeight: 700, color: 'var(--color-accent)', fontSize: 24 }}>{order.total}</div>
+          <div style={{ color: 'var(--color-text-secondary)', fontSize: 15, marginBottom: 8 }}>
+            Total
+          </div>
+          <div style={{ fontWeight: 700, color: 'var(--color-accent)', fontSize: 24 }}>
+            {order.total}
+          </div>
         </div>
       </div>
       <div style={{ padding: '0 32px 32px 32px', marginTop: 24 }}>
@@ -112,4 +127,4 @@ const OrderPreview = () => {
   );
 };
 
-export default OrderPreview; 
+export default OrderPreview;

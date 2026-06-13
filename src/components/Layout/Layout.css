@@ -7,7 +7,7 @@
 
 .layout {
   flex: 1;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .layout.is-scrollable {
@@ -132,12 +132,24 @@
   animation-fill-mode: both;
 }
 
-.menu-item:nth-child(1) { animation-delay: 0.1s; }
-.menu-item:nth-child(2) { animation-delay: 0.15s; }
-.menu-item:nth-child(3) { animation-delay: 0.2s; }
-.menu-item:nth-child(4) { animation-delay: 0.25s; }
-.menu-item:nth-child(5) { animation-delay: 0.3s; }
-.menu-item:nth-child(6) { animation-delay: 0.35s; }
+.menu-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.menu-item:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.menu-item:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.menu-item:nth-child(4) {
+  animation-delay: 0.25s;
+}
+.menu-item:nth-child(5) {
+  animation-delay: 0.3s;
+}
+.menu-item:nth-child(6) {
+  animation-delay: 0.35s;
+}
 
 /* Scrollbar styles */
 ::-webkit-scrollbar {
@@ -184,4 +196,4 @@
   .menu-item {
     animation: none;
   }
-} 
+}

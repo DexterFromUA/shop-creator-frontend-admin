@@ -31,7 +31,7 @@ const Dashboard = () => {
   }, [period]);
 
   // SVG chart dimensions
-  const width = 900; // make chart wide for 100% fill
+  const width = 1300; // make chart wide for 100% fill
   const height = 180;
   const padding = 40;
   const maxY = Math.max(...chartData) * 1.1;
@@ -70,6 +70,7 @@ const Dashboard = () => {
 
   const title = useMemo(() => {
     const g = getGreeting();
+    if (!user) return '';
     const name = user && user.name.split(' ')[0];
     return `${g.text}${name ? ', ' + name : ''}! ${g.emoji}`;
   }, [user]);
@@ -82,10 +83,6 @@ const Dashboard = () => {
     '6mon': 'the last 6 months',
     year: 'this year',
   };
-
-  if (!user) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <>
@@ -121,7 +118,7 @@ const Dashboard = () => {
             <option value="year">Year</option>
           </select>
         }
-        withBottomSpace
+        loading={!user}
       >
         <div
           style={{
@@ -186,7 +183,7 @@ const Dashboard = () => {
 
       {/* Create App Action Card - показывать только если приложение еще не создано */}
       {currentStore && !currentStore.appId && (
-        <PageContainer withBottomSpace>
+        <PageContainer>
           <div
             style={{
               display: 'flex',
@@ -211,7 +208,7 @@ const Dashboard = () => {
         </PageContainer>
       )}
 
-      <PageContainer>
+      <PageContainer loading={!user}>
         <div
           style={{
             display: 'flex',

@@ -100,7 +100,6 @@ const Orders = () => {
       <PageContainer
         title="Orders"
         description="Track and manage customer orders, deliveries, and payments"
-        withBottomSpace
       >
         <div
           style={{
@@ -170,7 +169,7 @@ const Orders = () => {
           </select>
         </div>
       </PageContainer>
-      <PageContainer minHeight="60vh" isStretch={false} withPadding={false}>
+      <PageContainer minHeight="65vh" fixedSize removeBorderSpace removeBottomSpace>
         {filtered.length === 0 ? (
           <div style={{ color: '#aaa', padding: '32px 0', textAlign: 'center' }}>No orders</div>
         ) : (

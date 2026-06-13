@@ -337,8 +337,6 @@ const AddProduct = () => {
 
   return (
     <PageContainer
-      withPadding
-      isStretch
       minHeight="auto"
       title={isEditMode ? 'Edit Product' : 'Add New Product'}
       description={

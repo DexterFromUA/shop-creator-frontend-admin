@@ -322,10 +322,7 @@ const Subscription = () => {
         {/* Current Subscription Card */}
         <motion.div variants={cardVariants}>
           <PageContainer
-            withPadding
-            isStretch
             minHeight="auto"
-            withBottomSpace
             title="Subscription Management"
             description="Manage your subscription plan and billing information."
             RightContent={
@@ -390,7 +387,7 @@ const Subscription = () => {
         </motion.div>
 
         {/* Plans Selection */}
-        <PageContainer withPadding isStretch minHeight="auto" withBottomSpace>
+        <PageContainer minHeight="auto">
           <h3
             style={{
               margin: '0 0 24px 0',
@@ -512,7 +509,7 @@ const Subscription = () => {
         </PageContainer>
 
         {/* Payment Methods */}
-        <PageContainer withPadding isStretch minHeight="auto" withBottomSpace>
+        <PageContainer minHeight="auto">
           <div
             style={{
               display: 'flex',
@@ -588,7 +585,7 @@ const Subscription = () => {
         </PageContainer>
 
         {/* Invoices */}
-        <PageContainer isStretch withPadding={false}>
+        <PageContainer removeBottomSpace removeBorderSpace>
           <div
             style={{
               padding: '24px 32px',

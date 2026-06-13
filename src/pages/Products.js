@@ -1,25 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
+
 import { productService } from '../utils/graphql';
 import { useToast } from '../context/ToastContext';
 import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
 import './Dashboard.css';
-
-// Keep this export for ProductView.js compatibility
-export const initialProducts = [
-  { id: 1, name: 'Wireless Earbuds', price: '$129.99', stock: 45, category: 'Electronics' },
-  { id: 2, name: 'Smart Watch', price: '$199.99', stock: 28, category: 'Electronics' },
-  { id: 3, name: 'Leather Wallet', price: '$49.99', stock: 120, category: 'Accessories' },
-  { id: 4, name: 'Sunglasses', price: '$89.99', stock: 75, category: 'Accessories' },
-  { id: 5, name: 'Backpack', price: '$79.99', stock: 35, category: 'Bags' },
-  { id: 6, name: 'Running Shoes', price: '$159.99', stock: 62, category: 'Footwear' },
-  { id: 7, name: 'Bluetooth Speaker', price: '$89.99', stock: 38, category: 'Electronics' },
-  { id: 8, name: 'Phone Case', price: '$24.99', stock: 95, category: 'Accessories' },
-  { id: 9, name: 'Laptop Stand', price: '$39.99', stock: 52, category: 'Electronics' },
-  { id: 10, name: 'Water Bottle', price: '$19.99', stock: 150, category: 'Accessories' },
-];
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -27,9 +14,8 @@ const Products = () => {
   const [search, setSearch] = useState('');
   const { addToast } = useToast();
   const [viewMode, setViewMode] = useState(() => {
-    return localStorage.getItem('productsViewMode') || 'grid';
+    return localStorage.getItem('productsViewMode') || 'list';
   });
-
   const [indicatorStyle, setIndicatorStyle] = useState({});
   const buttonsRef = useRef([]);
   const containerRef = useRef(null);
@@ -39,7 +25,6 @@ const Products = () => {
 
   useEffect(() => {
     const loadProducts = async () => {
-      // Prevent multiple simultaneous loads
       if (loadingRef.current) {
         return;
       }
@@ -48,13 +33,15 @@ const Products = () => {
         loadingRef.current = true;
         setLoading(true);
         const data = await productService.getStoreProducts(storeId);
-        setProducts(data);
+        setProducts([...data]);
       } catch (error) {
         console.error('Error loading products:', error);
         addToast('Failed to load products', 'error');
         setProducts([]); // Clear products on error
       } finally {
-        setLoading(false);
+        setTimeout(() => {
+          setLoading(false);
+        }, 2000);
         loadingRef.current = false;
       }
     };
@@ -63,18 +50,6 @@ const Products = () => {
       loadProducts();
     }
   }, [storeId]);
-
-  const filtered = products.filter((product) => {
-    const term = search.toLowerCase();
-    return (
-      product.name.toLowerCase().includes(term) ||
-      (product.category && product.category.toLowerCase().includes(term))
-    );
-  });
-
-  const formatPrice = (price) => {
-    return `$${price.toFixed(2)}`;
-  };
 
   useEffect(() => {
     const calculateIndicator = () => {
@@ -97,6 +72,18 @@ const Products = () => {
     localStorage.setItem('productsViewMode', viewMode);
   }, [viewMode]);
 
+  const filtered = products.filter((product) => {
+    const term = search.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(term) ||
+      (product.category && product.category.toLowerCase().includes(term))
+    );
+  });
+
+  const formatPrice = (price) => {
+    return `$${price.toFixed(2)}`;
+  };
+
   const listVariants = {
     initial: { opacity: 0 },
     animate: { opacity: 1, transition: { duration: 0.3 } },
@@ -118,7 +105,6 @@ const Products = () => {
       <PageContainer
         title="Products"
         description="Manage your product catalog, inventory, and pricing"
-        withBottomSpace
         RightContent={
           <Button onClick={() => navigate(`/store/${storeId}/products/add`)} filled>
             + Add Product
@@ -226,7 +212,14 @@ const Products = () => {
         </div>
       </PageContainer>
 
-      <PageContainer minHeight="60vh" withPadding={false}>
+      <PageContainer
+        minHeight="65vh"
+        loading={loading}
+        loadingText={'Loading items...'}
+        fixedSize
+        removeBorderSpace
+        removeBottomSpace
+      >
         {loading ? (
           <div
             style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 64 }}
