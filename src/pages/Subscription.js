@@ -129,7 +129,7 @@ const Subscription = () => {
       const updatedUser = await storeService.updateSubscription(selectedPlan);
       updateUser(updatedUser);
       addToast(
-        `Successfully switched to ${plans.find((p) => p.id === selectedPlan)?.name}!`,
+        `Successfully switched to ${plans.find((p) => p.id === updatedUser.subscriptionType).name}!`,
         'success'
       );
     } catch (error) {

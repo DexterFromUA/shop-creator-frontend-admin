@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 
-import { useStore } from '../context/StoreContext';
+// import { useStore } from '../context/StoreContext';
 import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
 import './Dashboard.css';
@@ -249,8 +249,8 @@ const NotificationHistory = ({ notifications }) => {
 };
 
 const Notifications = () => {
-  const { currentStore } = useStore();
-  const navigate = useNavigate();
+  // const { currentStore } = useStore();
+  // const navigate = useNavigate();
   const [notificationType, setNotificationType] = useState('email');
 
   const [allHistory, setAllHistory] = useState([
@@ -297,50 +297,50 @@ const Notifications = () => {
     setAllHistory([newNotification, ...allHistory]);
   };
 
-  const isOwnerProOrUnlimited =
-    currentStore?.owner?.subscriptionType === 'PRO' ||
-    currentStore?.owner?.subscriptionType === 'UNLIMITED';
+  // const isOwnerProOrUnlimited =
+  //   currentStore?.owner?.subscriptionType === 'PRO' ||
+  //   currentStore?.owner?.subscriptionType === 'UNLIMITED';
 
-  if (!isOwnerProOrUnlimited) {
-    return (
-      <PageContainer
-        isCenteredContent
-        title="Premium Feature"
-        style={{ maxWidth: 800, textAlign: 'center', padding: 48 }}
-      >
-        <div style={{ fontSize: 64, marginBottom: 24 }}>🔒</div>
-        <h1
-          style={{
-            margin: '0 0 16px 0',
-            fontSize: 28,
-            fontWeight: 700,
-            color: 'var(--color-text)',
-          }}
-        >
-          Premium Feature
-        </h1>
-        <p
-          style={{
-            margin: '0 0 32px 0',
-            fontSize: 16,
-            color: 'var(--color-text-secondary)',
-            lineHeight: 1.6,
-          }}
-        >
-          Notifications management is available for stores with PRO subscriptions. The store owner
-          needs to upgrade their subscription to access this feature.
-        </p>
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
-          <Button onClick={() => navigate(`/store/${currentStore?.id}/dashboard`)}>
-            Back to Dashboard
-          </Button>
-          <Button filled onClick={() => navigate('/stores')}>
-            Manage Stores
-          </Button>
-        </div>
-      </PageContainer>
-    );
-  }
+  // if (!isOwnerProOrUnlimited) {
+  //   return (
+  //     <PageContainer
+  //       isCenteredContent
+  //       title="Premium Feature"
+  //       style={{ maxWidth: 800, textAlign: 'center', padding: 48 }}
+  //     >
+  //       <div style={{ fontSize: 64, marginBottom: 24 }}>🔒</div>
+  //       <h1
+  //         style={{
+  //           margin: '0 0 16px 0',
+  //           fontSize: 28,
+  //           fontWeight: 700,
+  //           color: 'var(--color-text)',
+  //         }}
+  //       >
+  //         Premium Feature
+  //       </h1>
+  //       <p
+  //         style={{
+  //           margin: '0 0 32px 0',
+  //           fontSize: 16,
+  //           color: 'var(--color-text-secondary)',
+  //           lineHeight: 1.6,
+  //         }}
+  //       >
+  //         Notifications management is available for stores with PRO subscriptions. The store owner
+  //         needs to upgrade their subscription to access this feature.
+  //       </p>
+  //       <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
+  //         <Button onClick={() => navigate(`/store/${currentStore?.id}/dashboard`)}>
+  //           Back to Dashboard
+  //         </Button>
+  //         <Button filled onClick={() => navigate('/stores')}>
+  //           Manage Stores
+  //         </Button>
+  //       </div>
+  //     </PageContainer>
+  //   );
+  // }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>

@@ -216,7 +216,6 @@ const Payouts = () => {
 
       setLoading(true);
       try {
-        // Load bank account and transactions in parallel
         const [bankAccountData, transactionsData] = await Promise.all([
           payoutService.getStoreBankAccount(storeId),
           payoutService.getStoreTransactions(storeId),
@@ -265,21 +264,6 @@ const Payouts = () => {
       minute: '2-digit',
     });
   };
-
-  // if (loading) {
-  //   return (
-  //     <PageContainer
-  //       title="Payouts & Transactions"
-  //       description="Loading..."
-  //
-  //
-  //
-  //       minHeight="auto"
-  //     >
-  //       <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>
-  //     </PageContainer>
-  //   );
-  // }
 
   return (
     <>

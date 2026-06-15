@@ -5,7 +5,7 @@ const ToastContext = createContext();
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback((message, type = 'info', duration = 3000) => {
+  const addToast = useCallback((message, type = 'info', duration = 10000) => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
@@ -20,11 +20,13 @@ export const ToastProvider = ({ children }) => {
       {children}
       <div className="toast-container">
         {toasts.map((toast) => (
-          <div key={toast.id} className={`toast toast-${toast.type}`}>{toast.message}</div>
+          <div key={toast.id} className={`toast toast-${toast.type}`}>
+            {toast.message}
+          </div>
         ))}
       </div>
     </ToastContext.Provider>
   );
 };
 
-export const useToast = () => useContext(ToastContext); 
+export const useToast = () => useContext(ToastContext);

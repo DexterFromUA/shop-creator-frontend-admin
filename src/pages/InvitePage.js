@@ -49,9 +49,9 @@ const InvitePage = () => {
 
     try {
       setAccepting(true);
-      await inviteService.acceptInvite(token);
+      const result = await inviteService.acceptInvite(token);
 
-      navigate(`/store/${invite.store.id}`);
+      navigate(`/store/${result.storeId}`);
     } catch (error) {
       addToast('Failed to accept invite: ' + error.message, 'error');
     } finally {
@@ -214,9 +214,6 @@ const InvitePage = () => {
         >
           You&apos;re invited!
         </h1>
-        <p style={{ margin: '0 0 8px 0', fontSize: 18, color: 'var(--color-text)' }}>
-          <strong>{invite.store.owner.name || invite.store.owner.email}</strong> invited you to join
-        </p>
         <p
           style={{
             margin: '0 0 16px 0',
@@ -225,7 +222,7 @@ const InvitePage = () => {
             color: 'var(--color-accent)',
           }}
         >
-          &quot;{invite.store.name}&quot; as {invite.role.toLowerCase()}
+          &quot;{invite.store.name}&quot;
         </p>
 
         {invite.email && (

@@ -6,10 +6,77 @@ import { useAuth } from '../../context/AuthContext';
 import { useStore } from '../../context/StoreContext';
 import './AppHeader.css';
 
+const NOTIFICATIONS = [
+  {
+    id: 1,
+    title: 'New Order Received',
+    message: 'Order #12345 has been placed by John Doe',
+    time: '2 minutes ago',
+    read: false,
+    type: 'order',
+  },
+];
+const MENU_ITEMS = [
+  {
+    id: 'dashboard',
+    title: 'Dashboard',
+    icon: '📊',
+    permission: null,
+  },
+  {
+    id: 'orders',
+    title: 'Orders',
+    icon: '🛒',
+    permission: 'ORDERS',
+  },
+  {
+    id: 'products',
+    title: 'Products',
+    icon: '📦',
+    permission: 'PRODUCTS',
+  },
+  {
+    id: 'payouts',
+    title: 'Payouts',
+    icon: '🔔',
+    permission: 'PAYOUTS',
+  },
+  {
+    id: 'users',
+    title: 'Users',
+    icon: null,
+    permission: 'USERS',
+  },
+  {
+    id: 'notifications',
+    title: 'Notifications',
+    icon: null,
+    permission: 'NOTIFICATIONS',
+  },
+  {
+    id: 'team',
+    title: 'Team',
+    icon: null,
+    permission: 'TEAM',
+  },
+  {
+    id: 'app-settings',
+    title: 'App Settings',
+    icon: null,
+    permission: 'APP',
+  },
+  {
+    id: 'settings',
+    title: 'Store Settings',
+    icon: null,
+    permission: 'STORE',
+  },
+];
+
 const AppHeader = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
-  const { currentStore, storeId, loading, subscriptionCheck, roleCheck } = useStore();
+  const { currentStore, storeId, loading, roleCheck } = useStore();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -20,6 +87,7 @@ const AppHeader = () => {
   const menuRefs = useRef([]);
   const navigate = useNavigate();
   const location = useLocation();
+  const [notifications, setNotifications] = useState(NOTIFICATIONS);
 
   const shouldShowStoresButton = useMemo(() => {
     if (!user) return true;
@@ -36,43 +104,28 @@ const AppHeader = () => {
 
     const allStores = [
       ...(user.stores || []),
-      ...(user.managingStores || []),
-      ...(user.deliveringStores || []),
+      // ...(user.managingStores || []),
+      // ...(user.deliveringStores || []),
     ];
 
     return allStores.length > 1;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.subscriptionType, user?.stores, user?.managingStores, user?.deliveringStores]);
-
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: 'New Order Received',
-      message: 'Order #12345 has been placed by John Doe',
-      time: '2 minutes ago',
-      read: false,
-      type: 'order',
-    },
-  ]);
+  }, [user?.subscriptionType, user?.stores]);
 
   const menuItems = useMemo(() => {
-    return storeId && !loading
-      ? [
-          { to: `/store/${storeId}/dashboard`, label: 'Dashboard', icon: '📊' },
-          { to: `/store/${storeId}/orders`, label: 'Orders', icon: '🛒' },
-          ...(roleCheck > 1
-            ? [
-                { to: `/store/${storeId}/products`, label: 'Products', icon: '📦' },
-                { to: `/store/${storeId}/payouts`, label: 'Payouts', icon: '🔔' },
-              ]
-            : []),
-        ]
-      : [];
+    if (!storeId || loading) return [];
+
+    return MENU_ITEMS.filter((item) => !item.permission || roleCheck(item.permission));
   }, [loading, roleCheck, storeId]);
+
+  const additionalMenuItems = useMemo(() => {
+    return menuItems.slice(4);
+  }, [menuItems]);
 
   const activeMenuIndex = useMemo(() => {
     return menuItems.findIndex(
-      (item) => location.pathname === item.to || location.pathname.startsWith(item.to + '/')
+      (item) =>
+        location.pathname.includes('/' + item.id) || location.pathname.includes(item.id + '/')
     );
   }, [menuItems, location.pathname]);
 
@@ -151,16 +204,16 @@ const AppHeader = () => {
                   opacity: activeMenuIndex !== -1 ? 1 : 0,
                 }}
               />
-              {menuItems.map((item, idx) => (
+              {menuItems.slice(0, 4).map((item, idx) => (
                 <NavLink
-                  key={item.to}
-                  to={item.to}
+                  key={item.id}
+                  to={`/store/${storeId}/${item.id}`}
                   className={({ isActive }) =>
                     'app-header-menu-item' + (idx === activeMenuIndex ? ' active' : '')
                   }
                   ref={(el) => (menuRefs.current[idx] = el)}
                 >
-                  {item.label}
+                  {item.title}
                 </NavLink>
               ))}
             </nav>
@@ -302,7 +355,7 @@ const AppHeader = () => {
         </div>
 
         {/* Admin Menu */}
-        {roleCheck > 1 && (
+        {additionalMenuItems.length > 0 && (
           <div className="user-menu-wrapper" ref={adminDropdownRef}>
             <button
               className="header-icon-btn"
@@ -326,57 +379,18 @@ const AppHeader = () => {
             </button>
             {adminDropdownOpen && (
               <div className="user-dropdown">
-                {subscriptionCheck > 2 && (
+                {additionalMenuItems.map((item) => (
                   <div
+                    key={'menu' + item.id}
                     className="user-dropdown-item"
                     onClick={() => {
-                      navigate(storeId ? `/store/${storeId}/notifications` : '/notifications');
+                      navigate(storeId ? `/store/${storeId}/${item.id}` : '/' + item.id);
                       setAdminDropdownOpen(false);
                     }}
                   >
-                    Notifications
+                    {item.title}
                   </div>
-                )}
-                <div
-                  className="user-dropdown-item"
-                  onClick={() => {
-                    navigate(storeId ? `/store/${storeId}/users` : '/users');
-                    setAdminDropdownOpen(false);
-                  }}
-                >
-                  Users
-                </div>
-                {subscriptionCheck > 2 && (
-                  <div
-                    className="user-dropdown-item"
-                    onClick={() => {
-                      navigate(storeId ? `/store/${storeId}/team` : '/team');
-                      setAdminDropdownOpen(false);
-                    }}
-                  >
-                    Team
-                  </div>
-                )}
-                {subscriptionCheck > 2 && (
-                  <div
-                    className="user-dropdown-item"
-                    onClick={() => {
-                      navigate(storeId ? `/store/${storeId}/app-settings` : '/app-settings');
-                      setAdminDropdownOpen(false);
-                    }}
-                  >
-                    App Settings
-                  </div>
-                )}
-                <div
-                  className="user-dropdown-item"
-                  onClick={() => {
-                    navigate(storeId ? `/store/${storeId}/settings` : '/settings');
-                    setAdminDropdownOpen(false);
-                  }}
-                >
-                  Store Settings
-                </div>
+                ))}
               </div>
             )}
           </div>

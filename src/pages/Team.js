@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 
 import { useStore } from '../context/StoreContext';
 import { inviteService } from '../utils/graphql';
@@ -81,13 +81,22 @@ const ConfirmDeleteModal = ({ open, onClose, onConfirm, userName }) => {
 };
 
 const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
-  const [form, setForm] = useState({ role: 'MANAGER' });
+  const [form, setForm] = useState({
+    description: '',
+    orders: true,
+    products: true,
+    payouts: false,
+    notifications: true,
+    users: false,
+    team: false,
+    app: false,
+    store: false,
+  });
   const [loading, setLoading] = useState(false);
   const [inviteLink, setInviteLink] = useState(null);
   const { addToast } = useToast();
 
   const handleClose = () => {
-    setForm({ role: 'MANAGER' });
     setInviteLink(null);
     setLoading(false);
     onClose();
@@ -99,8 +108,8 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
 
     try {
       const invite = await inviteService.createInvite({
-        role: form.role,
         storeId: storeId,
+        ...form,
       });
 
       const link = `${window.location.origin}/invite/${invite.token}`;
@@ -190,14 +199,14 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
                   <label
                     style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 15 }}
                   >
-                    Role
+                    Description
                   </label>
-                  <select
-                    autoFocus
+                  <input
                     required
-                    value={form.role}
-                    onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-                    disabled={loading}
+                    onChange={(e) => {
+                      setForm((f) => ({ ...f, description: e.target.value }));
+                    }}
+                    placeholder={`Enter description for this user`}
                     style={{
                       boxSizing: 'border-box',
                       width: '100%',
@@ -207,18 +216,142 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
                       background: 'var(--color-bg-secondary)',
                       color: 'var(--color-text)',
                       fontSize: 15,
-                      appearance: 'none',
-                      opacity: loading ? 0.5 : 1,
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 1rem center',
-                      backgroundSize: '18px',
                     }}
-                  >
-                    <option value="MANAGER">Manager</option>
-                    <option value="COURIER">Courier</option>
-                  </select>
+                  />
                 </div>
+                <div>
+                  <label
+                    style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 15 }}
+                  >
+                    Permissions for
+                  </label>
+                  <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <div style={{ marginRight: '50px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <input
+                          type="checkbox"
+                          id="order-permission"
+                          checked={form.orders}
+                          onChange={(e) => setForm((f) => ({ ...f, orders: e.target.checked }))}
+                          style={{ width: 18, height: 18 }}
+                        />
+                        <label
+                          htmlFor="order-permission"
+                          style={{ fontSize: 15, cursor: 'pointer' }}
+                        >
+                          Orders
+                        </label>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <input
+                          type="checkbox"
+                          id="products-permission"
+                          checked={form.products}
+                          onChange={(e) => setForm((f) => ({ ...f, products: e.target.checked }))}
+                          style={{ width: 18, height: 18 }}
+                        />
+                        <label
+                          htmlFor="products-permission"
+                          style={{ fontSize: 15, cursor: 'pointer' }}
+                        >
+                          Products
+                        </label>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <input
+                          type="checkbox"
+                          id="payouts-permission"
+                          checked={form.payouts}
+                          onChange={(e) => setForm((f) => ({ ...f, payouts: e.target.checked }))}
+                          style={{ width: 18, height: 18 }}
+                        />
+                        <label
+                          htmlFor="payouts-permission"
+                          style={{ fontSize: 15, cursor: 'pointer' }}
+                        >
+                          Payouts
+                        </label>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <input
+                          type="checkbox"
+                          id="notifications-permission"
+                          checked={form.notifications}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, notifications: e.target.checked }))
+                          }
+                          style={{ width: 18, height: 18 }}
+                        />
+                        <label
+                          htmlFor="notifications-permission"
+                          style={{ fontSize: 15, cursor: 'pointer' }}
+                        >
+                          Notifications
+                        </label>
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <input
+                          type="checkbox"
+                          id="users-permission"
+                          checked={form.users}
+                          onChange={(e) => setForm((f) => ({ ...f, users: e.target.checked }))}
+                          style={{ width: 18, height: 18 }}
+                        />
+                        <label
+                          htmlFor="users-permission"
+                          style={{ fontSize: 15, cursor: 'pointer' }}
+                        >
+                          Users
+                        </label>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <input
+                          type="checkbox"
+                          id="team-permission"
+                          checked={form.team}
+                          onChange={(e) => setForm((f) => ({ ...f, team: e.target.checked }))}
+                          style={{ width: 18, height: 18 }}
+                        />
+                        <label
+                          htmlFor="team-permission"
+                          style={{ fontSize: 15, cursor: 'pointer' }}
+                        >
+                          Team
+                        </label>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <input
+                          type="checkbox"
+                          id="app-permission"
+                          checked={form.app}
+                          onChange={(e) => setForm((f) => ({ ...f, app: e.target.checked }))}
+                          style={{ width: 18, height: 18 }}
+                        />
+                        <label htmlFor="app-permission" style={{ fontSize: 15, cursor: 'pointer' }}>
+                          App settings
+                        </label>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <input
+                          type="checkbox"
+                          id="store-permission"
+                          checked={form.store}
+                          onChange={(e) => setForm((f) => ({ ...f, store: e.target.checked }))}
+                          style={{ width: 18, height: 18 }}
+                        />
+                        <label
+                          htmlFor="store-permission"
+                          style={{ fontSize: 15, cursor: 'pointer' }}
+                        >
+                          Store settings
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
                   <Button type="button" onClick={handleClose} disabled={loading}>
                     Cancel
@@ -272,52 +405,64 @@ const CreateInviteModal = ({ open, onClose, onInviteCreated, storeId }) => {
 
 const Team = () => {
   const { currentStore, refreshStore } = useStore();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { addToast } = useToast();
   const [modal, setModal] = useState({ open: false });
   const [deleteModal, setDeleteModal] = useState({ open: false, user: null });
   const [search, setSearch] = useState('');
   const [invites, setInvites] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('members');
   const [indicatorStyle, setIndicatorStyle] = useState({});
   const buttonsRef = useRef([]);
   const containerRef = useRef(null);
 
-  const allUsers = [...(currentStore?.managers || []), ...(currentStore?.couriers || [])];
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const matchesSearch =
+        user.name?.toLowerCase().includes(search.toLowerCase()) ||
+        user.email?.toLowerCase().includes(search.toLowerCase());
 
-  const filteredUsers = allUsers.filter((user) => {
-    const matchesSearch =
-      user.name?.toLowerCase().includes(search.toLowerCase()) ||
-      user.email?.toLowerCase().includes(search.toLowerCase());
+      return matchesSearch;
+    });
+  }, [search, users]);
 
-    return matchesSearch;
-  });
-
-  const filteredInvites = invites.filter((invite) => {
-    const matchesSearch = invite.role.toLowerCase().includes(search.toLowerCase());
-    return matchesSearch;
-  });
-
-  const loadInvites = useCallback(async () => {
-    if (!currentStore?.id) return;
-
-    try {
-      setLoading(true);
-      const storeInvites = await inviteService.getStoreInvites(currentStore.id);
-      setInvites(storeInvites);
-    } catch (error) {
-      console.error('Failed to load invites:', error);
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 2000);
-    }
-  }, [currentStore?.id]);
+  const filteredInvites = useMemo(() => {
+    return invites.filter((invite) => {
+      const permissionList = invite.permissions.map((el) => el.toLowerCase());
+      const matchesSearch =
+        invite.description.toLowerCase().includes(search.toLowerCase()) ||
+        permissionList.includes(search.toLowerCase());
+      return matchesSearch;
+    });
+  }, [invites, search]);
 
   useEffect(() => {
-    loadInvites();
-  }, [currentStore, loadInvites]);
+    const loadData = async () => {
+      if (!currentStore.permissions.includes('OWNER') && !currentStore.permissions.includes('TEAM'))
+        return;
+
+      setLoading(true);
+
+      try {
+        const [invitesData, usersData] = await Promise.all([
+          inviteService.getStoreInvites(currentStore.id),
+          inviteService.getStoreUsers(currentStore.id),
+        ]);
+
+        setInvites([...invitesData]);
+        setUsers([...usersData]);
+      } catch (e) {
+        addToast(e, 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStore]);
 
   // useEffect(() => {
   //   const handleFocus = () => {
@@ -405,41 +550,6 @@ const Team = () => {
       addToast('Failed to remove team member: ' + error.message, 'error');
     }
   };
-
-  const isOwnerProOrUnlimited =
-    currentStore?.owner?.subscriptionType === 'PRO' ||
-    currentStore?.owner?.subscriptionType === 'UNLIMITED';
-
-  if (!isOwnerProOrUnlimited) {
-    return (
-      <PageContainer
-        title="Premium Feature"
-        description="Team management is available for stores with PRO subscriptions"
-        isCenteredContent
-        minHeight="65vh"
-      >
-        <div style={{ fontSize: 64, marginBottom: 24 }}>🔒</div>
-        <p
-          style={{
-            margin: '0 0 32px 0',
-            fontSize: 16,
-            color: 'var(--color-text-secondary)',
-            lineHeight: 1.6,
-          }}
-        >
-          The store owner needs to upgrade their subscription to access this feature.
-        </p>
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
-          <Button onClick={() => navigate(`/store/${currentStore?.id}/dashboard`)}>
-            Back to Dashboard
-          </Button>
-          <Button filled onClick={() => navigate('/stores')}>
-            Manage Stores
-          </Button>
-        </div>
-      </PageContainer>
-    );
-  }
 
   return (
     <>
@@ -579,10 +689,6 @@ const Team = () => {
                 // Team Members Tab
                 filteredUsers.length > 0 ? (
                   filteredUsers.map((user, i) => {
-                    // Determine role from store relationships
-                    const isManager = currentStore?.managers?.some((m) => m.id === user.id);
-                    const role = isManager ? 'manager' : 'courier';
-
                     return (
                       <div
                         key={user.id}
@@ -607,20 +713,6 @@ const Team = () => {
                             minWidth: 220,
                           }}
                         >
-                          <div
-                            style={{
-                              width: 48,
-                              height: 48,
-                              borderRadius: 16,
-                              background: 'var(--color-bg-secondary)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: 22,
-                            }}
-                          >
-                            {role === 'manager' ? '👔' : '🚚'}
-                          </div>
                           <div>
                             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
                               {user.name || 'No name'}
@@ -637,19 +729,21 @@ const Team = () => {
                           </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                          <span
-                            style={{
-                              background: 'rgba(16, 185, 129, 0.1)',
-                              color: '#10b981',
-                              padding: '4px 10px',
-                              borderRadius: 8,
-                              fontSize: 13,
-                              fontWeight: 600,
-                              textTransform: 'capitalize',
-                            }}
-                          >
-                            {role}
-                          </span>
+                          {user.usedInvites[0].permissions.length > 0 && (
+                            <span
+                              style={{
+                                background: 'rgba(16, 185, 129, 0.1)',
+                                color: '#10b981',
+                                padding: '4px 10px',
+                                borderRadius: 8,
+                                fontSize: 13,
+                                fontWeight: 600,
+                                textTransform: 'capitalize',
+                              }}
+                            >
+                              {user.usedInvites[0].permissions.join(', ')}
+                            </span>
+                          )}
                           <Button
                             color="#ef4444"
                             onClick={() => handleRemoveTeamMember(user.id, user.name || user.email)}
@@ -705,23 +799,11 @@ const Team = () => {
                           minWidth: 220,
                         }}
                       >
-                        <div
-                          style={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: 16,
-                            background: 'var(--color-bg-secondary)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 22,
-                          }}
-                        >
-                          {invite.role === 'MANAGER' ? '👔' : '🚚'}
-                        </div>
                         <div>
                           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
-                            {invite.email ? invite.email : `${invite.role.toLowerCase()} invite`}
+                            {invite.description
+                              ? `${invite.description.toLowerCase()} invite (${invite.permissions.join(', ')})`
+                              : invite.permissions.join(', ')}
                           </h3>
                           <p
                             style={{
@@ -776,7 +858,7 @@ const Team = () => {
                               ? 'Revoked'
                               : isExpired
                                 ? 'Expired'
-                                : `Pending ${invite.role.toLowerCase()}`}
+                                : `Pending`}
                         </span>
                         {!isUsed && !isRevoked && !isExpired && (
                           <>

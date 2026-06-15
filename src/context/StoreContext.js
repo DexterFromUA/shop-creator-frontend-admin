@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { storeService } from '../utils/graphql';
 import { useToast } from './ToastContext';
@@ -16,8 +16,8 @@ export const StoreProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   const subscriptionCheck = useMemo(() => {
-    if (currentStore?.owner?.subscriptionType) {
-      switch (currentStore.owner.subscriptionType) {
+    if (user?.subscriptionType) {
+      switch (user.subscriptionType) {
         case 'BASIC':
           return 1;
         case 'ADVANCED':
@@ -32,17 +32,21 @@ export const StoreProvider = ({ children }) => {
     }
 
     return 0;
-  }, [currentStore]);
+  }, [user]);
 
-  const roleCheck = useMemo(() => {
-    if (currentStore) {
-      if (user.stores.some(({ id }) => currentStore.id === id)) return 10;
-      if (user.managingStores.some(({ id }) => currentStore.id === id)) return 2;
-      if (user.deliveringStores.some(({ id }) => currentStore.id === id)) return 1;
-    }
+  const roleCheck = useCallback(
+    (permission) => {
+      if (currentStore && currentStore?.permissions?.length) {
+        return (
+          currentStore.permissions.includes('OWNER') ||
+          currentStore.permissions.includes(permission)
+        );
+      }
 
-    return 0;
-  }, [user.stores, user.managingStores, user.deliveringStores, currentStore]);
+      return false;
+    },
+    [currentStore]
+  );
 
   const refreshStore = async () => {
     if (!storeId) return;
@@ -51,7 +55,8 @@ export const StoreProvider = ({ children }) => {
     setError(null);
 
     try {
-      const store = await storeService.getStore(storeId);
+      const data = await storeService.getStore(storeId);
+      const store = { ...data.store, permissions: [...data.permissions] };
 
       if (!store.isActive) {
         addToast('This store is currently inactive and unavailable', 'error');

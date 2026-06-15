@@ -8,7 +8,7 @@ class GraphQLClient {
 
   async request(query, variables = {}, headers = {}) {
     const token = localStorage.getItem('shop_admin_token');
-    
+
     const response = await fetch(this.endpoint, {
       method: 'POST',
       headers: {
@@ -46,15 +46,7 @@ export const ME_QUERY = `
       subscriptionType
       subscriptionStartDate
       subscriptionEndDate
-      stores {
-          id
-      }
-      managingStores {
-          id
-      }
-      deliveringStores {
-          id
-      }
+      role
       paymentCardNumber
       paymentCardHolder
       paymentCardExpiryMonth
@@ -67,24 +59,20 @@ export const ME_QUERY = `
 export const MY_STORES_QUERY = `
   query MyStores {
     myStores {
-      id
-      name
-      description
-      contactEmail
-      contactPhone
-      contactAddress
-      contactCity
-      isActive
-      appId
-      owner {
+      storeId
+      clientId
+      store {
+        id
+        name
+        description
+        isActive
+        createdAt
+        contactCity
+      }
+      client {
         id
       }
-      managers {
-        id
-      }
-      couriers {
-        id
-      }
+      permissions
       createdAt
     }
   }
@@ -104,37 +92,8 @@ export const LOGIN_MUTATION = `
         phoneVerified
         role
         stores {
-          id
-          name
-          description
-          contactEmail
-          contactPhone
-          contactAddress
-          contactCity
-          isActive
-          createdAt
-        }
-        managingStores {
-          id
-          name
-          description
-          contactEmail
-          contactPhone
-          contactAddress
-          contactCity
-          isActive
-          createdAt
-        }
-        deliveringStores {
-          id
-          name
-          description
-          contactEmail
-          contactPhone
-          contactAddress
-          contactCity
-          isActive
-          createdAt
+          storeId
+          clientId
         }
         subscriptionActive
         subscriptionType
@@ -165,37 +124,8 @@ export const REGISTER_MUTATION = `
         phoneVerified
         role
         stores {
-          id
-          name
-          description
-          contactEmail
-          contactPhone
-          contactAddress
-          contactCity
-          isActive
-          createdAt
-        }
-        managingStores {
-          id
-          name
-          description
-          contactEmail
-          contactPhone
-          contactAddress
-          contactCity
-          isActive
-          createdAt
-        }
-        deliveringStores {
-          id
-          name
-          description
-          contactEmail
-          contactPhone
-          contactAddress
-          contactCity
-          isActive
-          createdAt
+          storeId
+          clientId
         }
         subscriptionActive
         subscriptionType
@@ -258,52 +188,10 @@ export const UPDATE_SUBSCRIPTION_MUTATION = `
   mutation UpdateSubscription($input: UpdateSubscriptionInput!) {
     updateSubscription(input: $input) {
       id
-      email
-      name
-      phone
-      stores {
-        id
-        name
-        description
-        contactEmail
-        contactPhone
-        contactAddress
-        contactCity
-        isActive
-        createdAt
-      }
-      managingStores {
-        id
-        name
-        description
-        contactEmail
-        contactPhone
-        contactAddress
-        contactCity
-        isActive
-        createdAt
-      }
-      deliveringStores {
-        id
-        name
-        description
-        contactEmail
-        contactPhone
-        contactAddress
-        contactCity
-        isActive
-        createdAt
-      }
       subscriptionActive
       subscriptionType
       subscriptionStartDate
       subscriptionEndDate
-      paymentCardNumber
-      paymentCardHolder
-      paymentCardExpiryMonth
-      paymentCardExpiryYear
-      paymentCardCvv
-      createdAt
       updatedAt
     }
   }
@@ -312,38 +200,27 @@ export const UPDATE_SUBSCRIPTION_MUTATION = `
 export const GET_STORE_QUERY = `
   query GetStore($storeId: ID!) {
     store(id: $storeId) {
-      id
-      name
-      description
-      contactEmail
-      contactPhone
-      contactAddress
-      contactCity
-      isActive
-      appId
-      owner {
+      storeId
+      clientId
+      permissions
+      store {
         id
-        email
         name
-        phone
-        subscriptionActive
-        subscriptionType
-        subscriptionStartDate
-        subscriptionEndDate
+        description
+        contactEmail
+        contactPhone
+        contactAddress
+        contactCity
+        appId
+        isActive
+        bankAccountNumber
+        bankAccountHolder
+        bankName
+        bankIban
+        bankSwiftCode
+        createdAt
+        updatedAt
       }
-      managers {
-        id
-        email
-        name
-        phone
-      }
-      couriers {
-        id
-        email
-        name
-        phone
-      }
-      createdAt
     }
   }
 `;
@@ -352,53 +229,11 @@ export const UPDATE_PAYMENT_CARD_MUTATION = `
   mutation UpdatePaymentCard($input: UpdatePaymentCardInput!) {
     updatePaymentCard(input: $input) {
       id
-      email
-      name
-      phone
-      stores {
-        id
-        name
-        description
-        contactEmail
-        contactPhone
-        contactAddress
-        contactCity
-        isActive
-        createdAt
-      }
-      managingStores {
-        id
-        name
-        description
-        contactEmail
-        contactPhone
-        contactAddress
-        contactCity
-        isActive
-        createdAt
-      }
-      deliveringStores {
-        id
-        name
-        description
-        contactEmail
-        contactPhone
-        contactAddress
-        contactCity
-        isActive
-        createdAt
-      }
-      subscriptionActive
-      subscriptionType
-      subscriptionStartDate
-      subscriptionEndDate
       paymentCardNumber
       paymentCardHolder
       paymentCardExpiryMonth
       paymentCardExpiryYear
       paymentCardCvv
-      createdAt
-      updatedAt
     }
   }
 `;
@@ -407,52 +242,11 @@ export const REMOVE_PAYMENT_CARD_MUTATION = `
   mutation RemovePaymentCard {
     removePaymentCard {
       id
-      email
-      name
-      phone
-      stores {
-        id
-        name
-        description
-        contactEmail
-        contactPhone
-        contactAddress
-        contactCity
-        isActive
-        createdAt
-      }
-      managingStores {
-        id
-        name
-        description
-        contactEmail
-        contactPhone
-        contactAddress
-        contactCity
-        isActive
-        createdAt
-      }
-      deliveringStores {
-        id
-        name
-        description
-        contactEmail
-        contactPhone
-        contactAddress
-        contactCity
-        isActive
-        createdAt
-      }
-      subscriptionActive
-      subscriptionType
-      subscriptionStartDate
-      subscriptionEndDate
       paymentCardNumber
       paymentCardHolder
       paymentCardExpiryMonth
       paymentCardExpiryYear
       paymentCardCvv
-      createdAt
       updatedAt
     }
   }
@@ -463,7 +257,6 @@ export const GET_STORE_BANK_ACCOUNT_QUERY = `
   query GetStoreBankAccount($storeId: String!) {
     getStoreBankAccount(storeId: $storeId) {
       id
-      name
       bankAccountNumber
       bankAccountHolder
       bankName
@@ -584,8 +377,8 @@ export const storeService = {
 
   async updateSubscription(subscriptionType) {
     try {
-      const data = await graphqlClient.request(UPDATE_SUBSCRIPTION_MUTATION, { 
-        input: { subscriptionType } 
+      const data = await graphqlClient.request(UPDATE_SUBSCRIPTION_MUTATION, {
+        input: { subscriptionType },
       });
       return data.updateSubscription;
     } catch (error) {
@@ -595,9 +388,10 @@ export const storeService = {
 
   async updatePaymentCard(cardData) {
     try {
-      const data = await graphqlClient.request(UPDATE_PAYMENT_CARD_MUTATION, { 
-        input: cardData 
+      const data = await graphqlClient.request(UPDATE_PAYMENT_CARD_MUTATION, {
+        input: cardData,
       });
+      console.log(data);
       return data.updatePaymentCard;
     } catch (error) {
       throw new Error(error.message || 'Failed to update payment card');
@@ -823,7 +617,10 @@ export const productService = {
 
   async updateProductStock(id, sizeInventory) {
     try {
-      const data = await graphqlClient.request(UPDATE_PRODUCT_STOCK_MUTATION, { id, sizeInventory });
+      const data = await graphqlClient.request(UPDATE_PRODUCT_STOCK_MUTATION, {
+        id,
+        sizeInventory,
+      });
       return data.updateProductStock;
     } catch (error) {
       throw new Error(error.message || 'Failed to update product stock');
@@ -853,22 +650,32 @@ export const appService = {
 };
 
 // Invite queries and mutations
+export const GET_STORE_USERS_QUERY = `
+  query GetStoreUsers($storeId: String!) {
+    getStoreUsers(storeId: $storeId) {
+      id
+      name
+      email
+      usedInvites {
+        id
+        permissions
+      }
+    }
+  }
+`;
+
 export const GET_INVITE_QUERY = `
   query GetInvite($token: String!) {
     getInvite(token: $token) {
       id
       token
       email
-      role
+      description
+      permissions
       expiresAt
       store {
         id
         name
-        owner {
-          id
-          name
-          email
-        }
       }
     }
   }
@@ -880,7 +687,8 @@ export const GET_STORE_INVITES_QUERY = `
       id
       token
       email
-      role
+      description
+      permissions
       createdAt
       expiresAt
       isUsed
@@ -905,18 +713,10 @@ export const CREATE_INVITE_MUTATION = `
     createInvite(input: $input) {
       id
       token
-      role
+      description
+      permissions
       createdAt
       expiresAt
-      store {
-        id
-        name
-      }
-      usedBy {
-        id
-        name
-        email
-      }
     }
   }
 `;
@@ -924,7 +724,13 @@ export const CREATE_INVITE_MUTATION = `
 export const ACCEPT_INVITE_MUTATION = `
   mutation AcceptInvite($token: String!) {
     acceptInvite(token: $token) {
-      id
+      storeId
+      clientId
+      permissions
+      expiresAt
+      store {
+        name
+      }
     }
   }
 `;
@@ -935,7 +741,8 @@ export const REVOKE_INVITE_MUTATION = `
       id
       token
       email
-      role
+      description
+      permissions
       isUsed
       usedAt
     }
@@ -945,15 +752,23 @@ export const REVOKE_INVITE_MUTATION = `
 export const REMOVE_TEAM_MEMBER_MUTATION = `
   mutation RemoveTeamMember($storeId: String!, $userId: String!) {
     removeTeamMember(storeId: $storeId, userId: $userId) {
-      id
-      name
-      email
+      storeId
+      clientId
     }
   }
 `;
 
 // Invite service functions
 export const inviteService = {
+  async getStoreUsers(storeId) {
+    try {
+      const data = await graphqlClient.request(GET_STORE_USERS_QUERY, { storeId });
+      return data.getStoreUsers || [];
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get users');
+    }
+  },
+
   async getInvite(token) {
     try {
       const data = await graphqlClient.request(GET_INVITE_QUERY, { token });
@@ -1002,6 +817,7 @@ export const inviteService = {
   async removeTeamMember(storeId, userId) {
     try {
       const data = await graphqlClient.request(REMOVE_TEAM_MEMBER_MUTATION, { storeId, userId });
+      console.log('CLIENT DATA', data);
       return data.removeTeamMember;
     } catch (error) {
       throw new Error(error.message || 'Failed to remove team member');
@@ -1031,9 +847,9 @@ export const payoutService = {
 
   async updateBankAccount(storeId, bankAccountData) {
     try {
-      const data = await graphqlClient.request(UPDATE_BANK_ACCOUNT_MUTATION, { 
-        storeId, 
-        input: bankAccountData 
+      const data = await graphqlClient.request(UPDATE_BANK_ACCOUNT_MUTATION, {
+        storeId,
+        input: bankAccountData,
       });
       return data.updateBankAccount;
     } catch (error) {
@@ -1043,8 +859,8 @@ export const payoutService = {
 
   async createTransaction(transactionData) {
     try {
-      const data = await graphqlClient.request(CREATE_TRANSACTION_MUTATION, { 
-        input: transactionData 
+      const data = await graphqlClient.request(CREATE_TRANSACTION_MUTATION, {
+        input: transactionData,
       });
       return data.createTransaction;
     } catch (error) {
@@ -1067,4 +883,4 @@ export const UPDATE_STORE_MUTATION = `
       updatedAt
     }
   }
-`; 
+`;

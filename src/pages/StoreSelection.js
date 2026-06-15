@@ -32,7 +32,7 @@ const StoreSelection = () => {
   };
 
   const handleCreateStoreClick = () => {
-    const ownedStores = stores.filter((store) => store.role === 'OWNER');
+    const ownedStores = stores.filter((store) => store.permissions.includes('OWNER'));
     const storeLimit = getStoreLimit(user?.subscriptionType);
 
     if (user?.subscriptionType === 'BASIC') {
@@ -59,36 +59,13 @@ const StoreSelection = () => {
           setLoading(true);
 
           const serverStores = await storeService.getMyStores();
-
-          const allStores = serverStores.map((store) => {
-            if (store.owner.id === user.id) {
-              return { ...store, role: 'OWNER' };
-            } else if (store.managers.some((manager) => manager.id === user.id)) {
-              return { ...store, role: 'MANAGER' };
-            } else if (store.couriers.some((courier) => courier.id === user.id)) {
-              return { ...store, role: 'COURIER' };
-            }
-            return { ...store, role: 'UNKNOWN' };
-          });
-
-          const availableStores = allStores.filter((store) => {
-            if (!store.isActive) {
-              return false;
-            }
-
-            if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {
-              return false;
-            }
-            return true;
-          });
-
-          setStores(allStores);
+          setStores([...serverStores]);
 
           const cameFromStore = location.state?.fromStorePage === true;
 
-          if (availableStores.length === 1 && !cameFromStore) {
-            const store = availableStores[0];
-            navigate(`/store/${store.id}/dashboard`);
+          if (serverStores.length === 1 && !cameFromStore) {
+            const store = serverStores[0].storeId;
+            navigate(`/store/${store}/dashboard`);
             return;
           }
         } catch (error) {
@@ -107,40 +84,32 @@ const StoreSelection = () => {
   }, [user]);
 
   const handleStoreSelect = (store) => {
-    if (!store.isActive) {
+    if (!store.store.isActive) {
       addToast('This store is currently inactive and unavailable', 'error');
       return;
     }
-    if (user?.subscriptionType === 'BASIC' && store.role === 'OWNER') {
+    if (user?.subscriptionType === 'BASIC' && store.permissions.includes('OWNER')) {
       addToast('Upgrade to a paid plan to access your owned stores', 'info');
       return;
     }
-    navigate(`/store/${store.id}/dashboard`);
+    navigate(`/store/${store.storeId}/dashboard`);
   };
 
-  const getRoleColor = (role) => {
-    switch (role) {
-      case 'OWNER':
-        return '#10b981';
-      case 'MANAGER':
-        return '#3b82f6';
-      case 'COURIER':
-        return '#f59e0b';
-      default:
-        return '#6b7280';
+  const getRoleColor = (permissions) => {
+    const owner = permissions.includes('OWNER');
+    if (owner) {
+      return '#10b981';
+    } else {
+      return '#f59e0b';
     }
   };
 
-  const getRoleLabel = (role) => {
-    switch (role) {
-      case 'OWNER':
-        return 'Owner';
-      case 'MANAGER':
-        return 'Manager';
-      case 'COURIER':
-        return 'Courier';
-      default:
-        return role;
+  const getRoleLabel = (permissions) => {
+    const owner = permissions.includes('OWNER');
+    if (owner) {
+      return 'Owner';
+    } else {
+      return '';
     }
   };
 
@@ -175,15 +144,13 @@ const StoreSelection = () => {
               marginBottom: 24,
             }}
           >
-            {stores.map((store) => {
-              const isBlocked = user?.subscriptionType === 'BASIC' && store.role === 'OWNER';
-              const isInactive = !store.isActive;
-              const isDisabled = isBlocked || isInactive;
+            {stores.map((item) => {
+              const isDisabled = !item.store.isActive;
 
               return (
                 <div
-                  key={store.id}
-                  onClick={() => !isDisabled && handleStoreSelect(store)}
+                  key={item.store.id}
+                  onClick={() => !isDisabled && handleStoreSelect(item)}
                   style={{
                     background: isDisabled
                       ? 'var(--color-bg-tertiary)'
@@ -229,23 +196,23 @@ const StoreSelection = () => {
                           color: 'var(--color-text)',
                         }}
                       >
-                        {store.name}
+                        {item.store.name}
                       </h3>
                       <div
                         style={{
                           padding: '4px 12px',
                           borderRadius: 12,
-                          background: getRoleColor(store.role) + '20',
-                          color: getRoleColor(store.role),
+                          background: getRoleColor(item.permissions) + '20',
+                          color: getRoleColor(item.permissions),
                           fontSize: 12,
                           fontWeight: 600,
                           textTransform: 'uppercase',
                           letterSpacing: '0.5px',
                         }}
                       >
-                        {getRoleLabel(store.role)}
+                        {getRoleLabel(item.permissions)}
                       </div>
-                      {isInactive && (
+                      {isDisabled && (
                         <div
                           style={{
                             padding: '4px 12px',
@@ -269,7 +236,7 @@ const StoreSelection = () => {
                         fontSize: 14,
                       }}
                     >
-                      {store.description}
+                      {item.store.description}
                     </p>
                   </div>
 
@@ -307,8 +274,8 @@ const StoreSelection = () => {
                           lineHeight: 1.1,
                         }}
                       >
-                        {store.createdAt
-                          ? new Date(parseInt(store.createdAt)).toLocaleDateString('en-US', {
+                        {item.store.createdAt
+                          ? new Date(parseInt(item.store.createdAt)).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric',
@@ -316,7 +283,7 @@ const StoreSelection = () => {
                           : 'Unknown'}
                       </div>
                     </div>
-                    {store.contactCity && (
+                    {item.store.contactCity && (
                       <div
                         style={{
                           textAlign: 'center',
@@ -344,7 +311,7 @@ const StoreSelection = () => {
                             lineHeight: 1.1,
                           }}
                         >
-                          {store.contactCity}
+                          {item.store.contactCity}
                         </div>
                       </div>
                     )}
@@ -361,7 +328,7 @@ const StoreSelection = () => {
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {isInactive ? 'Store Inactive' : isBlocked ? 'Upgrade to Access' : 'Manage →'}
+                    {isDisabled ? 'Store Inactive' : isDisabled ? 'Upgrade to Access' : 'Manage →'}
                   </div>
                 </div>
               );
@@ -391,7 +358,7 @@ const StoreSelection = () => {
             }}
           >
             {(() => {
-              const ownedStores = stores.filter((store) => store.role === 'OWNER');
+              const ownedStores = stores.filter((store) => store.permissions.includes('OWNER'));
               const storeLimit = getStoreLimit(user?.subscriptionType);
               const isBasic = user?.subscriptionType === 'BASIC';
               const isLimitReached = ownedStores.length >= storeLimit && storeLimit !== Infinity;

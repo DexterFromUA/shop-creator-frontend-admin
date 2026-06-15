@@ -49,8 +49,8 @@ const CreateStore = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Проверяем лимит магазинов
-    const ownedStores = currentUser?.stores || [];
+    // const ownedStores = (currentUser?.stores || []).map((item) => item.permissions.includes("OWNER"));
+    const ownedStores = (currentUser?.stores || []).map((item) => item);
     const storeLimit = getStoreLimit(currentUser?.subscriptionType);
 
     if (ownedStores.length >= storeLimit) {
@@ -86,6 +86,7 @@ const CreateStore = () => {
       };
 
       const newStore = await storeService.createStore(storeData);
+      console.log('created', newStore);
 
       // Обновляем данные пользователя чтобы новый стор появился в списке
       await refreshUser();

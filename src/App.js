@@ -56,14 +56,15 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/auth" />;
 };
 
-const StoreProtectedRoute = ({ roleMin = 0, roleMax = 10, subLvl = 0 }) => {
-  const { roleCheck, subscriptionCheck } = useStore();
+const StoreProtectedRoute = ({ permission = '', subLvl = 0 }) => {
+  const { roleCheck } = useStore();
 
-  return roleCheck >= roleMin && roleCheck <= roleMax && subscriptionCheck >= subLvl ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/stores" />
-  );
+  if (roleCheck(permission)) {
+    return <Outlet />;
+  }
+
+  return <Navigate to="/stores" />;
+  // return roleCheck >= roleMin && roleCheck <= roleMax && subscriptionCheck >= subLvl
 };
 
 const Providers = composeProviders([
@@ -151,39 +152,43 @@ function App() {
         >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="orders/:id" element={<OrderPreview />} />
           <Route path="web-notifications" element={<WebNotifications />} />
 
-          <Route path="*" element={<StoreProtectedRoute roleMin={10} />}>
+          <Route path="*" element={<StoreProtectedRoute permission="ORDERS" />}>
+            <Route path="orders" element={<Orders />} />
+            <Route path="orders/:id" element={<OrderPreview />} />
+          </Route>
+
+          <Route path="*" element={<StoreProtectedRoute permission="PAYOUTS" />}>
             <Route path="payouts" element={<Payouts />} />
+          </Route>
+
+          <Route path="*" element={<StoreProtectedRoute permission="APP" />}>
             <Route path="create-app" element={<CreateApp />} />
-
-            <Route path="*" element={<NotFound />} />
-          </Route>
-
-          <Route path="*" element={<StoreProtectedRoute roleMin={10} subLvl={3} />}>
             <Route path="app-settings" element={<AppSettings />} />
-
-            <Route path="*" element={<NotFound />} />
           </Route>
 
-          <Route path="*" element={<StoreProtectedRoute roleMin={2} />}>
+          <Route path="*" element={<StoreProtectedRoute permission="PRODUCTS" />}>
             <Route path="products" element={<Products />} />
             <Route path="products/add" element={<AddProduct />} />
             <Route path="products/:id/edit" element={<AddProduct />} />
             <Route path="products/:id" element={<ProductView />} />
-            <Route path="users" element={<Users />} />
-            <Route path="settings" element={<EditStore />} />
-
-            <Route path="*" element={<NotFound />} />
           </Route>
 
-          <Route path="*" element={<StoreProtectedRoute roleMin={2} subLvl={3} />}>
-            <Route path="team" element={<Team />} />
-            <Route path="notifications" element={<Notifications />} />
+          <Route path="*" element={<StoreProtectedRoute permission="USERS" />}>
+            <Route path="users" element={<Users />} />
+          </Route>
 
-            <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<StoreProtectedRoute permission="STORE" />}>
+            <Route path="settings" element={<EditStore />} />
+          </Route>
+
+          <Route path="*" element={<StoreProtectedRoute permission="TEAM" />}>
+            <Route path="team" element={<Team />} />
+          </Route>
+
+          <Route path="*" element={<StoreProtectedRoute permission="NOTIFICATIONS" />}>
+            <Route path="notifications" element={<Notifications />} />
           </Route>
         </Route>
 

@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (userData) => {
-    setUser(userData);
+    setUser((prev) => ({ ...prev, ...userData }));
   };
 
   const refreshUser = async () => {
@@ -77,7 +77,6 @@ export const AuthProvider = ({ children }) => {
         try {
           setLoading(true);
           const userData = await authService.getCurrentUser();
-          console.log(userData);
           setUser(userData);
           setIsAuthenticated(true);
         } catch (error) {
@@ -95,6 +94,10 @@ export const AuthProvider = ({ children }) => {
 
     initializeAuth();
   }, []);
+
+  useEffect(() => {
+    console.log('USER', user);
+  }, [user]);
 
   return (
     <AuthContext.Provider
