@@ -95,10 +95,6 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
-  useEffect(() => {
-    console.log('USER', user);
-  }, [user]);
-
   return (
     <AuthContext.Provider
       value={{

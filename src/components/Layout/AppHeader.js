@@ -90,25 +90,17 @@ const AppHeader = () => {
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
 
   const shouldShowStoresButton = useMemo(() => {
-    if (!user) return true;
+    if (!user) return false;
 
     const subscription = user.subscriptionType;
-
     if (subscription === 'PRO' || subscription === 'UNLIMITED') {
       return true;
     }
-
     if (subscription === 'ADVANCED' && (user.stores || []).length < 1) {
       return true;
     }
 
-    const allStores = [
-      ...(user.stores || []),
-      // ...(user.managingStores || []),
-      // ...(user.deliveringStores || []),
-    ];
-
-    return allStores.length > 1;
+    return user.stores.length > 1;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.subscriptionType, user?.stores]);
 
@@ -186,6 +178,10 @@ const AppHeader = () => {
         return '🔔';
     }
   };
+
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
 
   return (
     <header className="app-header">

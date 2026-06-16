@@ -52,6 +52,10 @@ export const ME_QUERY = `
       paymentCardExpiryMonth
       paymentCardExpiryYear
       paymentCardCvv
+      stores {
+        storeId
+        permissions
+      }
     }
   }
 `;
