@@ -179,10 +179,6 @@ const AppHeader = () => {
     }
   };
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
-
   return (
     <header className="app-header">
       <div className="app-header-left">
