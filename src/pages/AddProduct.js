@@ -1,54 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+
 import { productService } from '../utils/graphql';
 import { useToast } from '../context/ToastContext';
 import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
 import './Dashboard.css';
+import { uploadFilesToStore } from '../utils/fileHelper';
+
+const DEFAULT_PRODUCT = {
+  name: '',
+  description: '',
+  price: '',
+  images: [],
+  isPreorder: false,
+  isDiscount: false,
+  discountPercent: 0,
+  category: '',
+  sizes: {
+    XS: { selected: false, quantity: 0 },
+    S: { selected: false, quantity: 0 },
+    M: { selected: false, quantity: 0 },
+    L: { selected: false, quantity: 0 },
+    XL: { selected: false, quantity: 0 },
+    XXL: { selected: false, quantity: 0 },
+  },
+};
 
 const AddProduct = () => {
   const navigate = useNavigate();
   const { storeId, id: productId } = useParams();
   const { addToast } = useToast();
-  const isEditMode = !!productId;
-
-  const [newProduct, setNewProduct] = useState({
-    name: '',
-    description: '',
-    price: '',
-    images: [],
-    isPreorder: false,
-    isDiscount: false,
-    discountPercent: 0,
-    category: '',
-    sizes: {
-      XS: { selected: false, quantity: 0 },
-      S: { selected: false, quantity: 0 },
-      M: { selected: false, quantity: 0 },
-      L: { selected: false, quantity: 0 },
-      XL: { selected: false, quantity: 0 },
-      XXL: { selected: false, quantity: 0 },
-    },
-  });
+  const IS_EDIT_MODE = !!productId;
+  const [product, setProduct] = useState(DEFAULT_PRODUCT);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(isEditMode);
+  const [initialLoading, setInitialLoading] = useState(IS_EDIT_MODE);
 
-  // Load product data for edit mode
   useEffect(() => {
     let isMounted = true;
 
-    if (isEditMode && productId) {
+    if (IS_EDIT_MODE && productId) {
       const loadProduct = async () => {
         try {
           if (!isMounted) return;
           setInitialLoading(true);
 
-          const product = await productService.getProduct(productId);
-
-          if (!isMounted) return;
-
-          // Convert product data to form format
+          const productData = await productService.getProduct(productId);
           const sizes = {
             XS: { selected: false, quantity: 0 },
             S: { selected: false, quantity: 0 },
@@ -58,9 +56,8 @@ const AddProduct = () => {
             XXL: { selected: false, quantity: 0 },
           };
 
-          // Populate sizes with existing data
-          if (product.sizeInventory) {
-            product.sizeInventory.forEach((sizeItem) => {
+          if (productData.sizeInventory) {
+            productData.sizeInventory.forEach((sizeItem) => {
               if (sizes[sizeItem.size]) {
                 sizes[sizeItem.size] = {
                   selected: true,
@@ -70,22 +67,26 @@ const AddProduct = () => {
             });
           }
 
-          setNewProduct({
-            name: product.name || '',
-            description: product.description || '',
-            price: product.price ? `$${product.price.toFixed(2)}` : '',
+          setProduct({
+            name: productData.name || '',
+            description: productData.description || '',
+            price: productData.price ? `$${productData.price.toFixed(2)}` : '',
             images: [], // Will be set separately
-            isPreorder: product.isPreOrder || false,
-            isDiscount: product.isDiscount || false,
-            discountPercent: product.discountPercent || 0,
-            category: product.category || '',
+            isPreorder: productData.isPreOrder || false,
+            isDiscount: productData.isDiscount || false,
+            discountPercent: productData.discountPercent || 0,
+            category: productData.category || '',
             sizes: sizes,
           });
 
-          // Set image previews if product has images
-          if (product.imgUrls && product.imgUrls.length > 0) {
-            setImagePreviews(product.imgUrls);
-          }
+          const existingImages = productData.imgUrls.map((url, index) => ({
+            id: `existing-${index}`,
+            previewUrl: `${process.env.REACT_APP_STORAGE_BACKEND_URL}${url}`,
+            file: null,
+            isExisting: true,
+            originalKey: url,
+          }));
+          setImagePreviews([...existingImages]);
         } catch (error) {
           console.error('Error loading product for edit:', error);
           if (isMounted) {
@@ -105,83 +106,47 @@ const AddProduct = () => {
       isMounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditMode, productId, storeId]); // Removed navigate from dependencies
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      // Clear form state on unmount to prevent state leaks
-      setNewProduct({
-        name: '',
-        description: '',
-        price: '',
-        images: [],
-        isPreorder: false,
-        isDiscount: false,
-        discountPercent: 0,
-        category: '',
-        sizes: {
-          XS: { selected: false, quantity: 0 },
-          S: { selected: false, quantity: 0 },
-          M: { selected: false, quantity: 0 },
-          L: { selected: false, quantity: 0 },
-          XL: { selected: false, quantity: 0 },
-          XXL: { selected: false, quantity: 0 },
-        },
-      });
-      setImagePreviews([]);
-    };
-  }, []);
+  }, [IS_EDIT_MODE, productId, storeId]);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
 
     if (files.length === 0) return;
-
-    // Check image count (maximum 5)
-    if (newProduct.images.length + files.length > 5) {
-      addToast('Maximum 5 images allowed', 'error');
+    if (product.images.length + files.length > 10) {
+      addToast('Maximum 10 images allowed', 'error');
       return;
     }
 
     files.forEach((file) => {
-      // Check file type
       if (!file.type.startsWith('image/')) {
         addToast('Please select only image files', 'error');
         return;
       }
-
-      // Check file size (maximum 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        addToast('File size must be less than 5MB', 'error');
+      if (file.size > 15 * 1024 * 1024) {
+        addToast('File size must be less than 15MB', 'error');
         return;
       }
 
-      // Add file
-      setNewProduct((prev) => ({
-        ...prev,
-        images: [...prev.images, file],
-      }));
-
-      // Create preview
       const reader = new FileReader();
       reader.onload = (event) => {
-        setImagePreviews((prev) => [...prev, event.target.result]);
+        const newImgObject = {
+          id: `new-${Date.now()}-${Math.random()}`,
+          previewUrl: event.target.result,
+          file: file,
+          isExisting: false,
+        };
+        setImagePreviews((prev) => [...prev, { ...newImgObject }]);
       };
       reader.readAsDataURL(file);
     });
   };
 
   const removeImage = (index) => {
-    setNewProduct((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index),
-    }));
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((item) => item.id !== index));
   };
 
   const handleSizeChange = (size, field, value) => {
-    setNewProduct((prev) => ({
+    setProduct((prev) => ({
       ...prev,
       sizes: {
         ...prev.sizes,
@@ -197,43 +162,62 @@ const AddProduct = () => {
     const { name, value, checked, type } = e.target;
 
     if (type === 'checkbox') {
-      setNewProduct((prev) => ({ ...prev, [name]: checked }));
+      setProduct((prev) => ({ ...prev, [name]: checked }));
     } else if (name === 'discountPercent') {
-      setNewProduct((prev) => ({ ...prev, [name]: parseInt(value) || 0 }));
+      setProduct((prev) => ({ ...prev, [name]: parseInt(value) || 0 }));
     } else {
-      setNewProduct((prev) => ({ ...prev, [name]: value }));
+      setProduct((prev) => ({ ...prev, [name]: value }));
     }
   };
+
+  // const uploadImagesToStore = async () => {
+  //   const images = product.images;
+  //   const fileNames = images.map((f) => f.name);
+  //   const fileTypes = images.map((f) => f.type);
+  //   const presignedData = await productService.uploadFiles(storeId, fileNames, fileTypes);
+  //   const imgUrls = [];
+
+  //   for (let i = 0; i < images.length; i++) {
+  //     const file = images[i];
+  //     const { uploadUrl, fileKey } = presignedData[i];
+
+  //     const response = await fetch(uploadUrl, {
+  //       method: 'PUT',
+  //       body: file,
+  //       headers: {
+  //         'Content-Type': file.type,
+  //       },
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error(`Filed to load ${file.name} to storage`);
+  //     }
+  //     imgUrls.push(fileKey);
+  //   }
+
+  //   return imgUrls;
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
-    if (!newProduct.name.trim()) {
+    if (!product.name.trim()) {
       addToast('Please enter product name', 'error');
       return;
     }
-
-    if (!newProduct.description.trim()) {
-      addToast('Please enter product description', 'error');
-      return;
-    }
-
-    if (!newProduct.price.trim()) {
+    if (!product.price.trim()) {
       addToast('Please enter product price', 'error');
       return;
     }
 
     // Check that at least one size is selected
-    const selectedSizes = Object.entries(newProduct.sizes).filter(
+    const selectedSizes = Object.entries(product.sizes).filter(
       ([_, sizeData]) => sizeData.selected
     );
     if (selectedSizes.length === 0) {
       addToast('Please select at least one size', 'error');
       return;
     }
-
-    // Check that all selected sizes have quantity specified
     const invalidSizes = selectedSizes.filter(([_, sizeData]) => sizeData.quantity <= 0);
     if (invalidSizes.length > 0) {
       addToast('Please specify quantity for all selected sizes', 'error');
@@ -243,59 +227,38 @@ const AddProduct = () => {
     setLoading(true);
 
     try {
+      let imageUrls = [];
+      const keepExistingKeys = imagePreviews
+        .filter((img) => img.isExisting)
+        .map((img) => img.originalKey);
+      const newImageToUpload = imagePreviews
+        .filter((img) => !img.isExisting)
+        .map((img) => img.file);
+      if (newImageToUpload.length > 0) {
+        imageUrls = await uploadFilesToStore(newImageToUpload, storeId);
+      }
       // Prepare size inventory data
       const sizeInventory = selectedSizes.map(([size, sizeData]) => ({
         size: size,
         quantity: sizeData.quantity,
       }));
-
-      // Handle images differently for edit vs create
-      let imgUrls = [];
-
-      if (isEditMode) {
-        // For edit mode, use existing image previews if no new images uploaded
-        if (newProduct.images.length > 0) {
-          // Convert new uploaded images to base64
-          for (const image of newProduct.images) {
-            const reader = new FileReader();
-            const imageUrl = await new Promise((resolve) => {
-              reader.onload = (e) => resolve(e.target.result);
-              reader.readAsDataURL(image);
-            });
-            imgUrls.push(imageUrl);
-          }
-        } else {
-          // Use existing previews (URLs from database)
-          imgUrls = imagePreviews;
-        }
-      } else {
-        // For create mode, convert all images to base64
-        for (const image of newProduct.images) {
-          const reader = new FileReader();
-          const imageUrl = await new Promise((resolve) => {
-            reader.onload = (e) => resolve(e.target.result);
-            reader.readAsDataURL(image);
-          });
-          imgUrls.push(imageUrl);
-        }
-      }
-
+      const finalImgUrls = [...keepExistingKeys, ...imageUrls];
       // Parse price to number
-      const price = parseFloat(newProduct.price.replace(/[^0-9.]/g, ''));
+      const price = parseFloat(product.price.replace(/[^0-9.]/g, ''));
 
       const productData = {
-        name: newProduct.name.trim(),
-        description: newProduct.description.trim(),
+        name: product.name.trim(),
+        description: product.description.trim(),
         price: price,
-        category: newProduct.category.trim() || null,
-        isPreOrder: newProduct.isPreorder,
-        isDiscount: newProduct.isDiscount,
-        discountPercent: newProduct.discountPercent || 0,
-        imgUrls: imgUrls,
+        category: product.category.trim() || null,
+        isPreOrder: product.isPreorder,
+        isDiscount: product.isDiscount,
+        discountPercent: product.discountPercent || 0,
+        imgUrls: finalImgUrls,
         sizeInventory: sizeInventory,
       };
 
-      if (isEditMode) {
+      if (IS_EDIT_MODE) {
         // For update, don't include storeId
         await productService.updateProduct(productId, productData);
       } else {
@@ -309,8 +272,11 @@ const AddProduct = () => {
       // Navigate back to products page
       navigate(`/store/${storeId}/products`);
     } catch (error) {
-      console.error(`Error ${isEditMode ? 'updating' : 'creating'} product:`, error);
-      addToast(`Failed to ${isEditMode ? 'update' : 'create'} product. Please try again.`, 'error');
+      console.error(`Error ${IS_EDIT_MODE ? 'updating' : 'creating'} product:`, error);
+      addToast(
+        `Failed to ${IS_EDIT_MODE ? 'update' : 'create'} product. Please try again.`,
+        'error'
+      );
     } finally {
       setLoading(false);
     }
@@ -320,27 +286,15 @@ const AddProduct = () => {
     navigate(`/store/${storeId}/products`);
   };
 
-  // Show loading state while fetching product data for edit
-  if (initialLoading) {
-    return (
-      <PageContainer
-        isCenteredContent
-        title="Loading"
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      >
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ color: 'var(--color-text)', fontSize: 18 }}>Loading product data...</div>
-        </div>
-      </PageContainer>
-    );
-  }
+  useEffect(() => {
+    console.log(imagePreviews);
+  }, [imagePreviews]);
 
   return (
     <PageContainer
-      minHeight="auto"
-      title={isEditMode ? 'Edit Product' : 'Add New Product'}
+      title={IS_EDIT_MODE ? 'Edit Product' : 'Add New Product'}
       description={
-        isEditMode
+        IS_EDIT_MODE
           ? 'Update your product information, images, descriptions, and inventory.'
           : 'Create a new product for your store with images, descriptions, and inventory management.'
       }
@@ -359,6 +313,8 @@ const AddProduct = () => {
           Cancel
         </Button>
       }
+      loading={initialLoading}
+      loadingText={'Loading product data...'}
     >
       <form onSubmit={handleSubmit}>
         {/* Product Images */}
@@ -371,7 +327,7 @@ const AddProduct = () => {
               color: 'var(--color-text)',
             }}
           >
-            Product Images (Optional)
+            Product Images
           </h3>
 
           <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr' }}>
@@ -385,91 +341,93 @@ const AddProduct = () => {
                   marginBottom: 16,
                 }}
               >
-                {imagePreviews.map((preview, index) => (
-                  <div key={index} style={{ position: 'relative' }}>
-                    <img
-                      src={preview}
-                      alt={`Preview ${index + 1}`}
-                      style={{
-                        width: '100%',
-                        height: 120,
-                        objectFit: 'cover',
-                        borderRadius: 12,
-                        border: '2px solid var(--color-border)',
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      style={{
-                        position: 'absolute',
-                        top: -8,
-                        right: -8,
-                        width: 24,
-                        height: 24,
-                        borderRadius: '50%',
-                        border: 'none',
-                        background: '#ef4444',
-                        color: 'white',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 12,
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
+                {imagePreviews.map((preview) => {
+                  return (
+                    <div key={preview.id} style={{ position: 'relative' }}>
+                      <img
+                        src={preview.previewUrl}
+                        alt={`Preview ${preview.id}`}
+                        style={{
+                          width: '100%',
+                          height: 120,
+                          objectFit: 'cover',
+                          borderRadius: 12,
+                          border: '2px solid var(--color-border)',
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(preview.id)}
+                        style={{
+                          position: 'absolute',
+                          top: -8,
+                          right: -8,
+                          width: 24,
+                          height: 24,
+                          borderRadius: '50%',
+                          border: 'none',
+                          background: '#ef4444',
+                          color: 'white',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 12,
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
             {/* Upload area */}
-            {newProduct.images.length < 5 && (
-              <div>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  style={{ display: 'none' }}
-                  id="product-images-upload"
-                />
-                <label
-                  htmlFor="product-images-upload"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '32px 16px',
-                    border: '2px dashed var(--color-border)',
-                    borderRadius: 12,
-                    background: 'var(--color-bg-secondary)',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    textAlign: 'center',
-                    minHeight: 120,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.borderColor = '#111827';
-                    e.target.style.background = 'var(--color-bg)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.borderColor = 'var(--color-border)';
-                    e.target.style.background = 'var(--color-bg-secondary)';
-                  }}
-                >
-                  <div style={{ color: 'var(--color-text-secondary)' }}>
-                    📷 Click to upload product images ({newProduct.images.length}/5)
-                    <div style={{ fontSize: 12, marginTop: 4 }}>
-                      PNG, JPG, WebP up to 5MB each (optional)
-                    </div>
+            {/* {product.images.length < 5 && ( */}
+            <div>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: 'none' }}
+                id="product-images-upload"
+              />
+              <label
+                htmlFor="product-images-upload"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '32px 16px',
+                  border: '2px dashed var(--color-border)',
+                  borderRadius: 12,
+                  background: 'var(--color-bg-secondary)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  textAlign: 'center',
+                  minHeight: 120,
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.borderColor = '#111827';
+                  e.target.style.background = 'var(--color-bg)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.borderColor = 'var(--color-border)';
+                  e.target.style.background = 'var(--color-bg-secondary)';
+                }}
+              >
+                <div style={{ color: 'var(--color-text-secondary)' }}>
+                  📷 Click to upload product images ({product.images.length}/5)
+                  <div style={{ fontSize: 12, marginTop: 4 }}>
+                    PNG, JPG, WebP up to 5MB each (optional)
                   </div>
-                </label>
-              </div>
-            )}
+                </div>
+              </label>
+            </div>
+            {/* )} */}
           </div>
         </div>
 
@@ -502,7 +460,7 @@ const AddProduct = () => {
               <input
                 type="text"
                 name="name"
-                value={newProduct.name}
+                value={product.name}
                 onChange={handleInputChange}
                 placeholder="Enter product name"
                 style={{
@@ -534,7 +492,7 @@ const AddProduct = () => {
               </label>
               <textarea
                 name="description"
-                value={newProduct.description}
+                value={product.description}
                 onChange={handleInputChange}
                 placeholder="Enter detailed product description"
                 rows={4}
@@ -571,7 +529,7 @@ const AddProduct = () => {
                 <input
                   type="text"
                   name="price"
-                  value={newProduct.price}
+                  value={product.price}
                   onChange={handleInputChange}
                   placeholder="e.g. $29.99"
                   style={{
@@ -604,7 +562,7 @@ const AddProduct = () => {
                 <input
                   type="text"
                   name="category"
-                  value={newProduct.category}
+                  value={product.category}
                   onChange={handleInputChange}
                   placeholder="Enter product category"
                   style={{
@@ -641,7 +599,7 @@ const AddProduct = () => {
                   <input
                     type="checkbox"
                     name="isPreorder"
-                    checked={newProduct.isPreorder}
+                    checked={product.isPreorder}
                     onChange={handleInputChange}
                     style={{ margin: 0 }}
                   />
@@ -658,13 +616,13 @@ const AddProduct = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: newProduct.isDiscount ? 12 : 0,
+                  gap: product.isDiscount ? 12 : 0,
                   transition: 'gap 0.3s ease-in-out',
                 }}
               >
                 <div
                   style={{
-                    flex: newProduct.isDiscount ? 0.5 : 1,
+                    flex: product.isDiscount ? 0.5 : 1,
                     transition: 'flex 0.3s ease-in-out',
                   }}
                 >
@@ -686,7 +644,7 @@ const AddProduct = () => {
                     <input
                       type="checkbox"
                       name="isDiscount"
-                      checked={newProduct.isDiscount}
+                      checked={product.isDiscount}
                       onChange={handleInputChange}
                       style={{ margin: 0 }}
                     />
@@ -699,17 +657,17 @@ const AddProduct = () => {
                 <div
                   style={{
                     overflow: 'hidden',
-                    flex: newProduct.isDiscount ? 0.5 : 0,
-                    opacity: newProduct.isDiscount ? 1 : 0,
+                    flex: product.isDiscount ? 0.5 : 0,
+                    opacity: product.isDiscount ? 1 : 0,
                     transition: 'all 0.3s ease-in-out',
-                    transform: newProduct.isDiscount ? 'translateX(0)' : 'translateX(-20px)',
+                    transform: product.isDiscount ? 'translateX(0)' : 'translateX(-20px)',
                   }}
                 >
                   <div style={{ width: '100%' }}>
                     <input
                       type="number"
                       name="discountPercent"
-                      value={newProduct.discountPercent}
+                      value={product.discountPercent}
                       onChange={handleInputChange}
                       placeholder="0"
                       min="0"
@@ -761,7 +719,7 @@ const AddProduct = () => {
           </h3>
 
           <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr 1fr' }}>
-            {Object.entries(newProduct.sizes).map(([size, sizeData]) => (
+            {Object.entries(product.sizes).map(([size, sizeData]) => (
               <div
                 key={size}
                 style={{
@@ -860,10 +818,10 @@ const AddProduct = () => {
             style={{ padding: '12px 24px', fontSize: 14, fontWeight: 600 }}
           >
             {loading
-              ? isEditMode
+              ? IS_EDIT_MODE
                 ? 'Updating Product...'
                 : 'Creating Product...'
-              : isEditMode
+              : IS_EDIT_MODE
                 ? 'Update Product'
                 : 'Create Product'}
           </Button>

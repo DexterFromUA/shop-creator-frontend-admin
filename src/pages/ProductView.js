@@ -47,7 +47,7 @@ const ProductView = () => {
     try {
       setDeleting(true);
       await productService.deleteProduct(id);
-      navigate(-1); // Go back to products list
+      navigate(-1);
     } catch (error) {
       console.error('Error deleting product:', error);
       addToast('Failed to delete product. Please try again.', 'error');
@@ -321,7 +321,9 @@ const ProductView = () => {
                         }}
                       >
                         <img
-                          src={images[currentImageIndex]}
+                          src={
+                            process.env.REACT_APP_STORAGE_BACKEND_URL + images[currentImageIndex]
+                          }
                           alt={
                             product.imgUrls && product.imgUrls.length > 0
                               ? `${product.name} ${currentImageIndex + 1}`
@@ -423,40 +425,42 @@ const ProductView = () => {
                             flexWrap: 'wrap',
                           }}
                         >
-                          {images.map((imgUrl, index) => (
-                            <button
-                              key={index}
-                              onClick={() => goToImage(index)}
-                              style={{
-                                border:
-                                  currentImageIndex === index
-                                    ? '3px solid var(--color-accent)'
-                                    : '2px solid var(--color-border)',
-                                borderRadius: 8,
-                                padding: 0,
-                                cursor: 'pointer',
-                                background: 'none',
-                                opacity: currentImageIndex === index ? 1 : 0.6,
-                                transition: 'all 0.2s',
-                              }}
-                              onMouseEnter={(e) => (e.target.style.opacity = 1)}
-                              onMouseLeave={(e) =>
-                                (e.target.style.opacity = currentImageIndex === index ? 1 : 0.6)
-                              }
-                            >
-                              <img
-                                src={imgUrl}
-                                alt={`Thumbnail ${index + 1}`}
+                          {images.map((imgUrl, index) => {
+                            return (
+                              <button
+                                key={index}
+                                onClick={() => goToImage(index)}
                                 style={{
-                                  width: 50,
-                                  height: 50,
-                                  objectFit: 'cover',
-                                  borderRadius: 6,
-                                  display: 'block',
+                                  border:
+                                    currentImageIndex === index
+                                      ? '3px solid var(--color-accent)'
+                                      : '2px solid var(--color-border)',
+                                  borderRadius: 8,
+                                  padding: 0,
+                                  cursor: 'pointer',
+                                  background: 'none',
+                                  opacity: currentImageIndex === index ? 1 : 0.6,
+                                  transition: 'all 0.2s',
                                 }}
-                              />
-                            </button>
-                          ))}
+                                onMouseEnter={(e) => (e.target.style.opacity = 1)}
+                                onMouseLeave={(e) =>
+                                  (e.target.style.opacity = currentImageIndex === index ? 1 : 0.6)
+                                }
+                              >
+                                <img
+                                  src={process.env.REACT_APP_STORAGE_BACKEND_URL + imgUrl}
+                                  alt={`Thumbnail ${index + 1}`}
+                                  style={{
+                                    width: 50,
+                                    height: 50,
+                                    objectFit: 'cover',
+                                    borderRadius: 6,
+                                    display: 'block',
+                                  }}
+                                />
+                              </button>
+                            );
+                          })}
                         </div>
                       )}
 

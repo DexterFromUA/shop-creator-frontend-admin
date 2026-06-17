@@ -581,6 +581,15 @@ export const UPDATE_PRODUCT_MUTATION = `
   }
 `;
 
+export const UPLOAD_FILES_MUTATION = `
+  mutation UploadFiles($storeId: ID!, $fileNames: [String!]!, $fileTypes: [String!]!) {
+    uploadFiles(storeId: $storeId, fileNames: $fileNames, fileTypes: $fileTypes) {
+      uploadUrl
+      fileKey
+    }
+  }
+`;
+
 // Product service functions
 export const productService = {
   async getStoreProducts(storeId) {
@@ -637,6 +646,19 @@ export const productService = {
       return data.updateProduct;
     } catch (error) {
       throw new Error(error.message || 'Failed to update product');
+    }
+  },
+
+  async uploadFiles(storeId, fileNames, fileTypes) {
+    try {
+      const data = await graphqlClient.request(UPLOAD_FILES_MUTATION, {
+        storeId,
+        fileNames,
+        fileTypes,
+      });
+      return data.uploadFiles;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to upload files');
     }
   },
 };

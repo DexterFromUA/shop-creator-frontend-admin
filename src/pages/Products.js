@@ -39,9 +39,7 @@ const Products = () => {
         addToast('Failed to load products', 'error');
         setProducts([]); // Clear products on error
       } finally {
-        setTimeout(() => {
-          setLoading(false);
-        }, 2000);
+        setLoading(false);
         loadingRef.current = false;
       }
     };
@@ -49,6 +47,7 @@ const Products = () => {
     if (storeId && !loadingRef.current) {
       loadProducts();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeId]);
 
   useEffect(() => {
