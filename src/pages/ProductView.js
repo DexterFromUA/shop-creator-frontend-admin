@@ -6,6 +6,7 @@ import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
 import './Dashboard.css';
 import { formatPrice } from '../utils/helpers';
+import Modal from '../components/common/Modal';
 
 const ProductOption = ({ item }) => {
   return (
@@ -58,6 +59,11 @@ const ProductView = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [shortLinkModal, setShortLinkModal] = useState({
+    isOpened: false,
+    description: '',
+    isLoading: false,
+  });
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -89,6 +95,40 @@ const ProductView = () => {
     } finally {
       setDeleting(false);
       setShowDeleteModal(false);
+    }
+  };
+
+  const handleGenerateLink = async (e) => {
+    e.preventDefault();
+    setShortLinkModal((prev) => ({ ...prev, isLoading: true }));
+
+    try {
+      const data = await productService.createShortLink(product.id, shortLinkModal.description);
+
+      if (data.id) {
+        setProduct((prev) => ({ ...prev, shortLinks: [{ ...data }, ...prev.shortLinks] }));
+        addToast('New link is generated', 'success');
+      }
+    } catch (error) {
+      addToast(error, 'error');
+      throw new Error(error || 'Failed while generating');
+    } finally {
+      setShortLinkModal((prev) => ({ ...prev, isLoading: false, description: '' }));
+    }
+  };
+
+  const handleRevokeLink = async (id) => {
+    try {
+      const res = await productService.revokeShortLink(id, product.id, product.storeId);
+
+      if (res) {
+        setProduct((prev) => ({
+          ...prev,
+          shortLinks: [...prev.shortLinks.filter((el) => el.id !== res)],
+        }));
+      }
+    } catch (error) {
+      addToast(error.message, 'error');
     }
   };
 
@@ -175,6 +215,13 @@ const ProductView = () => {
             RightContent={
               <div style={{ display: 'flex', gap: 12 }}>
                 <Button
+                  filled
+                  onClick={() => setShortLinkModal((prev) => ({ ...prev, isOpened: true }))}
+                >
+                  Quick Buy
+                </Button>
+
+                <Button
                   onClick={() => navigate(`/store/${product.storeId}/products/${product.id}/edit`)}
                   style={{ width: 40, padding: '0.5rem' }}
                 >
@@ -203,7 +250,6 @@ const ProductView = () => {
                 </Button>
 
                 <Button
-                  filled
                   color="#ef4444"
                   onClick={() => setShowDeleteModal(true)}
                   style={{ width: 40, padding: '0.5rem' }}
@@ -673,6 +719,337 @@ const ProductView = () => {
           </div>
         )}
       </>
+
+      <Modal
+        show={shortLinkModal.isOpened}
+        onClose={() => setShortLinkModal((prev) => ({ ...prev, isOpened: !prev.isOpened }))}
+        title={`Quick Buy (${product.shortLinks.length})`}
+      >
+        <div
+          className="custom-scrollbar"
+          style={{
+            maxHeight: '520px',
+            overflowY: 'auto',
+            paddingRight: '8px',
+            marginBottom: 10,
+          }}
+        >
+          {product.shortLinks.length > 0 && (
+            <>
+              <div>
+                {product.shortLinks.map((link) => {
+                  const fullShortLink = `${window.location.host}/s/${link.code}`;
+                  return (
+                    <div
+                      key={link.id}
+                      style={{
+                        width: '100%',
+                        padding: '16px 20px',
+                        border: '2px solid var(--color-border)',
+                        borderRadius: 12,
+                        background: 'var(--color-bg-secondary)',
+                        color: 'var(--color-text)',
+                        fontSize: 14,
+                        transition: 'border-color 0.2s',
+                        boxSizing: 'border-box',
+                        marginBottom: 16,
+                        boxShadow:
+                          '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                      }}
+                    >
+                      <div
+                        style={{
+                          marginBottom: 14,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: 16,
+                        }}
+                      >
+                        <a
+                          href={`https://${fullShortLink}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            color: '#a78bfa',
+                            fontWeight: 600,
+                            textDecoration: 'none',
+                            wordBreak: 'break-all',
+                            fontSize: 16,
+                            transition: 'opacity 0.2s',
+                          }}
+                          onMouseEnter={(e) => (e.target.style.opacity = '0.8')}
+                          onMouseLeave={(e) => (e.target.style.opacity = '1')}
+                        >
+                          {fullShortLink}
+                        </a>
+
+                        <button
+                          onClick={(e) => {
+                            navigator.clipboard.writeText(`http://${fullShortLink}`);
+
+                            const btn = e.currentTarget;
+                            const origContent = btn.innerHTML;
+                            btn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Copied!
+        `;
+                            btn.style.color = '#10b981';
+                            btn.style.background = 'rgba(16, 185, 129, 0.1)';
+                            btn.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+
+                            setTimeout(() => {
+                              btn.innerHTML = origContent;
+                              btn.style.color = 'var(--color-text-muted)';
+                              btn.style.background = 'rgba(255, 255, 255, 0.03)';
+                              btn.style.borderColor = 'transparent';
+                            }, 2000);
+                          }}
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            color: 'var(--color-text-muted)',
+                            border: '1px solid transparent',
+                            borderRadius: 6,
+                            padding: '4px 8px',
+                            fontSize: 12,
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            transition: 'all 0.2s',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!e.currentTarget.innerText.includes('Copied!')) {
+                              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                              e.currentTarget.style.color = 'var(--color-text)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!e.currentTarget.innerText.includes('Copied!')) {
+                              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                              e.currentTarget.style.color = 'var(--color-text-muted)';
+                            }
+                          }}
+                        >
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                          </svg>
+                          Copy
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            if (window.confirm('Are you sure you want to revoke this link?')) {
+                              handleRevokeLink(link.id);
+                            }
+                          }}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            color: '#ef4444',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            borderRadius: 8,
+                            padding: '6px 12px',
+                            fontSize: 12,
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            transition: 'all 0.2s',
+                            whiteSpace: 'nowrap',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.background = '#ef4444';
+                            e.target.style.color = '#fff';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.background = 'rgba(239, 68, 68, 0.1)';
+                            e.target.style.color = '#ef4444';
+                          }}
+                        >
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                          </svg>
+                          Revoke
+                        </button>
+                      </div>
+
+                      {link.description && (
+                        <div
+                          style={{
+                            color: 'var(--color-text)',
+                            marginBottom: 16,
+                            lineHeight: 1.5,
+                            padding: '10px 12px',
+                            background: 'rgba(255, 255, 255, 0.02)',
+                            border: '1px solid rgba(255, 255, 255, 0.04)',
+                            borderRadius: 8,
+                          }}
+                        >
+                          {link.description}
+                        </div>
+                      )}
+
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          gap: 16,
+                          borderTop: '1px solid var(--color-border)',
+                          paddingTop: 12,
+                          color: 'var(--color-text-muted)',
+                          fontSize: 12,
+                        }}
+                      >
+                        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            <span style={{ color: 'var(--color-text)', fontWeight: 600 }}>
+                              {link.clicks || 0}
+                            </span>
+                            <span>clicks</span>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                              <line x1="16" y1="2" x2="16" y2="6" />
+                              <line x1="8" y1="2" x2="8" y2="6" />
+                              <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            <span>Created:</span>
+                            <span style={{ color: 'var(--color-text)' }}>
+                              {new Date(link.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+
+                        {link.expirationDate && (
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              padding: '4px 8px',
+                              background: 'rgba(239, 68, 68, 0.08)',
+                              color: '#ef4444',
+                              borderRadius: 6,
+                              fontWeight: 500,
+                            }}
+                          >
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <circle cx="12" cy="12" r="10" />
+                              <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            <span>Expires:</span>
+                            <span>{new Date(link.expirationDate).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  borderTop: '1px solid var(--color-border)',
+                  marginBottom: 20,
+                  width: '90%',
+                  alignSelf: 'center',
+                }}
+              />
+            </>
+          )}
+
+          <div style={{ width: '99%' }}>
+            <form onSubmit={handleGenerateLink}>
+              <textarea
+                name="description"
+                value={shortLinkModal.description}
+                onChange={(e) =>
+                  setShortLinkModal((prev) => ({ ...prev, description: e.target.value }))
+                }
+                placeholder="Enter description for new Instant Link"
+                rows={4}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid var(--color-border)',
+                  borderRadius: 12,
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text)',
+                  fontSize: 14,
+                  outline: 'none',
+                  transition: 'border-color 0.2s',
+                  boxSizing: 'border-box',
+                  resize: 'vertical',
+                  minHeight: 100,
+                }}
+              />
+              <div style={{ textAlign: 'end', marginTop: 20, marginRight: 5, marginBottom: 5 }}>
+                <Button
+                  style={{ marginRight: 20 }}
+                  color="red"
+                  onClick={() =>
+                    setShortLinkModal((prev) => ({ ...prev, isOpened: false, description: '' }))
+                  }
+                  disabled={shortLinkModal.isLoading}
+                  type="button"
+                >
+                  Cancel
+                </Button>
+                <Button filled type="submit" disabled={shortLinkModal.isLoading}>
+                  Create
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };

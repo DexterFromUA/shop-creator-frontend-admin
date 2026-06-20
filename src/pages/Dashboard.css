@@ -141,8 +141,12 @@
 
 /* Loading spinner animation */
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {
@@ -248,7 +252,9 @@
 .product-row:hover {
   background: var(--color-hover-bg) !important;
   border-color: var(--color-accent);
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
   z-index: 1;
   position: relative;
 }
@@ -258,7 +264,11 @@
   background: var(--color-hover-bg);
   box-shadow: 0 8px 32px 0 rgb(0 0 0 / 0.18);
   border-color: var(--color-accent);
-  transition: background 0.15s, box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s,
+    border-color 0.15s,
+    transform 0.15s;
   transform: scale(1.025);
   z-index: 2;
   position: relative;
@@ -299,7 +309,9 @@
   display: inline-flex;
   align-items: center;
   box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.04);
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 .order-back-btn:hover {
   background: var(--color-hover-bg);
@@ -309,4 +321,22 @@
 .dashboard-card--dashboard:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-} 
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 10px;
+  transition: background-color 0.2s;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a78bfa;
+}

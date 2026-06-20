@@ -485,6 +485,14 @@ export const GET_PRODUCT_QUERY = `
         min
         max
       }
+      shortLinks {
+        id
+        code
+        description
+        clicks
+        expirationDate
+        createdAt
+      }
       createdAt
       updatedAt
     }
@@ -580,6 +588,12 @@ export const UPLOAD_FILES_MUTATION = `
   }
 `;
 
+export const REVOKE_LINK_MUTATION = `
+  mutation RevokeShortLink($id: String!, $productId: String!, $storeId: String!) {
+    revokeShortLink(id: $id, productId: $productId, storeId: $storeId)
+  }
+`;
+
 // Product service functions
 export const productService = {
   async getStoreProducts(storeId) {
@@ -649,6 +663,28 @@ export const productService = {
       return data.uploadFiles;
     } catch (error) {
       throw new Error(error.message || 'Failed to upload files');
+    }
+  },
+
+  async createShortLink(productId, description, expirationDate) {
+    try {
+      const data = await graphqlClient.request(CREATE_SHORT_LINK_MUTATION, {
+        productId,
+        description,
+        expirationDate,
+      });
+      return data.createShortLink;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to create short link');
+    }
+  },
+
+  async revokeShortLink(id, productId, storeId) {
+    try {
+      const data = await graphqlClient.request(REVOKE_LINK_MUTATION, { id, productId, storeId });
+      return data.revokeShortLink;
+    } catch (error) {
+      throw new Error(error.message || 'Failed revoke link');
     }
   },
 };
@@ -897,6 +933,20 @@ export const UPDATE_STORE_MUTATION = `
       contactCity
       createdAt
       updatedAt
+    }
+  }
+`;
+
+export const CREATE_SHORT_LINK_MUTATION = `
+  mutation CreateShortLink($productId: String!, $description: String, $expirationDate: String) {
+    createShortLink(productId: $productId, description: $description, expirationDate: $expirationDate) {
+      id
+      code
+      description
+      clicks
+      expirationDate
+      productId
+      createdAt
     }
   }
 `;
