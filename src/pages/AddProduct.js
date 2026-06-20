@@ -8,23 +8,22 @@ import Button from '../components/common/Button';
 import './Dashboard.css';
 import { uploadFilesToStore } from '../utils/fileHelper';
 
+const DEFAULT_OPTION = {
+  name: '',
+  description: '',
+  price: 0,
+  isPreOrder: false,
+  isDiscount: false,
+  discountPercent: 0,
+  isLimited: false,
+  quantity: 0,
+};
 const DEFAULT_PRODUCT = {
   name: '',
   description: '',
-  price: '',
-  images: [],
-  isPreorder: false,
-  isDiscount: false,
-  discountPercent: 0,
+  imgUrls: [],
   category: '',
-  sizes: {
-    XS: { selected: false, quantity: 0 },
-    S: { selected: false, quantity: 0 },
-    M: { selected: false, quantity: 0 },
-    L: { selected: false, quantity: 0 },
-    XL: { selected: false, quantity: 0 },
-    XXL: { selected: false, quantity: 0 },
-  },
+  productOptions: [DEFAULT_OPTION],
 };
 
 const AddProduct = () => {
@@ -47,37 +46,7 @@ const AddProduct = () => {
           setInitialLoading(true);
 
           const productData = await productService.getProduct(productId);
-          const sizes = {
-            XS: { selected: false, quantity: 0 },
-            S: { selected: false, quantity: 0 },
-            M: { selected: false, quantity: 0 },
-            L: { selected: false, quantity: 0 },
-            XL: { selected: false, quantity: 0 },
-            XXL: { selected: false, quantity: 0 },
-          };
-
-          if (productData.sizeInventory) {
-            productData.sizeInventory.forEach((sizeItem) => {
-              if (sizes[sizeItem.size]) {
-                sizes[sizeItem.size] = {
-                  selected: true,
-                  quantity: sizeItem.quantity,
-                };
-              }
-            });
-          }
-
-          setProduct({
-            name: productData.name || '',
-            description: productData.description || '',
-            price: productData.price ? `$${productData.price.toFixed(2)}` : '',
-            images: [], // Will be set separately
-            isPreorder: productData.isPreOrder || false,
-            isDiscount: productData.isDiscount || false,
-            discountPercent: productData.discountPercent || 0,
-            category: productData.category || '',
-            sizes: sizes,
-          });
+          setProduct({ ...productData, productOptions: [...productData.productOptions] });
 
           const existingImages = productData.imgUrls.map((url, index) => ({
             id: `existing-${index}`,
@@ -112,7 +81,7 @@ const AddProduct = () => {
     const files = Array.from(e.target.files);
 
     if (files.length === 0) return;
-    if (product.images.length + files.length > 10) {
+    if (product.imgUrls.length + files.length > 10) {
       addToast('Maximum 10 images allowed', 'error');
       return;
     }
@@ -145,16 +114,12 @@ const AddProduct = () => {
     setImagePreviews((prev) => prev.filter((item) => item.id !== index));
   };
 
-  const handleSizeChange = (size, field, value) => {
+  const handleOptionChange = (index, field, value) => {
     setProduct((prev) => ({
       ...prev,
-      sizes: {
-        ...prev.sizes,
-        [size]: {
-          ...prev.sizes[size],
-          [field]: field === 'selected' ? value : parseInt(value) || 0,
-        },
-      },
+      productOptions: prev.productOptions.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item
+      ),
     }));
   };
 
@@ -170,33 +135,21 @@ const AddProduct = () => {
     }
   };
 
-  // const uploadImagesToStore = async () => {
-  //   const images = product.images;
-  //   const fileNames = images.map((f) => f.name);
-  //   const fileTypes = images.map((f) => f.type);
-  //   const presignedData = await productService.uploadFiles(storeId, fileNames, fileTypes);
-  //   const imgUrls = [];
+  const handleAddOption = () => {
+    setProduct((prev) => ({
+      ...prev,
+      productOptions: [...prev.productOptions, { ...DEFAULT_OPTION }],
+    }));
+  };
 
-  //   for (let i = 0; i < images.length; i++) {
-  //     const file = images[i];
-  //     const { uploadUrl, fileKey } = presignedData[i];
+  const handleRemoveOption = (index) => {
+    setProduct((prev) => ({
+      ...prev,
+      productOptions: [...prev.productOptions.filter((_, i) => i !== index)],
+    }));
+  };
 
-  //     const response = await fetch(uploadUrl, {
-  //       method: 'PUT',
-  //       body: file,
-  //       headers: {
-  //         'Content-Type': file.type,
-  //       },
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error(`Filed to load ${file.name} to storage`);
-  //     }
-  //     imgUrls.push(fileKey);
-  //   }
-
-  //   return imgUrls;
-  // };
+  const priceParser = (price) => parseFloat(price.replace(/[^0-9.]/g, ''));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -205,23 +158,25 @@ const AddProduct = () => {
       addToast('Please enter product name', 'error');
       return;
     }
-    if (!product.price.trim()) {
-      addToast('Please enter product price', 'error');
+
+    if (!product.productOptions || product.productOptions.length === 0) {
+      addToast('Please add at least one product option', 'error');
       return;
     }
 
-    // Check that at least one size is selected
-    const selectedSizes = Object.entries(product.sizes).filter(
-      ([_, sizeData]) => sizeData.selected
-    );
-    if (selectedSizes.length === 0) {
-      addToast('Please select at least one size', 'error');
-      return;
+    if (product.productOptions.length === 1) {
+      if (!product.productOptions[0].price) {
+        addToast('Provide price for the product', 'error');
+        return;
+      }
     }
-    const invalidSizes = selectedSizes.filter(([_, sizeData]) => sizeData.quantity <= 0);
-    if (invalidSizes.length > 0) {
-      addToast('Please specify quantity for all selected sizes', 'error');
-      return;
+
+    if (product.productOptions.length > 1) {
+      const checkOptions = !!product.productOptions.filter((el) => !el.name || !el.price).length;
+      if (checkOptions) {
+        addToast('Provide titles and prices for all options', 'error');
+        return;
+      }
     }
 
     setLoading(true);
@@ -237,39 +192,37 @@ const AddProduct = () => {
       if (newImageToUpload.length > 0) {
         imageUrls = await uploadFilesToStore(newImageToUpload, storeId);
       }
-      // Prepare size inventory data
-      const sizeInventory = selectedSizes.map(([size, sizeData]) => ({
-        size: size,
-        quantity: sizeData.quantity,
-      }));
       const finalImgUrls = [...keepExistingKeys, ...imageUrls];
-      // Parse price to number
-      const price = parseFloat(product.price.replace(/[^0-9.]/g, ''));
 
       const productData = {
         name: product.name.trim(),
         description: product.description.trim(),
-        price: price,
-        category: product.category.trim() || null,
-        isPreOrder: product.isPreorder,
-        isDiscount: product.isDiscount,
-        discountPercent: product.discountPercent || 0,
+        category: product.category.trim(),
         imgUrls: finalImgUrls,
-        sizeInventory: sizeInventory,
+        productOptions: [
+          ...product.productOptions.map((el) => ({
+            name: el.name,
+            description: el.description,
+            isPreOrder: el.isPreOrder,
+            isDiscount: el.isDiscount,
+            isLimited: el.isLimited,
+            price: priceParser(String(el.price)),
+            quantity: Number(el.quantity),
+            discountPercent: Number(el.discountPercent),
+          })),
+        ],
       };
 
       if (IS_EDIT_MODE) {
         // For update, don't include storeId
         await productService.updateProduct(productId, productData);
       } else {
-        // For create, include storeId
         await productService.createProduct({
           ...productData,
           storeId: storeId,
         });
       }
 
-      // Navigate back to products page
       navigate(`/store/${storeId}/products`);
     } catch (error) {
       console.error(`Error ${IS_EDIT_MODE ? 'updating' : 'creating'} product:`, error);
@@ -285,10 +238,6 @@ const AddProduct = () => {
   const handleCancel = () => {
     navigate(`/store/${storeId}/products`);
   };
-
-  useEffect(() => {
-    console.log(imagePreviews);
-  }, [imagePreviews]);
 
   return (
     <PageContainer
@@ -420,7 +369,7 @@ const AddProduct = () => {
                 }}
               >
                 <div style={{ color: 'var(--color-text-secondary)' }}>
-                  📷 Click to upload product images ({product.images.length}/5)
+                  📷 Click to upload product images ({product.imgUrls.length}/5)
                   <div style={{ fontSize: 12, marginTop: 4 }}>
                     PNG, JPG, WebP up to 5MB each (optional)
                   </div>
@@ -488,7 +437,7 @@ const AddProduct = () => {
                   color: 'var(--color-text)',
                 }}
               >
-                Description *
+                Description
               </label>
               <textarea
                 name="description"
@@ -513,194 +462,37 @@ const AddProduct = () => {
               />
             </div>
 
-            <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr' }}>
-              <div>
-                <label
-                  style={{
-                    display: 'block',
-                    marginBottom: 8,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: 'var(--color-text)',
-                  }}
-                >
-                  Price *
-                </label>
-                <input
-                  type="text"
-                  name="price"
-                  value={product.price}
-                  onChange={handleInputChange}
-                  placeholder="e.g. $29.99"
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    border: '2px solid var(--color-border)',
-                    borderRadius: 12,
-                    background: 'var(--color-bg-secondary)',
-                    color: 'var(--color-text)',
-                    fontSize: 14,
-                    outline: 'none',
-                    transition: 'border-color 0.2s',
-                    boxSizing: 'border-box',
-                  }}
-                />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: 'block',
-                    marginBottom: 8,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: 'var(--color-text)',
-                  }}
-                >
-                  Category
-                </label>
-                <input
-                  type="text"
-                  name="category"
-                  value={product.category}
-                  onChange={handleInputChange}
-                  placeholder="Enter product category"
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    border: '2px solid var(--color-border)',
-                    borderRadius: 12,
-                    background: 'var(--color-bg-secondary)',
-                    color: 'var(--color-text)',
-                    fontSize: 14,
-                    outline: 'none',
-                    transition: 'border-color 0.2s',
-                    boxSizing: 'border-box',
-                  }}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr' }}>
-              <div>
-                <label
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: '12px 16px',
-                    border: '2px solid var(--color-border)',
-                    borderRadius: 12,
-                    background: 'var(--color-bg-secondary)',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    name="isPreorder"
-                    checked={product.isPreorder}
-                    onChange={handleInputChange}
-                    style={{ margin: 0 }}
-                  />
-                  <span style={{ fontSize: 14, color: 'var(--color-text)', fontWeight: 600 }}>
-                    Available for preorder only
-                  </span>
-                </label>
-                <small style={{ color: 'var(--color-text-secondary)', fontSize: 12 }}>
-                  Enable this if the product is not yet available for immediate shipping.
-                </small>
-              </div>
-
-              <div
+            <div>
+              <label
                 style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: product.isDiscount ? 12 : 0,
-                  transition: 'gap 0.3s ease-in-out',
+                  display: 'block',
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
                 }}
               >
-                <div
-                  style={{
-                    flex: product.isDiscount ? 0.5 : 1,
-                    transition: 'flex 0.3s ease-in-out',
-                  }}
-                >
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      padding: '12px 16px',
-                      border: '2px solid var(--color-border)',
-                      borderRadius: 12,
-                      background: 'var(--color-bg-secondary)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      width: '100%',
-                      boxSizing: 'border-box',
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      name="isDiscount"
-                      checked={product.isDiscount}
-                      onChange={handleInputChange}
-                      style={{ margin: 0 }}
-                    />
-                    <span style={{ fontSize: 14, color: 'var(--color-text)', fontWeight: 600 }}>
-                      Discount
-                    </span>
-                  </label>
-                </div>
-
-                <div
-                  style={{
-                    overflow: 'hidden',
-                    flex: product.isDiscount ? 0.5 : 0,
-                    opacity: product.isDiscount ? 1 : 0,
-                    transition: 'all 0.3s ease-in-out',
-                    transform: product.isDiscount ? 'translateX(0)' : 'translateX(-20px)',
-                  }}
-                >
-                  <div style={{ width: '100%' }}>
-                    <input
-                      type="number"
-                      name="discountPercent"
-                      value={product.discountPercent}
-                      onChange={handleInputChange}
-                      placeholder="0"
-                      min="0"
-                      max="100"
-                      style={{
-                        width: '100%',
-                        padding: '12px 8px',
-                        border: '2px solid var(--color-border)',
-                        borderRadius: 12,
-                        background: 'var(--color-bg)',
-                        color: 'var(--color-text)',
-                        fontSize: 14,
-                        outline: 'none',
-                        transition: 'border-color 0.2s',
-                        boxSizing: 'border-box',
-                        textAlign: 'center',
-                      }}
-                    />
-                    <small
-                      style={{
-                        color: 'var(--color-text-secondary)',
-                        fontSize: 11,
-                        display: 'block',
-                        textAlign: 'center',
-                        marginTop: 4,
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      % off
-                    </small>
-                  </div>
-                </div>
-              </div>
+                Category
+              </label>
+              <input
+                type="text"
+                name="category"
+                value={product.category}
+                onChange={handleInputChange}
+                placeholder="Enter product category"
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid var(--color-border)',
+                  borderRadius: 12,
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-text)',
+                  fontSize: 14,
+                  outline: 'none',
+                  transition: 'border-color 0.2s',
+                  boxSizing: 'border-box',
+                }}
+              />
             </div>
           </div>
         </div>
@@ -715,13 +507,15 @@ const AddProduct = () => {
               color: 'var(--color-text)',
             }}
           >
-            Sizes & Stock
+            Product Options
           </h3>
 
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 20 }}></div>
+
           <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr 1fr' }}>
-            {Object.entries(product.sizes).map(([size, sizeData]) => (
+            {product.productOptions.map((item, index) => (
               <div
-                key={size}
+                key={index}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -729,22 +523,77 @@ const AddProduct = () => {
                   padding: '16px',
                   border: '2px solid var(--color-border)',
                   borderRadius: 12,
-                  background: sizeData.selected ? 'var(--color-bg-secondary)' : 'transparent',
+                  background: 'var(--color-bg-secondary)',
                   transition: 'all 0.2s',
                 }}
               >
-                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={sizeData.selected}
-                    onChange={(e) => handleSizeChange(size, 'selected', e.target.checked)}
-                    style={{ margin: 0 }}
-                  />
-                  <span style={{ fontSize: 14, color: 'var(--color-text)', fontWeight: 600 }}>
-                    Size {size}
-                  </span>
-                </label>
                 <div>
+                  {product.productOptions.length > 1 && (
+                    <>
+                      <label
+                        style={{
+                          display: 'block',
+                          marginBottom: 4,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: 'var(--color-text-secondary)',
+                        }}
+                      >
+                        Title *
+                      </label>
+                      <input
+                        type="text"
+                        value={item.name}
+                        onChange={(e) => handleOptionChange(index, 'name', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: '2px solid var(--color-border)',
+                          borderRadius: 8,
+                          background: 'var(--color-bg)',
+                          color: 'var(--color-text)',
+                          fontSize: 14,
+                          outline: 'none',
+                          transition: 'border-color 0.2s',
+                          boxSizing: 'border-box',
+                          marginBottom: 15,
+                        }}
+                      />
+
+                      <label
+                        style={{
+                          display: 'block',
+                          marginBottom: 4,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: 'var(--color-text-secondary)',
+                        }}
+                      >
+                        Description
+                      </label>
+                      <input
+                        type="text"
+                        minLength={0}
+                        value={item.description}
+                        onChange={(e) => handleOptionChange(index, 'description', e.target.value)}
+                        placeholder={'Description for this option'}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: '2px solid var(--color-border)',
+                          borderRadius: 8,
+                          background: 'var(--color-bg)',
+                          color: 'var(--color-text)',
+                          fontSize: 14,
+                          outline: 'none',
+                          transition: 'border-color 0.2s',
+                          boxSizing: 'border-box',
+                          marginBottom: 15,
+                        }}
+                      />
+                    </>
+                  )}
+
                   <label
                     style={{
                       display: 'block',
@@ -754,37 +603,303 @@ const AddProduct = () => {
                       color: 'var(--color-text-secondary)',
                     }}
                   >
-                    Stock Quantity
+                    Price *
                   </label>
                   <input
                     type="number"
                     min="0"
-                    value={sizeData.quantity}
-                    onChange={(e) => handleSizeChange(size, 'quantity', e.target.value)}
+                    value={item.price}
+                    onChange={(e) => handleOptionChange(index, 'price', e.target.value)}
                     placeholder="0"
-                    disabled={!sizeData.selected}
                     style={{
                       width: '100%',
                       padding: '8px 12px',
                       border: '2px solid var(--color-border)',
                       borderRadius: 8,
-                      background: sizeData.selected
-                        ? 'var(--color-bg)'
-                        : 'var(--color-bg-secondary)',
-                      color: sizeData.selected
-                        ? 'var(--color-text)'
-                        : 'var(--color-text-secondary)',
+                      background: 'var(--color-bg)',
+                      color: 'var(--color-text)',
                       fontSize: 14,
                       outline: 'none',
                       transition: 'border-color 0.2s',
                       boxSizing: 'border-box',
-                      opacity: sizeData.selected ? 1 : 0.6,
-                      cursor: sizeData.selected ? 'text' : 'not-allowed',
+                      marginBottom: 15,
                     }}
                   />
+
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '12px 16px',
+                      border: '2px solid var(--color-border)',
+                      borderRadius: 12,
+                      background: 'var(--color-bg-secondary)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      marginBottom: 15,
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      name="isPreOrder"
+                      checked={item.isPreOrder}
+                      onChange={(e) => handleOptionChange(index, 'isPreOrder', e.target.checked)}
+                      style={{ margin: 0 }}
+                    />
+                    <span style={{ fontSize: 14, color: 'var(--color-text)', fontWeight: 600 }}>
+                      Available for preorder only
+                    </span>
+                  </label>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: item.isDiscount ? 12 : 0,
+                      transition: 'gap 0.3s ease-in-out',
+                    }}
+                  >
+                    <div
+                      style={{
+                        flex: item.isDiscount ? 0.5 : 1,
+                        transition: 'flex 0.3s ease-in-out',
+                      }}
+                    >
+                      <label
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '12px 16px',
+                          border: '2px solid var(--color-border)',
+                          borderRadius: 12,
+                          background: 'var(--color-bg-secondary)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          width: '100%',
+                          boxSizing: 'border-box',
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          name="isDiscount"
+                          checked={item.isDiscount}
+                          onChange={(e) =>
+                            handleOptionChange(index, 'isDiscount', e.target.checked)
+                          }
+                          style={{ margin: 0 }}
+                        />
+                        <span style={{ fontSize: 14, color: 'var(--color-text)', fontWeight: 600 }}>
+                          Discount
+                        </span>
+                      </label>
+                    </div>
+
+                    <div
+                      style={{
+                        overflow: 'hidden',
+                        flex: item.isDiscount ? 0.5 : 0,
+                        opacity: item.isDiscount ? 1 : 0,
+                        transition: 'all 0.3s ease-in-out',
+                        transform: item.isDiscount ? 'translateX(0)' : 'translateX(-20px)',
+                      }}
+                    >
+                      <div style={{ width: '100%' }}>
+                        <input
+                          type="number"
+                          name="discountPercent"
+                          value={item.discountPercent}
+                          onChange={(e) =>
+                            handleOptionChange(index, 'discountPercent', e.target.value)
+                          }
+                          placeholder="0"
+                          min="0"
+                          max="100"
+                          style={{
+                            width: '100%',
+                            padding: '12px 8px',
+                            border: '2px solid var(--color-border)',
+                            borderRadius: 12,
+                            background: 'var(--color-bg)',
+                            color: 'var(--color-text)',
+                            fontSize: 14,
+                            outline: 'none',
+                            transition: 'border-color 0.2s',
+                            boxSizing: 'border-box',
+                            textAlign: 'center',
+                          }}
+                        />
+                        <small
+                          style={{
+                            color: 'var(--color-text-secondary)',
+                            fontSize: 11,
+                            display: 'block',
+                            textAlign: 'center',
+                            marginTop: 4,
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          % off
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: item.isLimited ? 12 : 0,
+                      transition: 'gap 0.3s ease-in-out',
+                    }}
+                  >
+                    <div
+                      style={{
+                        flex: item.isLimited ? 0.5 : 1,
+                        transition: 'flex 0.3s ease-in-out',
+                      }}
+                    >
+                      <label
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '12px 16px',
+                          border: '2px solid var(--color-border)',
+                          borderRadius: 12,
+                          background: 'var(--color-bg-secondary)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          width: '100%',
+                          boxSizing: 'border-box',
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          name="isDiscount"
+                          checked={item.isLimited}
+                          onChange={(e) => handleOptionChange(index, 'isLimited', e.target.checked)}
+                          style={{ margin: 0 }}
+                        />
+                        <span style={{ fontSize: 14, color: 'var(--color-text)', fontWeight: 600 }}>
+                          Limited
+                        </span>
+                      </label>
+                    </div>
+
+                    <div
+                      style={{
+                        overflow: 'hidden',
+                        flex: item.isLimited ? 0.5 : 0,
+                        opacity: item.isLimited ? 1 : 0,
+                        transition: 'all 0.3s ease-in-out',
+                        transform: item.isLimited ? 'translateX(0)' : 'translateX(-20px)',
+                      }}
+                    >
+                      <div style={{ width: '100%' }}>
+                        <input
+                          type="number"
+                          name="discountPercent"
+                          value={item.quantity}
+                          onChange={(e) => handleOptionChange(index, 'quantity', e.target.value)}
+                          placeholder="0"
+                          min="0"
+                          max="100"
+                          style={{
+                            width: '100%',
+                            padding: '12px 8px',
+                            border: '2px solid var(--color-border)',
+                            borderRadius: 12,
+                            background: 'var(--color-bg)',
+                            color: 'var(--color-text)',
+                            fontSize: 14,
+                            outline: 'none',
+                            transition: 'border-color 0.2s',
+                            boxSizing: 'border-box',
+                            textAlign: 'center',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                {product.productOptions.length > 1 && (
+                  <Button
+                    style={{ minWidth: '30%', alignSelf: 'flex-end' }}
+                    color="red"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleRemoveOption(index);
+                    }}
+                  >
+                    Remove
+                  </Button>
+                )}
               </div>
             ))}
+            <div
+              onClick={() => handleAddOption()}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '420px',
+                padding: '16px',
+                border: '2px dashed var(--color-border)',
+                borderRadius: 12,
+                background: 'var(--color-bg-secondary)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease-in-out',
+                outline: 'none',
+                boxSizing: 'border-box',
+                width: '100%',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'black';
+                e.currentTarget.style.background = 'var(--color-bg)';
+                const plusCircle = e.currentTarget.querySelector('.plus-circle');
+                plusCircle.style.transform = 'scale(1.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--color-border)';
+                e.currentTarget.style.background = 'var(--color-bg-secondary)';
+                const plusCircle = e.currentTarget.querySelector('.plus-circle');
+                plusCircle.style.transform = 'scale(1)';
+              }}
+            >
+              <div
+                className="plus-circle"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  border: '2px solid #ffffff',
+                  background: '#ffffff',
+                  transition: 'transform 0.2s ease-in-out',
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="black"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -798,19 +913,6 @@ const AddProduct = () => {
             borderTop: '1px solid var(--color-border)',
           }}
         >
-          {/* <Button
-            type="button"
-            onClick={handleCancel}
-            disabled={loading}
-            style={{
-              padding: '12px 24px',
-              fontSize: 14,
-              fontWeight: 600,
-              opacity: loading ? 0.6 : 1,
-            }}
-          >
-            Cancel
-          </Button> */}
           <Button
             filled
             type="submit"

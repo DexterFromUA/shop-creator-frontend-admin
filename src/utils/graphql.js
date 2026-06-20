@@ -436,22 +436,15 @@ export const GET_STORE_PRODUCTS_QUERY = `
     storeProducts(storeId: $storeId) {
       id
       name
-      description
-      price
       category
       amount
-      isPreOrder
-      isDiscount
-      discountPercent
-      imgUrls
-      orderCount
-      isActive
-      sizeInventory {
-        id
-        size
-        quantity
-        createdAt
-        updatedAt
+      priceRange {
+        min
+        max
+      }
+      discountRange {
+        min
+        max
       }
       createdAt
       updatedAt
@@ -465,25 +458,32 @@ export const GET_PRODUCT_QUERY = `
       id
       name
       description
-      price
       category
       amount
-      isPreOrder
-      isDiscount
-      discountPercent
       imgUrls
       orderCount
       isActive
-      sizeInventory {
+      productOptions {
         id
-        size
+        name
+        description
+        price
+        isPreOrder
+        isDiscount
+        discountPercent
+        isLimited
         quantity
         createdAt
         updatedAt
       }
-      store {
-        id
-        name
+      storeId
+      priceRange {
+        min
+        max
+      }
+      discountRange {
+        min
+        max
       }
       createdAt
       updatedAt
@@ -497,25 +497,17 @@ export const CREATE_PRODUCT_MUTATION = `
       id
       name
       description
-      price
       category
       amount
-      isPreOrder
-      isDiscount
-      discountPercent
       imgUrls
       orderCount
       isActive
-      sizeInventory {
-        id
-        size
-        quantity
-        createdAt
-        updatedAt
-      }
       store {
         id
         name
+      }
+      productOptions {
+        id
       }
       createdAt
       updatedAt
@@ -555,26 +547,24 @@ export const UPDATE_PRODUCT_MUTATION = `
       id
       name
       description
-      price
       category
       amount
-      isPreOrder
-      isDiscount
-      discountPercent
       imgUrls
       orderCount
-      isActive
-      sizeInventory {
+      productOptions {
         id
-        size
+        name
+        description
+        price
+        isPreOrder
+        isDiscount
+        discountPercent
+        isLimited
         quantity
         createdAt
         updatedAt
       }
-      store {
-        id
-        name
-      }
+      isActive
       createdAt
       updatedAt
     }

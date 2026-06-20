@@ -308,7 +308,8 @@ const Products = () => {
                         <span
                           style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-accent)' }}
                         >
-                          {formatPrice(product.price)}
+                          from {formatPrice(product.priceRange.min)} to{' '}
+                          {formatPrice(product.priceRange.max)}
                         </span>
                         <span
                           style={{
@@ -364,7 +365,8 @@ const Products = () => {
                             fontWeight: 600,
                           }}
                         >
-                          {formatPrice(product.price)}
+                          from {formatPrice(product.priceRange.min)} to{' '}
+                          {formatPrice(product.priceRange.max)}
                         </td>
                         <td style={{ padding: '20px 32px' }}>{product.amount}</td>
                       </motion.tr>

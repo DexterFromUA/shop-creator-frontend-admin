@@ -5,6 +5,48 @@ import { useToast } from '../context/ToastContext';
 import PageContainer from '../components/common/PageContainer';
 import Button from '../components/common/Button';
 import './Dashboard.css';
+import { formatPrice } from '../utils/helpers';
+
+const ProductOption = ({ item }) => {
+  return (
+    <div
+      key={item.id}
+      style={{
+        padding: '12px',
+        border: '2px solid var(--color-border)',
+        borderRadius: 8,
+        background: item.quantity > 0 ? 'var(--color-bg-secondary)' : 'var(--color-error-bg)',
+      }}
+    >
+      {item.name && <div style={{ fontWeight: 600, fontSize: 16 }}>{item.name}</div>}
+      {item.quantity > 0 ? (
+        <div style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
+          {item.quantity} in stock
+        </div>
+      ) : (
+        <div
+          style={{
+            fontSize: 14,
+            color: 'red',
+          }}
+        >
+          Out of stock
+        </div>
+      )}
+      <div style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
+        {formatPrice(item.price)}
+      </div>
+      {item.discountPercent > 0 && (
+        <div style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
+          {item.discountPercent}% in stock
+        </div>
+      )}
+      {item.isPreOrder && (
+        <div style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>Preorder only</div>
+      )}
+    </div>
+  );
+};
 
 const ProductView = () => {
   const { id } = useParams();
@@ -16,9 +58,6 @@ const ProductView = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [showUpdateStockModal, setShowUpdateStockModal] = useState(false);
-  const [stockUpdating, setStockUpdating] = useState(false);
-  const [updatedSizes, setUpdatedSizes] = useState({});
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -39,10 +78,6 @@ const ProductView = () => {
     }
   }, [id]);
 
-  const formatPrice = (price) => {
-    return `$${price.toFixed(2)}`;
-  };
-
   const handleDeleteProduct = async () => {
     try {
       setDeleting(true);
@@ -56,67 +91,6 @@ const ProductView = () => {
       setShowDeleteModal(false);
     }
   };
-
-  const handleUpdateStock = async () => {
-    try {
-      setStockUpdating(true);
-      const sizeInventory = Object.entries(updatedSizes).map(([size, quantity]) => ({
-        size,
-        quantity: parseInt(quantity) || 0,
-      }));
-
-      await productService.updateProductStock(id, sizeInventory);
-
-      // Reload product data
-      const updatedProduct = await productService.getProduct(id);
-      setProduct(updatedProduct);
-
-      setShowUpdateStockModal(false);
-      setUpdatedSizes({});
-    } catch (error) {
-      console.error('Error updating stock:', error);
-      addToast('Failed to update stock. Please try again.', 'error');
-    } finally {
-      setStockUpdating(false);
-    }
-  };
-
-  const openUpdateStockModal = () => {
-    if (product.sizeInventory) {
-      const currentSizes = {};
-      product.sizeInventory.forEach((sizeItem) => {
-        currentSizes[sizeItem.size] = sizeItem.quantity;
-      });
-      setUpdatedSizes(currentSizes);
-    }
-    setShowUpdateStockModal(true);
-  };
-
-  const handleSizeQuantityChange = (size, quantity) => {
-    setUpdatedSizes((prev) => ({
-      ...prev,
-      [size]: quantity,
-    }));
-  };
-
-  if (loading) {
-    return (
-      <div
-        className="dashboard"
-        style={{
-          background: 'var(--color-bg-secondary)',
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ color: 'var(--color-text)', fontSize: 18 }}>Loading product...</div>
-        </div>
-      </div>
-    );
-  }
 
   if (error || !product) {
     return (
@@ -197,14 +171,11 @@ const ProductView = () => {
               </Button>
             }
             title={product.name}
+            loading={loading}
             RightContent={
               <div style={{ display: 'flex', gap: 12 }}>
-                <Button color="#059669" onClick={openUpdateStockModal}>
-                  Update Stock
-                </Button>
-
                 <Button
-                  onClick={() => navigate(`/store/${product.store.id}/products/${product.id}/edit`)}
+                  onClick={() => navigate(`/store/${product.storeId}/products/${product.id}/edit`)}
                   style={{ width: 40, padding: '0.5rem' }}
                 >
                   <svg
@@ -563,47 +534,25 @@ const ProductView = () => {
                     >
                       Price
                     </div>
-                    <div style={{ fontWeight: 700, color: '#111827', fontSize: 32 }}>
-                      {formatPrice(product.price)}
+                    <div style={{ fontWeight: 600, color: '#111827', fontSize: 22 }}>
+                      {product.priceRange.max - product.priceRange.min > 0
+                        ? `from ${formatPrice(product.priceRange.min)} to ${formatPrice(product.priceRange.max)}`
+                        : formatPrice(product.priceRange.min)}
                     </div>
-                    {product.isDiscount && product.discountPercent > 0 && (
-                      <div
-                        style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}
-                      >
-                        Final: {formatPrice(product.price * (1 - product.discountPercent / 100))}
-                      </div>
-                    )}
                   </div>
                 </div>
 
                 {/* Size Inventory */}
-                {product.sizeInventory && product.sizeInventory.length > 0 && (
+                {product.productOptions && product.productOptions.length > 0 && (
                   <div style={{ marginBottom: 24 }}>
                     <h4 style={{ margin: '0 0 12px 0', fontSize: 16, fontWeight: 600 }}>
-                      Size Inventory
+                      Options:
                     </h4>
                     <div
                       style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}
                     >
-                      {product.sizeInventory.map((sizeItem) => (
-                        <div
-                          key={sizeItem.id}
-                          style={{
-                            padding: '12px',
-                            border: '2px solid var(--color-border)',
-                            borderRadius: 8,
-                            textAlign: 'center',
-                            background:
-                              sizeItem.quantity > 0
-                                ? 'var(--color-bg-secondary)'
-                                : 'var(--color-error-bg)',
-                          }}
-                        >
-                          <div style={{ fontWeight: 600, fontSize: 16 }}>{sizeItem.size}</div>
-                          <div style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
-                            {sizeItem.quantity} in stock
-                          </div>
-                        </div>
+                      {product.productOptions.map((item, index) => (
+                        <ProductOption item={item} key={index} />
                       ))}
                     </div>
                   </div>
@@ -718,125 +667,6 @@ const ProductView = () => {
                   disabled={deleting}
                 >
                   {deleting ? 'Deleting...' : 'Delete'}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Update Stock Modal */}
-        {showUpdateStockModal && (
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000,
-            }}
-          >
-            <div
-              style={{
-                background: 'var(--color-bg)',
-                borderRadius: 16,
-                padding: 32,
-                maxWidth: 500,
-                width: '90%',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                maxHeight: '80vh',
-                overflow: 'auto',
-              }}
-            >
-              <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                <div
-                  style={{
-                    fontSize: 32,
-                    marginBottom: 16,
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M20 6L9 17L4 12"
-                      stroke="#059669"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <h3
-                  style={{
-                    margin: 0,
-                    fontSize: 20,
-                    fontWeight: 600,
-                    color: 'var(--color-text)',
-                    marginBottom: 8,
-                  }}
-                >
-                  Update Stock
-                </h3>
-                <p style={{ margin: 0, color: 'var(--color-text-secondary)', fontSize: 14 }}>
-                  Update the quantity for each size of &quot;{product.name}&quot;
-                </p>
-              </div>
-
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-                  {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
-                    <div key={size} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>
-                        {size}
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={updatedSizes[size] || 0}
-                        onChange={(e) => handleSizeQuantityChange(size, e.target.value)}
-                        style={{
-                          padding: '8px 12px',
-                          border: '2px solid var(--color-border)',
-                          borderRadius: 8,
-                          background: 'var(--color-bg-secondary)',
-                          color: 'var(--color-text)',
-                          fontSize: 14,
-                          outline: 'none',
-                          transition: 'border-color 0.2s',
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: 12 }}>
-                <Button
-                  style={{ flex: 1 }}
-                  onClick={() => setShowUpdateStockModal(false)}
-                  disabled={stockUpdating}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  filled
-                  color="#059669"
-                  style={{ flex: 1 }}
-                  onClick={handleUpdateStock}
-                  disabled={stockUpdating}
-                >
-                  {stockUpdating ? 'Updating...' : 'Update Stock'}
                 </Button>
               </div>
             </div>
