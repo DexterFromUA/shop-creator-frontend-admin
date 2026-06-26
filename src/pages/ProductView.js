@@ -738,7 +738,7 @@ const ProductView = () => {
             <>
               <div>
                 {product.shortLinks.map((link) => {
-                  const fullShortLink = `${window.location.host}/s/${link.code}`;
+                  const fullShortLink = `${window.location.hostname}/q/${link.code}`;
                   return (
                     <div
                       key={link.id}

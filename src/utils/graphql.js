@@ -594,6 +594,42 @@ export const REVOKE_LINK_MUTATION = `
   }
 `;
 
+export const SHORT_LINK_QUERY = `
+  query GetShortLink($code: String!) {
+    getShortLink(code: $code) {
+      id
+      code
+      description
+      clicks
+      expirationDate
+      productId
+      product {
+        id
+        name
+        category
+        description
+        productOptions {
+          id
+          name
+          description
+          price
+          isPreOrder
+          isDiscount
+          discountPercent
+          quantity
+          isLimited
+          updatedAt
+        }
+        imgUrls
+        storeId
+        isActive
+        updatedAt
+      }
+      createdAt
+    }
+  }
+`;
+
 // Product service functions
 export const productService = {
   async getStoreProducts(storeId) {
@@ -685,6 +721,15 @@ export const productService = {
       return data.revokeShortLink;
     } catch (error) {
       throw new Error(error.message || 'Failed revoke link');
+    }
+  },
+
+  async getShortLink(code) {
+    try {
+      const data = await graphqlClient.request(SHORT_LINK_QUERY, { code });
+      return data.getShortLink;
+    } catch (error) {
+      throw new Error(error.message || 'Failed load short link');
     }
   },
 };

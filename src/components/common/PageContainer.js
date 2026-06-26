@@ -17,6 +17,8 @@ const PageContainer = ({
   loadingText,
   fixedSize,
   children,
+  error,
+  errorDescription,
 }) => {
   React.useEffect(() => {
     if (!document.getElementById('page-fadein-keyframes')) {
@@ -67,7 +69,7 @@ const PageContainer = ({
   return (
     <>
       {/* Page Header */}
-      {(title || description || LeftComponent || RightContent) && (
+      {(title || description || LeftComponent || RightContent || error) && (
         <div
           style={{
             marginBottom: 16,
@@ -88,18 +90,18 @@ const PageContainer = ({
                 }}
               >
                 {LeftComponent && <div>{LeftComponent}</div>}
-                {title && (
+                {(error || title) && (
                   <h1
                     style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--color-text)' }}
                   >
-                    {title}
+                    {(error && 'Error') || title}
                   </h1>
                 )}
               </div>
             )}
-            {description && (
+            {(errorDescription || description) && (
               <p style={{ margin: '0', fontSize: 16, color: 'var(--color-text-secondary)' }}>
-                {description}
+                {errorDescription || description}
               </p>
             )}
           </div>
@@ -109,7 +111,23 @@ const PageContainer = ({
 
       {/* Main Content Card */}
       <div style={getCardStyles()}>
-        {loading ? (
+        {error && (
+          <div
+            style={{
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: 16 }}>
+                {'There is no item. Check the link and try again'}
+              </p>
+            </div>
+          </div>
+        )}
+        {loading && !error && (
           <div
             style={{
               height: '100%',
@@ -135,9 +153,8 @@ const PageContainer = ({
               </p>
             </div>
           </div>
-        ) : (
-          children
         )}
+        {!loading && !error && children}
       </div>
     </>
   );

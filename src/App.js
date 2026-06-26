@@ -33,6 +33,7 @@ const CreateApp = lazy(() => import('./pages/CreateApp'));
 const Subscription = lazy(() => import('./pages/Subscription'));
 const InvitePage = lazy(() => import('./pages/InvitePage'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const QuickBuy = lazy(() => import('./pages/QuickBuy'));
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, initializing } = useAuth();
@@ -110,6 +111,14 @@ function App() {
         <Route path="/auth" element={<Auth />} />
         {/* <Route path="/verify" element={<VerifyCode />} /> */}
         <Route path="/invite/:token" element={<InvitePage />} />
+        <Route
+          path="/q/:code"
+          element={
+            <SimpleLayout>
+              <QuickBuy />
+            </SimpleLayout>
+          }
+        />
         <Route
           path="/stores"
           element={

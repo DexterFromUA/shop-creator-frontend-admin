@@ -1,6 +1,6 @@
 .simple-layout {
   width: 100vw;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -12,6 +12,7 @@
   background: var(--color-bg-secondary);
   padding: 24px 16px;
   box-sizing: border-box;
+  overflow: auto;
 }
 
 .content-wrapper {
