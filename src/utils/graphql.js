@@ -630,6 +630,75 @@ export const SHORT_LINK_QUERY = `
   }
 `;
 
+const ORDER_FIELDS = `
+  id
+  userId
+  storeId
+  totalPrice
+  currency
+  status
+  paymentStatus
+  paymentMethod
+  customerName
+  customerEmail
+  customerPhone
+  deliveryCountry
+  deliveryCity
+  deliveryAddress
+  note
+  createdAt
+  updatedAt
+  shortLink {
+    id
+    code
+  }
+  items {
+    id
+    productId
+    productOptionId
+    productName
+    optionName
+    quantity
+    unitPrice
+    discountPercent
+    finalUnitPrice
+    lineTotal
+    isPreOrder
+  }
+`;
+
+export const CREATE_QUICK_BUY_ORDER_MUTATION = `
+  mutation CreateQuickBuyOrder($input: CreateQuickBuyOrderInput!) {
+    createQuickBuyOrder(input: $input) {
+      ${ORDER_FIELDS}
+    }
+  }
+`;
+
+export const STORE_ORDERS_QUERY = `
+  query StoreOrders($storeId: ID!) {
+    storeOrders(storeId: $storeId) {
+      ${ORDER_FIELDS}
+    }
+  }
+`;
+
+export const ORDER_QUERY = `
+  query Order($id: ID!) {
+    order(id: $id) {
+      ${ORDER_FIELDS}
+    }
+  }
+`;
+
+export const UPDATE_ORDER_STATUS_MUTATION = `
+  mutation UpdateOrderStatus($id: ID!, $status: OrderStatus!) {
+    updateOrderStatus(id: $id, status: $status) {
+      ${ORDER_FIELDS}
+    }
+  }
+`;
+
 // Product service functions
 export const productService = {
   async getStoreProducts(storeId) {
@@ -730,6 +799,46 @@ export const productService = {
       return data.getShortLink;
     } catch (error) {
       throw new Error(error.message || 'Failed load short link');
+    }
+  },
+};
+
+export const orderService = {
+  async createQuickBuyOrder(orderData) {
+    try {
+      const data = await graphqlClient.request(CREATE_QUICK_BUY_ORDER_MUTATION, {
+        input: orderData,
+      });
+      return data.createQuickBuyOrder;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to create order');
+    }
+  },
+
+  async getStoreOrders(storeId) {
+    try {
+      const data = await graphqlClient.request(STORE_ORDERS_QUERY, { storeId });
+      return data.storeOrders || [];
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get orders');
+    }
+  },
+
+  async getOrder(id) {
+    try {
+      const data = await graphqlClient.request(ORDER_QUERY, { id });
+      return data.order;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get order');
+    }
+  },
+
+  async updateOrderStatus(id, status) {
+    try {
+      const data = await graphqlClient.request(UPDATE_ORDER_STATUS_MUTATION, { id, status });
+      return data.updateOrderStatus;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update order status');
     }
   },
 };
