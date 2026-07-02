@@ -30,10 +30,6 @@ const StoreSelection = () => {
   });
 
   React.useEffect(() => {
-    console.log('Order created:', completedOrder);
-  }, [completedOrder]);
-
-  React.useEffect(() => {
     const loadLink = async () => {
       try {
         const response = await productService.getShortLink(code);

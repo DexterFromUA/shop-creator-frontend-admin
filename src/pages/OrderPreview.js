@@ -212,6 +212,11 @@ const OrderPreview = () => {
                 Source link: /q/{order.shortLink.code}
               </div>
             )}
+            {order.receiptCode && (
+              <div style={{ color: 'var(--color-text-secondary)', marginTop: 8 }}>
+                Source link: /r/{order.receiptCode}
+              </div>
+            )}
           </div>
 
           <div style={{ marginTop: 24 }}>

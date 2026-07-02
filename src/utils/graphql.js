@@ -665,6 +665,7 @@ const ORDER_FIELDS = `
     lineTotal
     isPreOrder
   }
+  receiptCode
 `;
 
 export const CREATE_QUICK_BUY_ORDER_MUTATION = `

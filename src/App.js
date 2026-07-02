@@ -120,6 +120,14 @@ function App() {
           }
         />
         <Route
+          path="/r/:code"
+          element={
+            <SimpleLayout>
+              <QuickBuy />
+            </SimpleLayout>
+          }
+        />
+        <Route
           path="/stores"
           element={
             <ProtectedRoute>
