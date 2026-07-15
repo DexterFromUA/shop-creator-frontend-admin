@@ -10,13 +10,13 @@
   width: 100%;
   min-height: 100vh;
   background: var(--color-bg-secondary);
-  padding: 24px 16px;
+  padding-top: 40px;
   box-sizing: border-box;
   overflow: auto;
 }
 
 .content-wrapper {
-  max-width: 1200px;
+  max-width: 90vw;
   width: 100%;
   margin: 0 auto;
 }
@@ -24,6 +24,6 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .simple-content {
-    padding: 24px 12px;
+    padding: 40px 12px;
   }
 }

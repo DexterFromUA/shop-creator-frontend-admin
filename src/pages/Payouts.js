@@ -332,7 +332,6 @@ const Payouts = () => {
         loading={loading}
         fixedSize
         removeBorderSpace
-        removeBottomSpace
       >
         <table className="dashboard-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>

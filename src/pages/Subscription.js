@@ -585,7 +585,7 @@ const Subscription = () => {
         </PageContainer>
 
         {/* Invoices */}
-        <PageContainer removeBottomSpace removeBorderSpace>
+        <PageContainer removeBorderSpace>
           <div
             style={{
               padding: '24px 32px',

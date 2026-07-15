@@ -559,7 +559,7 @@ const Team = () => {
         description="Manage your team—admins, managers & couriers"
         RightContent={
           <Button filled onClick={() => setModal({ open: true })}>
-            + Invite Team Member
+            Invite Team Member
           </Button>
         }
       >

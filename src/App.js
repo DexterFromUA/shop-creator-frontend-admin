@@ -34,6 +34,7 @@ const Subscription = lazy(() => import('./pages/Subscription'));
 const InvitePage = lazy(() => import('./pages/InvitePage'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const QuickBuy = lazy(() => import('./pages/QuickBuy'));
+const Receipt = lazy(() => import('./pages/Receipt'));
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, initializing } = useAuth();
@@ -123,7 +124,7 @@ function App() {
           path="/r/:code"
           element={
             <SimpleLayout>
-              <QuickBuy />
+              <Receipt />
             </SimpleLayout>
           }
         />

@@ -700,6 +700,14 @@ export const UPDATE_ORDER_STATUS_MUTATION = `
   }
 `;
 
+export const GET_RECEIPT_QUERY = `
+  query GetReceipt($code: String!) {
+    receipt(code: $code) {
+      ${ORDER_FIELDS}
+    }
+  }
+`;
+
 // Product service functions
 export const productService = {
   async getStoreProducts(storeId) {
@@ -840,6 +848,15 @@ export const orderService = {
       return data.updateOrderStatus;
     } catch (error) {
       throw new Error(error.message || 'Failed to update order status');
+    }
+  },
+
+  async getReceipt(code) {
+    try {
+      const data = await graphqlClient.request(GET_RECEIPT_QUERY, { code });
+      return data.receipt;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to get receipt');
     }
   },
 };

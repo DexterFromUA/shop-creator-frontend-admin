@@ -106,7 +106,7 @@ const Products = () => {
         description="Manage your product catalog, inventory, and pricing"
         RightContent={
           <Button onClick={() => navigate(`/store/${storeId}/products/add`)} filled>
-            + Add Product
+            Add Product
           </Button>
         }
       >

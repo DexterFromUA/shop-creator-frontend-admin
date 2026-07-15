@@ -414,7 +414,7 @@ const Notifications = () => {
       </PageContainer>
 
       {/* Notification History */}
-      <PageContainer minHeight="80vh" title={'Notification History'} removeBottomSpace>
+      <PageContainer minHeight="80vh" title={'Notification History'}>
         <NotificationHistory notifications={allHistory} />
       </PageContainer>
     </div>

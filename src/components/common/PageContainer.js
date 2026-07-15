@@ -77,6 +77,7 @@ const PageContainer = ({
             justifyContent: 'space-between',
             alignItems: 'flex-start',
             gap: 16,
+            marginLeft: 16,
           }}
         >
           <div>
@@ -105,7 +106,9 @@ const PageContainer = ({
               </p>
             )}
           </div>
-          {RightContent && <div>{RightContent}</div>}
+          {RightContent && (
+            <div style={{ marginRight: 16, alignSelf: 'flex-end' }}>{RightContent}</div>
+          )}
         </div>
       )}
 
